@@ -9,6 +9,51 @@ using System.Threading.Tasks;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
+    public enum ElementType
+    {
+        Root,
+        Namespace,
+        Class,
+        Interface,
+    }
+    public class Element
+    {
+        public ElementType Type { get; set; }
+        public string Name { get; set; }
+        public List<Element> Namespaces { get; set; } = new List<Element>();
+        public List<Member> Members { get; set; } = new List<Member>();
+
+        public bool HasElement(string name)
+        {
+            foreach (var elem in Namespaces)
+            {
+                if (elem.Name.Equals(name))
+                    return true;
+            }
+            return false;
+        }
+
+        //public override string ToString()
+        //{
+        //    var sb = new StringBuilder();
+        //    sb.AppendFormat("[{0}: {1}, ", "Type", Type.ToString());
+        //    sb.AppendFormat("{0}: {1}\n", "Name", Name.ToString());
+            
+        //    foreach (var elem in Namespaces.Select((v, i) => new { Index = i, Value = v }))
+        //    {
+        //        sb.AppendFormat("\t{0}\n", elem.Value.ToString());
+        //    }
+
+        //    foreach (var elem in Members.Select((v, i) => new { Index = i, Value = v }))
+        //    {
+        //        sb.AppendFormat("\t{0}\n", elem.Value.ToString());
+        //    }
+
+        //    sb.AppendLine("]");
+        //    return sb.ToString();
+        //}
+    }
+
     public enum MethodType
     {
         Class,
@@ -30,33 +75,31 @@ namespace XmlDocumentParser.CsXmlDocument
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("[");
-            sb.AppendFormat("\t{0}: {1}\n", "Type", Type.ToString());
-            sb.AppendFormat("\t{0}: {1}\n", "NameSpace", NameSpace.ToString());
-            sb.AppendFormat("\t{0}: {1}\n", "Name", Name.ToString());
-            sb.AppendFormat("\t{0}: {1}\n", "MethodParameters", MethodParameters.ToString());
-            sb.AppendFormat("\t{0}: {1}\n", "Value", Value.ToString());
-            sb.AppendFormat("\t{0}: {1}\n", "Parameters", Parameters.ToString());
-            sb.AppendLine("]");
+            sb.AppendFormat("[{0}: {1},", "Type", Type.ToString());
+            sb.AppendFormat("{0}: {1},", "NameSpace", NameSpace.ToString());
+            sb.AppendFormat("{0}: {1},", "Name", Name.ToString());
+            sb.AppendFormat("{0}: {1},", "MethodParameters", MethodParameters.ToString());
+            sb.AppendFormat("{0}: {1},", "Value", Value.ToString());
+            sb.AppendFormat("{0}: {1}]\n", "Parameters", Parameters.ToString());
             return sb.ToString();
         }
     }
 
     public class CsXmlDocumentParser
     {
-        public List<Member> Members { get; private set; }
+        public Element TreeElement{ get; private set; }
 
         public CsXmlDocumentParser(string xmlPath)
         {
-            Parse(xmlPath);
+            var members = FirstParse(xmlPath);
+            TreeElement = SecondParse(members);
         }
 
-        private void Parse(string xmlPath)
+        private List<Member> FirstParse(string xmlPath)
         {
+            var members = new List<Member>();
             using (var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                Members = new List<Member>();
-
                 var reader = new Reader(fs);
                 var vals = reader.GetAttributes("name", "/doc/members/member");
                 foreach (var val in vals)
@@ -76,9 +119,73 @@ namespace XmlDocumentParser.CsXmlDocument
 
                         member.Parameters.Add(param, value2);
                     }
-                    Members.Add(member);
+                    members.Add(member);
                 }
             }
+            return members;
+        }
+
+        private Element SecondParse(List<Member> members)
+        {
+            var root = new Element()
+            {
+                Type = ElementType.Root,
+                Name = "Root",
+                Members = null
+            };
+
+            Element preElem = root;
+            Element classElem = root;
+
+            foreach (var member in members)
+            {
+                var nameSpace = member.NameSpace;
+                while (true)
+                {
+                    var firstName = nameSpace.GetFirstName();
+                    if (firstName == null)
+                    {
+                        break;
+                    }
+
+                    var elem = new Element()
+                    {
+                        Type = ElementType.Namespace,
+                        Name = firstName,
+                        Members = null
+                    };
+
+                    if (!preElem.HasElement(elem.Name))
+                    {
+                        preElem.Namespaces.Add(elem);
+                        preElem = elem;
+                    }
+                    else
+                    {
+                        preElem = preElem.Namespaces[preElem.Namespaces.Count - 1];
+                    }
+
+                    nameSpace = nameSpace.GetNamespaceRemoveFirst();
+                }
+
+                if (member.Type == MethodType.Class)
+                {
+                    classElem = new Element()
+                    {
+                        Type = ElementType.Class,
+                        Name = member.Name,
+                        Namespaces = null
+                    };
+                    preElem.Namespaces.Add(classElem);
+                }
+                else
+                {
+                    classElem.Members.Add(member);
+                }
+
+                preElem = root;
+            }
+            return root;
         }
 
         static Member ConvertMemberNameToMember(string text)

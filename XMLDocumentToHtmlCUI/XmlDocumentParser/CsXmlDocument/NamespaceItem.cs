@@ -28,6 +28,16 @@ namespace XmlDocumentParser
             return null;
         }
 
+        public NamespaceItem GetNamespaceRemoveFirst()
+        {
+            if (items.Count > 0)
+            {
+                var item = new NamespaceItem(items.Skip(1).ToArray());
+                return item;
+            }
+            return null;
+        }
+
         public string GetFirstName()
         {
             if (items.Count > 0)
