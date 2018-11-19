@@ -1,0 +1,31 @@
+﻿<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DocumentTest</name>
+    </assembly>
+    <members>
+        <member name="T:DocumentTest.List">
+            <summary>
+            簡単なサンプルとして、リストを実装する。
+            片方向リストで、リストに値を加えることは出来るけど、削除は出来ない。
+            </summary>
+        </member>
+        <member name="M:DocumentTest.List.#ctor">
+            <summary>
+            リストの作成
+            </summary>
+        </member>
+        <member name="M:DocumentTest.List.Add(System.Object)">
+            <summary>
+            リストに値を加える。
+            </summary>
+            <param name="obj">加えたい値</param>
+        </member>
+        <member name="M:DocumentTest.List.GetEnumerator">
+            <summary>
+            リストのEnumeratorを返す
+            </summary>
+            <returns>リストのEnumerator</returns>
+        </member>
+    </members>
+</doc>
