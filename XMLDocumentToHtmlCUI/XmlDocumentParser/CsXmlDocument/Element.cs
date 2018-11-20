@@ -9,6 +9,7 @@ namespace XmlDocumentParser.CsXmlDocument
     public class Element
     {
         public ElementType Type { get; set; }
+        public NamespaceItem Namespace { get; set; }
         public string Name { get; set; }
         public List<Element> Namespaces { get; set; } = new List<Element>();
         public List<Member> Members { get; set; } = new List<Member>();

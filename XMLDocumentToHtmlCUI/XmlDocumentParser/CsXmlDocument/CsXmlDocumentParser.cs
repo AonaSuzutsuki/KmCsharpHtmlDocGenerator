@@ -75,6 +75,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     var elem = new Element()
                     {
                         Type = ElementType.Namespace,
+                        Namespace = member.NameSpace,
                         Name = firstName,
                         Members = null
                     };
@@ -97,6 +98,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     classElem = new Element()
                     {
                         Type = ElementType.Class,
+                        Namespace = member.NameSpace,
                         Name = member.Name,
                         Namespaces = null
                     };
