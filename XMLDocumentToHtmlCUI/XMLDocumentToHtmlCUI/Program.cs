@@ -25,9 +25,9 @@ namespace XMLDocumentToHtmlCUI
 			var root = parser.TreeElement;
 			//         foreach (var member in root.Namespaces)
 			//             ShowElements(member);
-			//CreateDirectory(root);
-			//CreateClassFile(root);
-			Console.WriteLine(CreateMenu(root));
+			var menu = CreateMenu(root);
+			CreateDirectory(root);
+			CreateClassFile(root, menu);
 
             Console.ReadLine();
         }
@@ -48,22 +48,22 @@ namespace XMLDocumentToHtmlCUI
             }
 		}
 
-		static void CreateClassFile(Element element, string suffix = "")
+		static void CreateClassFile(Element element, string menu, string suffix = "")
 		{
 			if (element != null)
-            {
+            {            
                 if (element.Namespaces != null)
                 {
                     var name = suffix + element.Name;
                     foreach (var elem in element.Namespaces)
-						CreateClassFile(elem, name + "/");
+						CreateClassFile(elem, menu, name + "/");
                 }
                 else
                 {
                     var name = suffix + element.Name + ".html";
 					var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read);
 					//element.Members: elements
-					WriteHtml(fs, element.Members, element);
+					WriteHtml(fs, element.Members, element, menu);
 					fs.Dispose();
                 }
             }
@@ -107,10 +107,12 @@ namespace XMLDocumentToHtmlCUI
 			return sb.ToString();
 		}
 
-		static void WriteHtml(Stream stream, List<Member> members, Element parent)
+		static void WriteHtml(Stream stream, List<Member> members, Element parent, string menu)
 		{
 			var classByte = Encoding.UTF8.GetBytes(parent.Name + "\n");
-			stream.Write(classByte, 0, classByte.Length);
+			var menuByte = Encoding.UTF8.GetBytes(menu);
+			stream.Write(menuByte, 0, menuByte.Length);
+            stream.Write(classByte, 0, classByte.Length);
 			foreach (var member in members)
 			{
 				var data = Encoding.UTF8.GetBytes(" {0}: {1}\n".FormatString(member.Type.ToString(), member.Name));
