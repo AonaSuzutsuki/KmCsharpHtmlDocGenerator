@@ -170,7 +170,7 @@ namespace XMLDocumentToHtmlCUI
                 {
                     var parametersStr = ResolveMethodParameter(member);
                     var hash = Sha256.GetSha256(member.Name + parametersStr);
-                    methodList.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, member.Name));
+                    methodList.Add("    <li><a href=\"#{0}\">{1}{2}</a></li>".FormatString(hash, member.Name, parametersStr));
                 }
             }
             if (methodList.Count > 0)
@@ -235,6 +235,11 @@ namespace XMLDocumentToHtmlCUI
 
         private static string ResolveType(string text)
         {
+            text = text.Replace("System.Byte", "byte");
+            text = text.Replace("System.Int32", "int");
+            text = text.Replace("System.Int64", "long");
+            text = text.Replace("System.Boolean", "bool");
+            text = text.Replace("System.String", "string");
             return text.Replace("{", "&lt;").Replace("}", "&gt;");
         }
 
@@ -284,21 +289,22 @@ namespace XMLDocumentToHtmlCUI
     {
         static void Main(string[] args)
         {
+            var envParser = new Parser.EnvArgumentParser(args);
+            var inputFiles = envParser.GetValues();
+            var outputPath = envParser.GetOutputFilepath();
 
-			//var loader = new Template.TemplateLoader("base_template.html");
-			//loader.Assign("title", "test");
-   //         loader.Assign("body", "test");
-			//Console.WriteLine(loader);
-
-            var parser = new CsXmlDocumentParser("base.xml");
-			var root = parser.TreeElement;
-
+            Element root = new Element()
+            {
+                Name = outputPath,
+                Type = ElementType.Root
+            };
+            foreach (var input in inputFiles)
+            {
+                var parser = new CsXmlDocumentParser(input);
+                root.Namespaces.AddRange(parser.TreeElement.Namespaces);
+            }
             var converter = new CsXmlToHtmlWriter(root);
             converter.WriteToDisk();
-            //         foreach (var member in root.Namespaces)
-            //             ShowElements(member);
-
-            //Console.ReadLine();
         }
     }
 }

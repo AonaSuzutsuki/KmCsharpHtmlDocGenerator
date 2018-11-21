@@ -13,6 +13,9 @@ namespace XmlDocumentParser.CsXmlDocument
     {
         public Element TreeElement{ get; private set; }
 
+        public int NamespaceCount { get; private set; }
+        public int ClassCount { get; private set; }
+
         public CsXmlDocumentParser(string xmlPath)
         {
             var members = FirstParse(xmlPath);
@@ -84,6 +87,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     {
                         preElem.Namespaces.Add(elem);
                         preElem = elem;
+                        NamespaceCount++;
                     }
                     else
                     {
@@ -95,14 +99,23 @@ namespace XmlDocumentParser.CsXmlDocument
 
                 if (member.Type == MethodType.Class)
                 {
+                    var name = member.Name;
+
                     classElem = new Element()
                     {
                         Type = ElementType.Class,
                         Namespace = member.NameSpace,
-                        Name = member.Name,
+                        Name = name,
                         Namespaces = null
                     };
+
+                    if (name.StartsWith("I"))
+                    {
+                        classElem.Type = ElementType.Interface;
+                    }
+                    
                     preElem.Namespaces.Add(classElem);
+                    ClassCount++;
                 }
                 else
                 {
