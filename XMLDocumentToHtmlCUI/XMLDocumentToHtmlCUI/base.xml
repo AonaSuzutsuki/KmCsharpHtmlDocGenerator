@@ -1,106 +1,148 @@
 ﻿<?xml version="1.0"?>
 <doc>
-    <assembly>
-        <name>FileManagerLib</name>
-    </assembly>
-    <members>
-        <member name="T:FileManagerLib.Dat.DatFileManager">
-            <summary>
-            データファイルの管理を提供します。
-            </summary>
-        </member>
-        <member name="P:FileManagerLib.Dat.DatFileManager.SplitSize">
-            <summary>
-            ファイルへの書き込みの際に分割読み込みをするしきい値
-            </summary>
-        </member>
-        <member name="P:FileManagerLib.Dat.DatFileManager.IsShiftJsonPosition">
-            <summary>
-            既に書き込まれているJSONをスキップして書き込むか上書きするかどうかを設定または取得します。
-            </summary>
-        </member>
-        <member name="P:FileManagerLib.Dat.DatFileManager.LastPositionWithoutJson">
-            <summary>
-            取り除くべき既に書き込まれているJSONのサイズを負数ベースで返します。
-            </summary>
-        </member>
-        <member name="P:FileManagerLib.Dat.DatFileManager.IsCheckHash">
-            <summary>
-            ハッシュ計算によるデータの整合性を確認するかどうかを設定あるいは取得します。
-            </summary>
-        </member>
-        <member name="M:FileManagerLib.Dat.DatFileManager.GetBytes(System.Int64,System.Int32)">
-            <summary>
-            指定された位置からデータの長さを除いたデータをバイト配列で返します。
-            </summary>
-            <param name="start">データの開始位置</param>
-            <param name="identifierLength">データの長さを格納するバイトサイズ</param>
-            <returns>実データのバイト配列</returns>
-        </member>
-        <member name="M:FileManagerLib.Dat.DatFileManager.GetBytesFromEnd(System.Int32)">
-            <summary>
-            末尾から実データの長さを除いたデータをバイト配列で返します。
-            </summary>
-            <param name="identifierLength">データの長さを格納するバイトサイズ</param>
-            <returns>実データのバイト配列</returns>
-        </member>
-        <member name="M:FileManagerLib.Dat.DatFileManager.GetPartialBytes(System.Int64,System.Int64,System.Int32)">
-            <summary>
-            指定された位置からデータの長さを除いたデータの部分をバイト配列で返します。
-            </summary>
-            <param name="start">データの開始位置</param>
-            <param name="length">取得したいデータの長さ</param>
-            <param name="identifierLength">データの長さを格納するバイトサイズ</param>
-            <returns>実データの部分バイト配列</returns>
-        </member>
-        <member name="M:FileManagerLib.File.Json.JsonFileManager.ResolveAbsolutePath(System.String,System.String,System.String[])">
-            <summary>
-            Convert path on file system to internal path.
-            </summary>
-            <param name="basePath">dir path on file system</param>
-            <param name="parent">internal parent directory path</param>
-            <param name="dirPathArray">filepaths on file system</param>
-            <returns></returns>
-        </member>
-        <member name="M:FileManagerLib.File.DirectorySearcher.GetAllDirectories(System.String)">
-            <summary>
-            Gets all nested directories.
-            </summary>
-            <returns>The all directories.</returns>
-            <param name="path">Directory path.</param>
-        </member>
-        <member name="M:FileManagerLib.File.DirectorySearcher.GetAllFiles(System.String)">
-            <summary>
-            Gets all nested files.
-            </summary>
-            <returns>The all files.</returns>
-            <param name="path">Directory path.</param>
-        </member>
-        <member name="M:FileManagerLib.File.DirectorySearcher.CountFiles(System.Collections.Generic.IEnumerable{System.String})">
-            <summary>
-            
-            </summary>
-            <param name="dirArray"></param>
-            <returns></returns>
-        </member>
-        <member name="T:FileManagerLib.Crypto.Sha256">
-            <summary>
-            Sha256を計算するクラスを提供します。
-            </summary>
-        </member>
-        <member name="M:FileManagerLib.Crypto.Sha256.GetSha256(System.IO.Stream)">
-            <summary>
-            StreamからSHA256を計算します。
-            </summary>
-            <param name="stream">計算する対象のStream</param>
-            <returns>変換されたSHA256の文字列</returns>
-        </member>
-        <member name="M:FileManagerLib.Crypto.Sha256.GetSha256(System.Byte[])">
-            <summary>
-            バイト配列からSHA256を計算します。
-            </summary>
-            <param name="bytes">計算する対象のバイト配列</param>
-            <returns>変換されたSHA256の文字列</returns>
-        </member>
-    </members>
+  <assembly>
+    <name>ClusterableFileStream</name>
+  </assembly>
+  <members>
+    <member name="T:Clusterable.IO.ClusterableFileStream">
+      <summary>
+        FileStreamを用いて指定されたサイズに分割したファイルアクセスを提供します。
+      </summary>
+    </member>
+    <member name="P:Clusterable.IO.ClusterableFileStream.Position">
+      <summary>
+        分割ファイルを一つのファイルとみなした仮想的なストリームの現在位置を取得します。
+      </summary>
+      <value>現在の</value>
+    </member>
+    <member name="P:Clusterable.IO.ClusterableFileStream.Length">
+      <summary>
+        分割ファイルを一つのファイルとみなした仮想的なファイル合計サイズを取得します。
+      </summary>
+      <value>仮想的なファイルサイズ</value>
+    </member>
+    <member name="P:Clusterable.IO.ClusterableFileStream.SplitSize">
+      <summary>
+        分割するファイルサイズをバイト単位で取得します。
+      </summary>
+      <value>分割するファイルサイズ</value>
+    </member>
+    <member name="P:Clusterable.IO.ClusterableFileStream.Filenames">
+      <summary>
+        内部で使用するファイル群のパスを取得します。
+      </summary>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.#ctor(System.String,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare,System.Int64,System.String)">
+      <summary>
+        FileStreamを用いて指定されたサイズ分に分割したファイルアクセスを提供します。
+      </summary>
+      <param name="path">書き込むあるいは読み込むファイルのパスを指定します。</param>
+      <param name="mode">ファイルを開く方法を指定します。</param>
+      <param name="access">ファイルへのアクセス制限を指定します。</param>
+      <param name="share">その他のインスタンスに対してアクセス制限を指定します。</param>
+      <param name="splitSize">ファイルの分割サイズをバイト単位で指定します。</param>
+      <param name="assemblyDirPath">実行ファイルのディレクトリパスを指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.Write(System.Byte[],System.Int32,System.Int64)">
+      <summary>
+        ストリームにバイトのブロックを書き込みます。
+      </summary>
+      <param name="data">書き込むデータを指定します。</param>
+      <param name="offset">書き込みを開始する現在地からの相対位置を指定します。</param>
+      <param name="length">書き込むデータの長さを指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.Read(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+        ストリームからバイトのブロックを読み込みます。
+      </summary>
+      <param name="buffer">データを書き込むバッファ領域を指定します。</param>
+      <param name="offset">読み込みを開始する現在地からの相対位置を指定します。</param>
+      <param name="length">読み込む長さを指定します。</param>
+      <returns>実際に読み込んだバイトサイズ</returns>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.Seek(System.Int64,System.IO.SeekOrigin)">
+      <summary>
+        ストリームの現在地を指定します。
+      </summary>
+      <param name="offset">SeekOriginに基づいた相対的なストリームの位置を指定します。</param>
+      <param name="seekOrigin">オフセットをどこから開始するかを指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.Delete(System.Func{System.String,System.String})">
+      <summary>
+        ストリームに関連するファイル群を削除します。
+      </summary>
+      <returns>削除したファイルの名前</returns>
+      <param name="func">分割ファイルを削除する度に実行する処理を指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.Dispose(System.Boolean)">
+      <summary>
+        解放を実際に行う処理です。
+      </summary>
+      <param name="disposing">マネージリソースの解放を行うかどうかを指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.ClusterableFileStream.Dispose">
+      <summary>
+        内部で保持しているファイルの使用権を解放します。
+      </summary>
+    </member>
+    <member name="T:Clusterable.IO.IClusterableStream">
+      <summary>
+        分割したファイルあるいは単一ファイルのアクセスを提供します。
+      </summary>
+    </member>
+    <member name="P:Clusterable.IO.IClusterableStream.Filenames">
+      <summary>
+        内部で使用するファイル群のパスを取得します。
+      </summary>
+    </member>
+    <member name="P:Clusterable.IO.IClusterableStream.Length">
+      <summary>
+        分割ファイルを一つのファイルとみなした仮想的なファイル合計サイズを取得します。
+      </summary>
+      <value>仮想的なファイルサイズ</value>
+    </member>
+    <member name="P:Clusterable.IO.IClusterableStream.Position">
+      <summary>
+        分割ファイルを一つのファイルとみなした仮想的なストリームの現在位置を取得します。
+      </summary>
+      <value>現在の</value>
+    </member>
+    <member name="P:Clusterable.IO.IClusterableStream.SplitSize">
+      <summary>
+        分割するファイルサイズをバイト単位で取得します。
+      </summary>
+      <value>分割するファイルサイズ</value>
+    </member>
+    <member name="M:Clusterable.IO.IClusterableStream.Delete(System.Func{System.String,System.String})">
+      <summary>
+        ストリームに関連するファイル群を削除します。
+      </summary>
+      <returns>削除したファイルの名前を指定します。</returns>
+      <param name="func">分割ファイルを削除する度に実行する処理を指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.IClusterableStream.Read(System.Byte[],System.Int32,System.Int32)">
+      <summary>
+        ストリームからバイトのブロックを読み込みます。
+      </summary>
+      <param name="buffer">データを書き込むバッファ領域を指定します。</param>
+      <param name="offset">読み込みを開始する現在地からの相対位置を指定します。</param>
+      <param name="length">読み込む長さを指定します。</param>
+      <returns>実際に読み込んだバイトサイズ</returns>
+    </member>
+    <member name="M:Clusterable.IO.IClusterableStream.Seek(System.Int64,System.IO.SeekOrigin)">
+      <summary>
+        ストリームの現在地を指定します。
+      </summary>
+      <param name="offset">SeekOriginに基づいた相対的なストリームの位置を指定します。</param>
+      <param name="seekOrigin">オフセットをどこから開始するかを指定します。</param>
+    </member>
+    <member name="M:Clusterable.IO.IClusterableStream.Write(System.Byte[],System.Int32,System.Int64)">
+      <summary>
+        ストリームにバイトのブロックを書き込みます。
+      </summary>
+      <param name="data">書き込むデータを指定します。</param>
+      <param name="offset">書き込みを開始する現在地からの相対位置を指定します。</param>
+      <param name="length">書き込むデータの長さを指定します。</param>
+    </member>
+  </members>
 </doc>

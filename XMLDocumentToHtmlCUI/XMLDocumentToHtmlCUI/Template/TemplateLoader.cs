@@ -19,7 +19,7 @@ namespace XMLDocumentToHtmlCUI.Template
 
 		private readonly string templatePath;
 
-        private readonly Dictionary<string, ValueIndentPair> map = new Dictionary<string, ValueIndentPair>();
+        private Dictionary<string, ValueIndentPair> map = new Dictionary<string, ValueIndentPair>();
 
         public TemplateLoader(string templatePath)
 		{
@@ -34,6 +34,10 @@ namespace XMLDocumentToHtmlCUI.Template
                 map.Add(key, new ValueIndentPair() { Value = value, IsIndent = isIndent });
 		}
 
+        public void Reset()
+        {
+            map = new Dictionary<string, ValueIndentPair>();
+        }
 		private string Analyze()
 		{
 			var converted = new List<string>();
@@ -61,7 +65,7 @@ namespace XMLDocumentToHtmlCUI.Template
                         }
                         else
                         {
-                            break;
+                            preLine = preLine.Replace("{$" + key + "}", "");
                         }
                     }
                     else
