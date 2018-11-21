@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using XmlDocumentParser;
 using XmlDocumentParser.CsXmlDocument;
 using XMLDocumentToHtmlCUI.Crypto;
+using XMLDocumentToHtmlCUI.Extensions;
 
 namespace XMLDocumentToHtmlCUI
 {
@@ -124,31 +125,79 @@ namespace XMLDocumentToHtmlCUI
                     var paramStr = ResolveParameterTable(member, ParameterTableTemplate);
 
                     var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
-                    methodLoader.Assign("MethodHash", Sha256.GetSha256(member.Name + parametersStr));
+                    var hash = Sha256.GetSha256(member.Name + parametersStr);
+                    methodLoader.Assign("MethodHash", hash);
                     methodLoader.Assign("MethodName", member.Name);
                     methodLoader.Assign("MethodParameters", parametersStr);
                     methodLoader.Assign("MethodComment", member.Value);
+
                     if (!string.IsNullOrEmpty(paramStr))
+                    {
                         methodLoader.Assign("Parameters", paramStr, true);
-                    else
-                        methodLoader.Assign("ParameterStyle", "display:none");
+                        methodLoader.Assign("HasParameter", true.ToString());
+                    }
                     methods.Append(methodLoader.ToString());
+                    loader.Assign("HasMethod", true.ToString());
                 }
                 else if (member.Type == MethodType.Property)
                 {
                     var propertyLoader = new Template.TemplateLoader(BasePropertyTemplate);
+                    var hash = Sha256.GetSha256(member.Name);
                     propertyLoader.Assign("PropertyHash", Sha256.GetSha256(member.Name));
                     propertyLoader.Assign("PropertyName", member.Name);
                     propertyLoader.Assign("PropertyComment", member.Value);
                     properties.Append(propertyLoader.ToString());
+                    loader.Assign("HasProperty", true.ToString());
                 }
             }
 
+            loader.Assign("Toc", CreateToc(members), true);
             loader.Assign("MethodItems", methods.ToString(), true);
             loader.Assign("PropertyItems", properties.ToString(), true);
             var template = loader.ToString();
             var templateBytes = Encoding.UTF8.GetBytes(template);
             stream.Write(templateBytes, 0, templateBytes.Length);
+        }
+
+        private string CreateToc(List<Member> members)
+        {
+            var toc = new StringBuilder();
+
+            var methodList = new List<string>();
+            foreach (var member in members)
+            {
+                if (member.Type == MethodType.Method)
+                {
+                    var parametersStr = ResolveMethodParameter(member);
+                    var hash = Sha256.GetSha256(member.Name + parametersStr);
+                    methodList.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, member.Name));
+                }
+            }
+            if (methodList.Count > 0)
+            {
+                toc.AppendLine("<h3>Methods</h3>");
+                toc.AppendLine("<ol>");
+                toc.AppendLine(methodList.GetString());
+                toc.AppendLine("</ol>");
+            }
+            var propertyList = new List<string>();
+            foreach (var member in members)
+            {
+                if (member.Type == MethodType.Property)
+                {
+                    var hash = Sha256.GetSha256(member.Name);
+                    propertyList.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, member.Name));
+                }
+            }
+            if (propertyList.Count > 0)
+            {
+                toc.AppendLine("<h3>Properties</h3>");
+                toc.AppendLine("<ol>");
+                toc.AppendLine(propertyList.GetString());
+                toc.AppendLine("</ol>");
+            }
+
+            return toc.ToString();
         }
 
         private static string ResolveMethodParameter(Member member)

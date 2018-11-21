@@ -75,8 +75,40 @@ namespace XMLDocumentToHtmlCUI.Template
                     }
                 }
 			}
-			return converted.GetString();
+			return Analyze2(converted.GetString());
 		}
+
+        private string Analyze2(string text)
+        {
+            var reg = new Regex("(?<startStatement>{(?<start>.*) +\\$(?<key>.*) == (?<statementValue>.*)})(?<value>[\\s\\S]*)(?<endStatement>{\\/(?<end>.*)})");
+            var match = reg.Match(text);
+            if (match.Success)
+            {
+                var statementId = match.Groups["start"].ToString();
+                var key = match.Groups["key"].ToString();
+                var pair = map.Get(key);
+
+                if (statementId.Equals("if"))
+                {
+                    bool.TryParse(match.Groups["statementValue"].ToString(), out bool statementValue);
+                    var valueStr = pair != null ? pair.Value : false.ToString();
+                    bool.TryParse(valueStr, out bool val);
+                    if (val != statementValue)
+                        text = text.Replace(match.Groups["value"].ToString(), "");
+                }
+
+                var endReg = new Regex("(?<endStatement>{\\/if \\$" + key + "})");
+                var endMatch = endReg.Match(text);
+                if (endMatch.Success)
+                {
+                    var v1 = match.Groups["startStatement"].ToString();
+                    var v2 = endMatch.Groups["endStatement"].ToString();
+                    text = text.Replace(v1, "").Replace(v2, "");
+                    return Analyze2(text);
+                }
+            }
+            return text;
+        }
 
         private string ResolveIndent(string text, string indent)
         {

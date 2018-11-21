@@ -1,10 +1,12 @@
 ﻿<div class="method-elem">
     <h3 id="{$MethodHash}">{$MethodName}{$MethodParameters}</h3>
 
+    {if $HasParameter == true}
     <table class="parameter" style="{$ParameterStyle}">
         <caption>パラメータ</caption>
         {$Parameters}
     </table>
+    {/if $HasParameter}
 
     <div class="elem-content">
         {$MethodComment}

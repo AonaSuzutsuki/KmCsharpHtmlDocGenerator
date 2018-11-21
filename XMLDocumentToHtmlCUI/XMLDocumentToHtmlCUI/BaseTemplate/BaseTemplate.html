@@ -129,6 +129,11 @@
                 <span>Namespace: {$Namespace}</span>
             </div>
 
+            <div>
+                {$Toc}
+            </div>
+
+            {if $HasMethod == true}
             <br />
             <div id="methods">
                 <h2>Methods</h2>
@@ -136,7 +141,9 @@
                 {$MethodItems}
 
             </div>
+            {/if $HasMethod}
 
+            {if $HasProperty == true}
             <br />
             <div id="properties">
                 <h2>Properties</h2>
@@ -144,6 +151,7 @@
                 {$PropertyItems}
 
             </div>
+            {/if $HasProperty}
         </div>
 
     </div>
