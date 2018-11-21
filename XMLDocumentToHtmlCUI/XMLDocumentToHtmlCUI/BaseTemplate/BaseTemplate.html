@@ -3,20 +3,26 @@
 <head>
     <title>{$Title}</title>
     <style type="text/css">
+        body {
+            font-family: "Consolas", "Meiryo", Helvetica, "Bitstream Vera Sans Mono", "Courier New", Courier, monospace, sans-serif;
+        }
+
         #body-container {
             position: relative;
-            margin: 0 auto;
+        }
+        #body-container::after {
+            content: '';
+            clear: both;
         }
 
         #menu {
-            position: absolute;
-            width: 300px;
+            float: left;
+            width: 320px;
         }
 
         #body-content {
-            width: 1000px;
-            position: absolute;
-            left: 320px;
+            width: 900px;
+            margin-left: 350px;
         }
 
         h1 {
