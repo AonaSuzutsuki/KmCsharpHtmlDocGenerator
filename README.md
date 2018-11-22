@@ -25,7 +25,8 @@ example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 ```
 
 **オプション**  
-| aaa | bbb |
+
+| オプション | 説明 |
 |-----|:----|
 |-o   |出力先のディレクトリパスを指定します。|
 
