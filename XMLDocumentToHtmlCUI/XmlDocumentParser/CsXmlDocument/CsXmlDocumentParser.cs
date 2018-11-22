@@ -106,6 +106,7 @@ namespace XmlDocumentParser.CsXmlDocument
                         Type = ElementType.Class,
                         Namespace = member.NameSpace,
                         Name = name,
+                        Value = member.Value,
                         Namespaces = null
                     };
 
@@ -119,7 +120,8 @@ namespace XmlDocumentParser.CsXmlDocument
                 }
                 else
                 {
-                    classElem.Members.Add(member);
+                    if (classElem.Namespace.ToString().Equals(member.NameSpace.ToString()))
+                        classElem.Members.Add(member);
                 }
 
                 preElem = root;
