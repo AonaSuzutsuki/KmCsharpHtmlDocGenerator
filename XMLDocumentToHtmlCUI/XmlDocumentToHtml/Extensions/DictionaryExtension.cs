@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace XMLDocumentToHtmlCUI.Extensions
+namespace XmlDocumentToHtml.Extensions
 {
     public static class DictionaryExtension
     {

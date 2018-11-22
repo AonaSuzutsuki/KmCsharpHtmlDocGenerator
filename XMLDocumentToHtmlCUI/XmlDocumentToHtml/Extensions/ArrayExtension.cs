@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XMLDocumentToHtmlCUI.Extensions
+namespace XmlDocumentToHtml.Extensions
 {
     public static class ArrayExtension
     {

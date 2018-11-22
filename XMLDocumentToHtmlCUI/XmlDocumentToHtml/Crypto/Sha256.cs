@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace XMLDocumentToHtmlCUI.Crypto
+namespace XmlDocumentToHtml.Crypto
 {
     /// <summary>
     /// Sha256を計算するクラスを提供します。

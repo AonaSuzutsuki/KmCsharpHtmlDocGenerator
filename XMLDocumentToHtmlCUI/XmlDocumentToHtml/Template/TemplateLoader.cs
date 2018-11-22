@@ -2,11 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using XMLDocumentToHtmlCUI.Extensions;
+using XmlDocumentToHtml.Extensions;
 using System.Text;
 using System.Linq;
 
-namespace XMLDocumentToHtmlCUI.Template
+namespace XmlDocumentToHtml.Template
 {
 	public class TemplateLoader
 	{

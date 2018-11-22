@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XmlDocumentParser.CsXmlDocument;
-using XMLDocumentToHtmlCUI.Crypto;
-using XMLDocumentToHtmlCUI.Extensions;
+using XmlDocumentToHtml.Crypto;
+using XmlDocumentToHtml.Extensions;
 
-namespace XMLDocumentToHtmlCUI.Writer
+namespace XmlDocumentToHtml.Writer
 {
     public class CsXmlToHtmlWriter
     {
@@ -146,6 +146,7 @@ namespace XMLDocumentToHtmlCUI.Writer
             }
 
             loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
+            loader.Assign("ClassComment", "{0}".FormatString(parent.Value));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace.ToString());
             loader.Assign("Menu", menu, true);
