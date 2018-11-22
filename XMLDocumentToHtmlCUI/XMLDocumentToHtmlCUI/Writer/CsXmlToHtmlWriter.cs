@@ -177,7 +177,7 @@ namespace XMLDocumentToHtmlCUI.Writer
                 }
                 if (list.Count > 0)
                 {
-                    tocElement.AppendLine("<h3>Methods</h3>");
+					tocElement.AppendFormat("<h3>{0}</h3>\n", typeName);
                     tocElement.AppendLine("<ol>");
                     tocElement.AppendLine(list.GetString());
                     tocElement.AppendLine("</ol>");
