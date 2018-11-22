@@ -53,6 +53,18 @@
             <param name="identifierLength">データの長さを格納するバイトサイズを指定します。</param>
             <returns>実データの部分バイト配列</returns>
         </member>
+        <member name="T:FileManagerLib.File.ByteLoader">
+            <summary>
+            バイト関連の読み込み機能を提供します。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.File.ByteLoader.FromStream(System.IO.Stream)">
+            <summary>
+            ストリームから全てのバイト配列を読み込みます。
+            </summary>
+            <param name="stream">読み込む対象のストリーム</param>
+            <returns>読み込んだバイト配列</returns>
+        </member>
         <member name="M:FileManagerLib.File.Json.JsonFileManager.ResolveAbsolutePath(System.String,System.String,System.String[])">
             <summary>
             Convert path on file system to internal path.
@@ -69,24 +81,50 @@
         </member>
         <member name="M:FileManagerLib.File.DirectorySearcher.GetAllDirectories(System.String)">
             <summary>
-            Gets all nested directories.
+            全てのネストされたディレクトリを取得します。
             </summary>
-            <returns>The all directories.</returns>
-            <param name="path">Directory path.</param>
+            <returns>見つかった全てのディレクトリ</returns>
+            <param name="path">検索するディレクトリのパス</param>
         </member>
         <member name="M:FileManagerLib.File.DirectorySearcher.GetAllFiles(System.String)">
             <summary>
-            Gets all nested files.
+            全てのネストされたファイルを取得します。
             </summary>
-            <returns>The all files.</returns>
-            <param name="path">Directory path.</param>
+            <returns>見つかった全てのファイル</returns>
+            <param name="path">検索するディレクトリのパス</param>
         </member>
         <member name="M:FileManagerLib.File.DirectorySearcher.CountFiles(System.Collections.Generic.IEnumerable{System.String})">
             <summary>
-            
+            全てのファイルの個数を検索します。
             </summary>
-            <param name="dirArray"></param>
-            <returns></returns>
+            <param name="dirArray">検索するディレクトリのパス群</param>
+            <returns>見つかったファイルの個数</returns>
+        </member>
+        <member name="T:FileManagerLib.MimeType.MimeTypeMap">
+            <summary>
+            MimeTypeの変換系を提供します。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.MimeType.MimeTypeMap.GetMimeTypeFromExtension(System.String)">
+            <summary>
+            拡張子からMimeTypeを判別します。
+            </summary>
+            <param name="extension">対象の拡張子</param>
+            <returns>MimeType</returns>
+        </member>
+        <member name="M:FileManagerLib.MimeType.MimeTypeMap.GetMimeType(System.String)">
+            <summary>
+            ファイルパスからMimeTypeを判別します。
+            </summary>
+            <param name="filepath">対象のファイルパス</param>
+            <returns>MimeType</returns>
+        </member>
+        <member name="M:FileManagerLib.MimeType.MimeTypeMap.IsImage(System.String)">
+            <summary>
+            MimeTypeが画像系かどうかを判定します。
+            </summary>
+            <param name="mimeType">MimeTypeの文字列</param>
+            <returns>画像系かどうか</returns>
         </member>
         <member name="T:FileManagerLib.Crypto.Sha256">
             <summary>

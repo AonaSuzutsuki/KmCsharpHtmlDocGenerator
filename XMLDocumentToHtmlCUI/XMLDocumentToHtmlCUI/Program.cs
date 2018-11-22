@@ -8,9 +8,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentParser;
 using XmlDocumentParser.CsXmlDocument;
-using XMLDocumentToHtmlCUI.Crypto;
-using XMLDocumentToHtmlCUI.Extensions;
-using XMLDocumentToHtmlCUI.Writer;
+using XmlDocumentToHtml.Crypto;
+using XmlDocumentToHtml.Extensions;
+using XmlDocumentToHtml.Writer;
 
 namespace XMLDocumentToHtmlCUI
 {
