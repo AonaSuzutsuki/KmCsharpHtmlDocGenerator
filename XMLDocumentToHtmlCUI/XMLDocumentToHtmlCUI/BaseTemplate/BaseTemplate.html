@@ -37,6 +37,16 @@
                 {$Toc}
             </div>
 
+            {if $HasConstructor == true}
+            <br />
+            <div id="methods">
+                <h2>Constructors</h2>
+
+                {$ConstructorItems}
+
+            </div>
+            {/if $HasConstructor}
+
             {if $HasMethod == true}
             <br />
             <div id="methods">

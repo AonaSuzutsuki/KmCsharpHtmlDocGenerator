@@ -18,10 +18,11 @@ namespace XmlDocumentToHtml.Writer
 
         private readonly Element root;
 
-        public string BaseTemplatePath { get; set; } = "BaseTemplate/BaseTemplate.html";
-        public string BaseMethodTemplate { get; set; } = "BaseTemplate/BaseMethodTemplate.html";
-        public string BasePropertyTemplate { get; set; } = "BaseTemplate/BasePropertyTemplate.html";
-        public string ParameterTableTemplate { get; set; } = "BaseTemplate/BaseParameterTemplate.html";
+        public string TemplateDir { get; set; } = "BaseTemplate";
+        public string BaseTemplatePath { get => "{0}/BaseTemplate.html".FormatString(TemplateDir); }
+        public string BaseMethodTemplate { get => "{0}/BaseMethodTemplate.html".FormatString(TemplateDir); }
+        public string BasePropertyTemplate { get => "{0}/BasePropertyTemplate.html".FormatString(TemplateDir); }
+        public string ParameterTableTemplate { get => "{0}/BaseParameterTemplate.html".FormatString(TemplateDir); }
 
         public CsXmlToHtmlWriter(Element root)
         {
@@ -141,22 +142,21 @@ namespace XmlDocumentToHtml.Writer
         private void WriteHtml(Stream stream, List<Member> members, Element parent, Element root)
         {
             var loader = new Template.TemplateLoader(BaseTemplatePath);
-            //loader.Assign("HasMethod", false.ToString());
-            //loader.Assign("HasProperty", false.ToString());
 
+            var constructors = new StringBuilder();
             var methods = new StringBuilder();
             var properties = new StringBuilder();
             foreach (var member in members)
             {
                 if (member.Type == MethodType.Method || member.Type == MethodType.Constructor)
                 {
+                    var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
                     var parametersStr = ResolveMethodParameter(member);
                     var paramStr = ResolveParameterTable(member, ParameterTableTemplate);
-
-                    var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
-                    var hash = Sha256.GetSha256(member.Name + parametersStr);
+                    var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
+                    var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
-                    methodLoader.Assign("MethodName", member.Name);
+                    methodLoader.Assign("MethodName", name);
                     methodLoader.Assign("MethodParameters", parametersStr);
                     methodLoader.Assign("MethodComment", member.Value);
 
@@ -165,24 +165,32 @@ namespace XmlDocumentToHtml.Writer
                         methodLoader.Assign("MethodReturnComment", member.ReturnComment);
                         methodLoader.Assign("HasReturn", true.ToString());
                     }
-
                     if (!string.IsNullOrEmpty(paramStr))
                     {
                         methodLoader.Assign("Parameters", paramStr, true);
-                        methodLoader.Assign("HasParameter", true.ToString());
+                        methodLoader.Assign("HasParameter", true);
                     }
-                    methods.Append(methodLoader.ToString());
-                    loader.Assign("HasMethod", true.ToString());
+
+                    if (member.Type == MethodType.Method)
+                    {
+                        methods.Append(methodLoader.ToString());
+                        loader.Assign("HasMethod", true);
+                    }
+                    else
+                    {
+                        constructors.Append(methodLoader.ToString());
+                        loader.Assign("HasConstructor", true);
+                    }
                 }
                 else if (member.Type == MethodType.Property)
                 {
                     var propertyLoader = new Template.TemplateLoader(BasePropertyTemplate);
                     var hash = Sha256.GetSha256(member.Name);
-                    propertyLoader.Assign("PropertyHash", Sha256.GetSha256(member.Name));
+                    propertyLoader.Assign("PropertyHash", hash);
                     propertyLoader.Assign("PropertyName", member.Name);
                     propertyLoader.Assign("PropertyComment", member.Value);
                     properties.Append(propertyLoader.ToString());
-                    loader.Assign("HasProperty", true.ToString());
+                    loader.Assign("HasProperty", true);
                 }
             }
 
@@ -191,18 +199,19 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("ClassComment", "{0}".FormatString(parent.Value));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
-            loader.Assign("Namespace", parent.Namespace.ToString());
+            loader.Assign("Namespace", parent.Namespace);
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
-            loader.Assign("Toc", CreateToc(members), true);
-            loader.Assign("MethodItems", methods.ToString(), true);
-            loader.Assign("PropertyItems", properties.ToString(), true);
+            loader.Assign("Toc", CreateToc(members, parent), true);
+            loader.Assign("ConstructorItems", constructors, true);
+            loader.Assign("MethodItems", methods, true);
+            loader.Assign("PropertyItems", properties, true);
 
             var template = loader.ToString();
             var templateBytes = Encoding.UTF8.GetBytes(template);
             stream.Write(templateBytes, 0, templateBytes.Length);
         }
         
-        private string CreateToc(List<Member> members)
+        private string CreateToc(List<Member> members, Element parent)
         {
             var toc = new StringBuilder();
 
@@ -229,7 +238,7 @@ namespace XmlDocumentToHtml.Writer
                 return tocElement.ToString();
             }
 
-            toc.Append(GetElement(MethodType.Constructor, (member) => member.Name + ResolveMethodParameter(member), "Constructor"));
+            toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + ResolveMethodParameter(member), "Constructor"));
             toc.Append(GetElement(MethodType.Method, (member) => member.Name + ResolveMethodParameter(member), "Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
 
