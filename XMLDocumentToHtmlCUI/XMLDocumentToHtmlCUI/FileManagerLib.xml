@@ -53,6 +53,45 @@
             <param name="identifierLength">データの長さを格納するバイトサイズを指定します。</param>
             <returns>実データの部分バイト配列</returns>
         </member>
+        <member name="T:FileManagerLib.Extensions.Path.PathItemExtensions">
+            <summary>
+            PathItemの拡張メソッドを提供します。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.Extensions.Path.PathItemExtensions.GetFilenameAndParent(System.String)">
+            <summary>
+            文字列をファイル名と親ディレクトリに分解してタプルで返します。
+            </summary>
+            <param name="fullPath">対象のパス文字列</param>
+            <returns>親ディレクトリのPathItemとファイル名文字列のタプル</returns>
+        </member>
+        <member name="T:FileManagerLib.Extensions.Collections.DictionaryExtension">
+            <summary>
+            Dictionary関連の拡張メソッドを提供します。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.Extensions.Collections.DictionaryExtension.ToArray``2(System.Collections.Generic.SortedDictionary{``0,``1}.ValueCollection)">
+            <summary>
+            SortedDictionaryのValue値を配列に変換します。
+            </summary>
+            <typeparam name="TKey">SortedDictionaryのキーの型</typeparam>
+            <typeparam name="TValue">SortedDictionaryの値の型</typeparam>
+            <param name="values">変換したいSortedDictionaryのValue</param>
+            <returns>変換された配列</returns>
+        </member>
+        <member name="T:FileManagerLib.Extensions.Collections.ArrayExtension">
+            <summary>
+            配列関連の拡張メソッドを提供します。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.Extensions.Collections.ArrayExtension.ForEach``1(``0[],System.Action{``0})">
+            <summary>
+            配列の各要素に対して、指定されたデリゲートの処理を実行します。
+            </summary>
+            <typeparam name="T">配列の総称型</typeparam>
+            <param name="array">対象の配列</param>
+            <param name="action">実行するデリゲート</param>
+        </member>
         <member name="T:FileManagerLib.File.ByteLoader">
             <summary>
             バイト関連の読み込み機能を提供します。
@@ -64,6 +103,17 @@
             </summary>
             <param name="stream">読み込む対象のストリーム</param>
             <returns>読み込んだバイト配列</returns>
+        </member>
+        <member name="T:FileManagerLib.File.Exceptions.FileDirectoryExistedException">
+            <summary>
+            ファイルまたはディレクトリが存在する時に発生する例外です。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.File.Exceptions.FileDirectoryExistedException.#ctor(System.String)">
+            <summary>
+            独自のメッセージを受けて例外を初期化します。
+            </summary>
+            <param name="message"></param>
         </member>
         <member name="M:FileManagerLib.File.Json.JsonFileManager.ResolveAbsolutePath(System.String,System.String,System.String[])">
             <summary>
@@ -125,6 +175,18 @@
             </summary>
             <param name="mimeType">MimeTypeの文字列</param>
             <returns>画像系かどうか</returns>
+        </member>
+        <member name="T:FileManagerLib.Path.PathSplitter">
+            <summary>
+            パスの分割系機能を提供します。
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.Path.PathSplitter.SplitPath(System.String)">
+            <summary>
+            パス文字列を分割し、PathItemで返します。
+            </summary>
+            <param name="pathArg">対象のパス文字列</param>
+            <returns>変換されたPathItem</returns>
         </member>
         <member name="T:FileManagerLib.Crypto.Sha256">
             <summary>
