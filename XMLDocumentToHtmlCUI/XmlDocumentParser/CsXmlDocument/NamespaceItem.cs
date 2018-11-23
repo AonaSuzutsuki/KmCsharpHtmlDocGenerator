@@ -10,6 +10,8 @@ namespace XmlDocumentParser
     {
         private readonly List<string> items;
 
+        public int NamespaceCount { get => items.Count; }
+
         public NamespaceItem(string text)
         {
             var array = text.Split('.');
