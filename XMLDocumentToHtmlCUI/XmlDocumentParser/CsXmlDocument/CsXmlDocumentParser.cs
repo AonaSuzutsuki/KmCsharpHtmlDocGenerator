@@ -11,6 +11,9 @@ namespace XmlDocumentParser.CsXmlDocument
 {
     public class CsXmlDocumentParser
     {
+
+        private const int ParameterLoopLimit = 10;
+
         public Element TreeElement{ get; private set; }
 
         public int NamespaceCount { get; private set; }
@@ -32,10 +35,12 @@ namespace XmlDocumentParser.CsXmlDocument
                 foreach (var val in vals)
                 {
                     var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(val));
+                    var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(val));
                     value = RemoveFirstLastBreakLine(value);
 
                     var member = ConvertMemberNameToMember(val);
                     member.Value = value;
+                    member.ReturnComment = ret;
 
                     var xparams = reader.GetAttributes("name", "/doc/members/member[@name=\"{0}\"]/param".FormatString(val));
                     foreach (var param in xparams)
@@ -131,6 +136,53 @@ namespace XmlDocumentParser.CsXmlDocument
 
         static Member ConvertMemberNameToMember(string text)
         {
+            string ResolveSplitParameter(string split)
+            {
+                for (int i = 0; i < ParameterLoopLimit; i++)
+                {
+                    var splitReg = new Regex("~(?<encoded>.*)~");
+                    var splitMatch = splitReg.Match(split);
+                    if (splitMatch.Success)
+                    {
+                        var full = splitMatch.ToString();
+                        var encoded = splitMatch.Groups["encoded"].ToString();
+                        var replacedText = split.Replace(full, Encoding.UTF8.GetString(Convert.FromBase64String(encoded)));
+                        split = replacedText;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return split;
+            }
+            string[] SplitParameter(string parameterText)
+            {
+                for (int i = 0; i < ParameterLoopLimit; i++)
+                {
+                    var splitReg = new Regex("\\{(.*)\\}");
+                    var splitMatch = splitReg.Match(parameterText);
+                    if (splitMatch.Success)
+                    {
+                        var full = splitMatch.ToString();
+                        var replacedText = parameterText.Replace(full, "~{0}~".FormatString(Convert.ToBase64String(Encoding.UTF8.GetBytes(full))));
+                        parameterText = replacedText;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                var splits = parameterText.Split(',');
+                for (int i = 0; i < splits.Length; i++)
+                {
+                    splits[i] = ResolveSplitParameter(splits[i]);
+                }
+
+                return splits;
+            }
+
             var member = new Member();
 
             var reg = new Regex("(?<Type>.*):((?<MethodName>.*)\\((?<Parameters>.*)\\)|(?<MethodName>.*))");
@@ -138,7 +190,7 @@ namespace XmlDocumentParser.CsXmlDocument
             if (match.Success)
             {
                 var (nameSpace, methodName) = SplitMethodName(match.Groups["MethodName"].ToString());
-                var parameters = match.Groups["Parameters"].ToString().Replace(" ", "").Split(',');
+                var parameters = SplitParameter(match.Groups["Parameters"].ToString());
                 var strType = ConvertConstructorType(match.Groups["Type"].ToString(), methodName);
                 var type = ConvertMethodType(strType);
 
