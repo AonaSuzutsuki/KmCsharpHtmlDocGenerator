@@ -9,20 +9,55 @@ using System.Threading.Tasks;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
+    /// <summary>
+    /// Parse C# XML Document.
+    /// </summary>
     public class CsXmlDocumentParser
     {
-
+        #region Constants
         private const int ParameterLoopLimit = 10;
+        #endregion
 
+        #region Properties
+        /// <summary>
+        /// Parsed tree structure elements.
+        /// </summary>
         public Element TreeElement{ get; private set; }
 
+        /// <summary>
+        /// Count of namespaces.
+        /// </summary>
         public int NamespaceCount { get; private set; }
+
+        /// <summary>
+        /// Count of Classes.
+        /// </summary>
         public int ClassCount { get; private set; }
 
+        /// <summary>
+        /// Path of the configured XML file.
+        /// </summary>
+        public string XmlPath { get; }
+        #endregion
+
+        /// <summary>
+        /// Initialize C# XML Parser.
+        /// </summary>
+        /// <param name="xmlPath"></param>
         public CsXmlDocumentParser(string xmlPath)
         {
-            var members = FirstParse(xmlPath);
+            XmlPath = xmlPath;
+        }
+
+        /// <summary>
+        /// Parse C# XML Document
+        /// </summary>
+        /// <returns type="Element">Parsed tree structure elements.</returns>
+        public Element Parse()
+        {
+            var members = FirstParse(XmlPath);
             TreeElement = SecondParse(members);
+            return TreeElement;
         }
 
         private List<Member> FirstParse(string xmlPath)
@@ -134,7 +169,7 @@ namespace XmlDocumentParser.CsXmlDocument
             return root;
         }
 
-        static Member ConvertMemberNameToMember(string text)
+        private static Member ConvertMemberNameToMember(string text)
         {
             string ResolveSplitParameter(string split)
             {
@@ -206,20 +241,20 @@ namespace XmlDocumentParser.CsXmlDocument
             return member;
         }
 
-        static string ConvertConstructorType(string baseType, string methodName)
+        private static string ConvertConstructorType(string baseType, string methodName)
         {
             if (methodName.Equals("#ctor"))
                 return "C";
             return baseType;
         }
 
-        static (NamespaceItem nameSpaces, string methodName) SplitMethodName(string fullname)
+        private static (NamespaceItem nameSpaces, string methodName) SplitMethodName(string fullname)
         {
             var namespaceItem = new NamespaceItem(fullname);
             return (namespaceItem.GetNamespace(), namespaceItem.GetLastName());
         }
 
-        static MethodType ConvertMethodType(string text)
+        private static MethodType ConvertMethodType(string text)
         {
             var map = new Dictionary<string, MethodType>
             {
@@ -231,7 +266,7 @@ namespace XmlDocumentParser.CsXmlDocument
             return map[text];
         }
 
-        static string RemoveFirstLastBreakLine(string text)
+        private static string RemoveFirstLastBreakLine(string text)
         {
             text = text.Replace("\r\n", "\r");
             text = text.Replace("\r", "\n");

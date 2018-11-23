@@ -31,7 +31,7 @@ namespace XMLDocumentToHtmlCUI
             foreach (var input in inputFiles)
             {
                 var parser = new CsXmlDocumentParser(input);
-                root.Namespaces.AddRange(parser.TreeElement.Namespaces);
+                root.Namespaces.AddRange(parser.Parse().Namespaces);
             }
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk();

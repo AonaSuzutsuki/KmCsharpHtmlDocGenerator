@@ -8,31 +8,47 @@ using System.Linq;
 
 namespace XmlDocumentToHtml.Template
 {
+    /// <summary>
+    /// It is a template engine that generates character strings from correspondence between keys and values.
+    /// </summary>
 	public class TemplateLoader
 	{
 
-        class ValueIndentPair
+        private class ValueIndentPair
         {
             public string Value { get; set; }
             public bool IsIndent { get; set; }
         }
 
-		private readonly string templatePath;
+        #region Fields
+        private readonly string templatePath;
 
         private Dictionary<string, ValueIndentPair> map = new Dictionary<string, ValueIndentPair>();
+        #endregion
 
+        /// <summary>
+        /// Initialize TemplateLoader with path of template file.
+        /// </summary>
+        /// <param name="templatePath">Path of template file.</param>
         public TemplateLoader(string templatePath)
 		{
 			this.templatePath = templatePath;
 		}
 
-		public void Assign(string key, string value, bool isIndent = false)
-		{
+        /// <summary>
+        /// Assign value to key.
+        /// </summary>
+        /// <typeparam name="T">Value type</typeparam>
+        /// <param name="key">Key</param>
+        /// <param name="value">Assigned value.</param>
+        /// <param name="isIndent">Whether or not to indent.</param>
+        public void Assign<T>(string key, T value, bool isIndent = false)
+        {
             if (map.ContainsKey(key))
-                map[key] = new ValueIndentPair() { Value = value, IsIndent = isIndent };
+                map[key] = new ValueIndentPair() { Value = value.ToString(), IsIndent = isIndent };
             else
-                map.Add(key, new ValueIndentPair() { Value = value, IsIndent = isIndent });
-		}
+                map.Add(key, new ValueIndentPair() { Value = value.ToString(), IsIndent = isIndent });
+        }
 
         public void Reset()
         {
