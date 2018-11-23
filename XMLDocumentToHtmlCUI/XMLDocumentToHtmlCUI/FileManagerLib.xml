@@ -124,32 +124,6 @@
             <param name="dirPathArray">filepaths on file system</param>
             <returns></returns>
         </member>
-        <member name="T:FileManagerLib.File.DirectorySearcher">
-            <summary>
-            ディレクトリの検索機能を提供します。
-            </summary>
-        </member>
-        <member name="M:FileManagerLib.File.DirectorySearcher.GetAllDirectories(System.String)">
-            <summary>
-            全てのネストされたディレクトリを取得します。
-            </summary>
-            <returns>見つかった全てのディレクトリ</returns>
-            <param name="path">検索するディレクトリのパス</param>
-        </member>
-        <member name="M:FileManagerLib.File.DirectorySearcher.GetAllFiles(System.String)">
-            <summary>
-            全てのネストされたファイルを取得します。
-            </summary>
-            <returns>見つかった全てのファイル</returns>
-            <param name="path">検索するディレクトリのパス</param>
-        </member>
-        <member name="M:FileManagerLib.File.DirectorySearcher.CountFiles(System.Collections.Generic.IEnumerable{System.String})">
-            <summary>
-            全てのファイルの個数を検索します。
-            </summary>
-            <param name="dirArray">検索するディレクトリのパス群</param>
-            <returns>見つかったファイルの個数</returns>
-        </member>
         <member name="T:FileManagerLib.MimeType.MimeTypeMap">
             <summary>
             MimeTypeの変換系を提供します。
