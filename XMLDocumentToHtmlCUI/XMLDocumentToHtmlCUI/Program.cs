@@ -19,6 +19,7 @@ namespace XMLDocumentToHtmlCUI
         static void Main(string[] args)
         {
             var envParser = new Parser.EnvArgumentParser(args);
+            var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
             var inputFiles = envParser.GetValues();
             var outputPath = envParser.GetOutputFilepath();
 
@@ -32,7 +33,7 @@ namespace XMLDocumentToHtmlCUI
                 var parser = new CsXmlDocumentParser(input);
                 root.Namespaces.AddRange(parser.TreeElement.Namespaces);
             }
-            var converter = new CsXmlToHtmlWriter(root);
+            var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk();
         }
     }
