@@ -13,6 +13,7 @@ namespace XmlDocumentParser.CsXmlDocument
         public string Name { get; set; }
         public List<string> MethodParameters { get; set; } = new List<string>();
         public string Value { get; set; }
+        public string ReturnComment { get; set; }
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
 
         public override string ToString()
