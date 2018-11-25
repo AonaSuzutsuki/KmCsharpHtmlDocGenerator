@@ -124,6 +124,9 @@ namespace XmlDocumentToHtml.Writer
 
         private string CreateIndex(Element element)
         {
+            if (element == null)
+                return string.Empty;
+
             if (element.Type == ElementType.Root)
             {
                 var sb2 = new StringBuilder();
@@ -133,9 +136,6 @@ namespace XmlDocumentToHtml.Writer
                 sb2.AppendLine("</ul>");
                 return sb2.ToString();
             }
-
-            if (element == null)
-                return string.Empty;
 
             var sb = new StringBuilder();
             if (element.Namespaces != null)
@@ -278,6 +278,9 @@ namespace XmlDocumentToHtml.Writer
         
         private static string CreateMenu(Element element, int link, string suffix = "")
         {
+            if (element == null)
+                return string.Empty;
+
             if (element.Type == ElementType.Root)
             {
                 var sb2 = new StringBuilder();
@@ -289,8 +292,6 @@ namespace XmlDocumentToHtml.Writer
                 return sb2.ToString();
             }
 
-            if (element == null)
-                return string.Empty;
 
             var sb = new StringBuilder();
             if (element.Namespaces != null)
