@@ -11,6 +11,7 @@ using XmlDocumentParser.CsXmlDocument;
 using CommonCoreLib.Crypto;
 using XmlDocumentToHtml.Extensions;
 using XmlDocumentToHtml.CommonPath;
+using XmlDocumentToHtml.Template;
 
 namespace XmlDocumentToHtml.Writer
 {
@@ -33,6 +34,11 @@ namespace XmlDocumentToHtml.Writer
         /// Specify the directory path where the generated HTML template.
         /// </summary>
         public string TemplateDir { get; set; } = BaseTemplateDir;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string BaseIndexTemplatePath { get => GetTemplatePath(TemplateDir, "BaseIndex.html", BaseTemplateDir); }
 
         /// <summary>
         /// Gets the top-level template-based file path.
@@ -71,6 +77,7 @@ namespace XmlDocumentToHtml.Writer
         public void WriteToDisk(string outputDirPath = "")
         {
             //var menu = CreateMenu(root);
+            WriteIndex(outputDirPath, root);
             CreateDirectory(root, outputDirPath);
             CreateClassFile(root, root, outputDirPath);
             CloneFiles(root.Name);
@@ -95,6 +102,54 @@ namespace XmlDocumentToHtml.Writer
                     }
                 }
             }
+        }
+
+        private void WriteIndex(string outputDirPath, Element element)
+        {
+            var indexText = CreateIndex(root);
+            var menu = CreateMenu(root, 0);
+
+            var loader = new TemplateLoader(BaseIndexTemplatePath);
+            loader.Assign("HasClass", true);
+            loader.Assign("ClassItems", indexText, true);
+            loader.Assign("Menu", menu);
+
+            var name = PathUtils.ResolvePathSeparator(outputDirPath + element.Name + "/index.html");
+            using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
+            {
+                var data = Encoding.UTF8.GetBytes(loader.ToString());
+                fs.Write(data, 0, data.Length);
+            }
+        }
+
+        private string CreateIndex(Element element)
+        {
+            if (element.Type == ElementType.Root)
+            {
+                var sb2 = new StringBuilder();
+                sb2.AppendLine("<ul>");
+                foreach (var elem in element.Namespaces)
+                    sb2.Append(CreateIndex(elem));
+                sb2.AppendLine("</ul>");
+                return sb2.ToString();
+            }
+
+            if (element == null)
+                return string.Empty;
+
+            var sb = new StringBuilder();
+            if (element.Namespaces != null)
+            {
+                foreach (var elem in element.Namespaces)
+                    sb.Append(CreateIndex(elem));
+            }
+            else
+            {
+                var namespacePath = element.Namespace.ToString().Replace(".", "/");
+                var name = "    <li><a href=\"{0}/{1}.html\">{2}.{1}</a></li>".FormatString(namespacePath, element.Name, element.Namespace.ToString()); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
+                sb.AppendLine(name);
+            }
+            return sb.ToString();
         }
 
         private void WriteHtml(Stream stream, List<Member> members, Element parent, Element root)
@@ -227,6 +282,7 @@ namespace XmlDocumentToHtml.Writer
             {
                 var sb2 = new StringBuilder();
                 sb2.AppendLine("<ul>");
+                sb2.AppendLine("    <li><a href=\"{0}{1}index.html\">Index</a></li>".FormatString(suffix, CreateRelativePath(link)));
                 foreach (var elem in element.Namespaces)
                     sb2.Append(CreateMenu(elem, link, "    "));
                 sb2.AppendLine("</ul>");
