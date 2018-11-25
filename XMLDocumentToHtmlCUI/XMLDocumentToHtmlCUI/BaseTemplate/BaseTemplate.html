@@ -66,6 +66,16 @@
 
             </div>
             {/if $HasProperty}
+
+            {if $HasEnum == true}
+            <br />
+            <div id="enums">
+                <h2>Enums</h2>
+
+                {$EnumItems}
+
+            </div>
+            {/if $HasEnum}
         </div>
 
     </div>

@@ -6,26 +6,44 @@ using System.Threading.Tasks;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
+    /// <summary>
+    /// It expresses the lowest element such as method and property.
+    /// </summary>
     public class Member
     {
+        /// <summary>
+        /// Method type of member.
+        /// </summary>
         public MethodType Type { get; set; }
-        public NamespaceItem NameSpace { get; set; }
-        public string Name { get; set; }
-        public List<string> MethodParameters { get; set; } = new List<string>();
-        public string Value { get; set; }
-        public string ReturnComment { get; set; }
-        public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendFormat("[{0}: {1},", "Type", Type.ToString());
-            sb.AppendFormat("{0}: {1},", "NameSpace", NameSpace.ToString());
-            sb.AppendFormat("{0}: {1},", "Name", Name.ToString());
-            sb.AppendFormat("{0}: {1},", "MethodParameters", MethodParameters.ToString());
-            sb.AppendFormat("{0}: {1},", "Value", Value.ToString());
-            sb.AppendFormat("{0}: {1}]\n", "Parameters", Parameters.ToString());
-            return sb.ToString();
-        }
+        /// <summary>
+        /// Namespace of member.
+        /// </summary>
+        public NamespaceItem NameSpace { get; set; }
+
+        /// <summary>
+        /// Name of member.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Parameter types of member.
+        /// </summary>
+        public List<string> MethodParameters { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Value of member.
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
+        /// Return comment of member.
+        /// </summary>
+        public string ReturnComment { get; set; }
+
+        /// <summary>
+        /// Parameter names of member.
+        /// </summary>
+        public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
     }
 }

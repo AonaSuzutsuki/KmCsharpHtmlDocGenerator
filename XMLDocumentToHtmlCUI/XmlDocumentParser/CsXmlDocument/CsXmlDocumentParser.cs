@@ -136,7 +136,7 @@ namespace XmlDocumentParser.CsXmlDocument
                         preElem = preElem.Namespaces[preElem.Namespaces.Count - 1];
                     }
 
-                    nameSpace = nameSpace.GetNamespaceRemoveFirst();
+                    nameSpace = nameSpace.GetNamespaceWithoutFirst();
                 }
 
                 if (member.Type == MethodType.Class)
@@ -233,7 +233,7 @@ namespace XmlDocumentParser.CsXmlDocument
 
                 member.Type = type;
                 if (type != MethodType.Class)
-                    member.NameSpace = nameSpace.GetNamespace();
+                    member.NameSpace = nameSpace.GetParentNamespace();
                 else
                     member.NameSpace = nameSpace;
                 member.Name = methodName;
@@ -253,7 +253,7 @@ namespace XmlDocumentParser.CsXmlDocument
         private static (NamespaceItem nameSpaces, string methodName) SplitMethodName(string fullname)
         {
             var namespaceItem = new NamespaceItem(fullname);
-            return (namespaceItem.GetNamespace(), namespaceItem.GetLastName());
+            return (namespaceItem.GetParentNamespace(), namespaceItem.GetLastName());
         }
 
         private static MethodType ConvertMethodType(string text)
@@ -263,7 +263,8 @@ namespace XmlDocumentParser.CsXmlDocument
                 { "T", MethodType.Class },
                 { "P", MethodType.Property },
                 { "C", MethodType.Constructor },
-                { "M", MethodType.Method }
+                { "M", MethodType.Method },
+                { "F", MethodType.EnumItem }
             };
             return map[text];
         }
@@ -274,6 +275,28 @@ namespace XmlDocumentParser.CsXmlDocument
             text = text.Replace("\r", "\n");
             text = text.TrimStart('\n').TrimEnd('\n');
             return text;
+        }
+
+
+        /// <summary>
+        /// Parse multiple Files.
+        /// </summary>
+        /// <param name="files">Array of filepath</param>
+        /// <param name="rootName">Root name.</param>
+        /// <returns>Parsed element.</returns>
+        public static Element ParseMultiFiles(string[] files, string rootName = "Root")
+        {
+            Element root = new Element()
+            {
+                Name = rootName,
+                Type = ElementType.Root
+            };
+            foreach (var input in files)
+            {
+                var parser = new CsXmlDocumentParser(input);
+                root.Namespaces.AddRange(parser.Parse().Namespaces);
+            }
+            return root;
         }
     }
 }

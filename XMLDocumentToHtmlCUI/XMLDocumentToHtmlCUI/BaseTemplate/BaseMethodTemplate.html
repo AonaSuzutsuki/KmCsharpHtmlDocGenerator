@@ -2,23 +2,26 @@
 <div class="method-elem">
     <h3 id="{$MethodHash}">{$MethodName}{$MethodParameters}</h3>
 
-    {if $HasParameter == true}
-    <table class="parameter">
-        <caption>パラメータ</caption>
-        {$Parameters}
-    </table>
-    {/if $HasParameter}
+    <div class="method-elem">
+        {if $HasParameter == true}
+        <table class="parameter">
+            <caption>パラメータ</caption>
+            {$Parameters}
+        </table>
+        {/if $HasParameter}
 
-    {if $HasReturn == true}
-    <table class="parameter">
-        <caption>戻り値</caption>
-        <tr>
-            <td>{$MethodReturnComment}</td>
-        </tr>
-    </table>
-    {/if $HasReturn}
+        {if $HasReturn == true}
+        <table class="parameter">
+            <caption>戻り値</caption>
+            <tr>
+                <td>{$MethodReturnComment}</td>
+            </tr>
+        </table>
+        {/if $HasReturn}
 
-    <div class="elem-content">
-        {$MethodComment}
+        <div class="elem-content">
+            {$MethodComment}
+        </div>
     </div>
+    
 </div>

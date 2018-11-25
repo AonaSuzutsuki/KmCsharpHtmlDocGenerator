@@ -8,49 +8,71 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentParser.CsXmlDocument;
-using XmlDocumentToHtml.Crypto;
+using CommonCoreLib.Crypto;
 using XmlDocumentToHtml.Extensions;
 
 namespace XmlDocumentToHtml.Writer
 {
+    /// <summary>
+    /// C# Xml Document to HTML Writer with <c>Element</c>.
+    /// </summary>
     public class CsXmlToHtmlWriter
     {
 
+        #region Constants
+        private const string BaseTemplateDir = "BaseTemplate";
+        #endregion
+
+        #region Fields
         private readonly Element root;
+        #endregion
 
-        public string TemplateDir { get; set; } = "BaseTemplate";
-        public string BaseTemplatePath { get => "{0}/BaseTemplate.html".FormatString(TemplateDir); }
-        public string BaseMethodTemplate { get => "{0}/BaseMethodTemplate.html".FormatString(TemplateDir); }
-        public string BasePropertyTemplate { get => "{0}/BasePropertyTemplate.html".FormatString(TemplateDir); }
-        public string ParameterTableTemplate { get => "{0}/BaseParameterTemplate.html".FormatString(TemplateDir); }
+        #region Properties
+        /// <summary>
+        /// Specify the directory path where the generated HTML template.
+        /// </summary>
+        public string TemplateDir { get; set; } = BaseTemplateDir;
 
+        /// <summary>
+        /// Gets the top-level template-based file path.
+        /// </summary>
+        public string BaseTemplatePath { get => GetTemplatePath(TemplateDir, "BaseTemplate.html", BaseTemplateDir); }
+
+        /// <summary>
+        /// Gets the file path of template-based for methods.
+        /// </summary>
+        public string BaseMethodTemplate { get => GetTemplatePath(TemplateDir, "BaseMethodTemplate.html", BaseTemplateDir); }
+
+        /// <summary>
+        /// Gets the file path of template-based for properties.
+        /// </summary>
+        public string BasePropertyTemplate { get => GetTemplatePath(TemplateDir, "BasePropertyTemplate.html", BaseTemplateDir); }
+
+        /// <summary>
+        /// Gets the file path of template-based for method and property parameters.
+        /// </summary>
+        public string ParameterTableTemplate { get => GetTemplatePath(TemplateDir, "BaseParameterTemplate.html", BaseTemplateDir); }
+        #endregion
+
+        /// <summary>
+        /// Initialize C# Xml Document to HTML Writer with <c>Element</c>.
+        /// </summary>
+        /// <param name="root">Root <c>Element</c>.</param>
         public CsXmlToHtmlWriter(Element root)
         {
             this.root = root;
         }
 
-        public void WriteToDisk()
+        /// <summary>
+        /// Write HTML of C# Xml Document to Disk.
+        /// </summary>
+        /// <param name="outputDirPath">Specify output directory path.</param>
+        public void WriteToDisk(string outputDirPath = "")
         {
             //var menu = CreateMenu(root);
-            CreateDirectory(root);
-            CreateClassFile(root, root);
+            CreateDirectory(root, outputDirPath);
+            CreateClassFile(root, root, outputDirPath);
             CloneFiles(root.Name);
-        }
-
-        private void CreateDirectory(Element element, string suffix = "")
-        {
-            if (element != null)
-            {
-                if (element.Namespaces != null)
-                {
-                    var name = suffix + element.Name;
-                    var di = new DirectoryInfo(name);
-                    if (!di.Exists)
-                        di.Create();
-                    foreach (var elem in element.Namespaces)
-                        CreateDirectory(elem, name + "/");
-                }
-            }
         }
 
         private void CreateClassFile(Element element, Element root, string suffix = "")
@@ -74,7 +96,90 @@ namespace XmlDocumentToHtml.Writer
             }
         }
 
-        private void CloneFiles(string outPath)
+        private void WriteHtml(Stream stream, List<Member> members, Element parent, Element root)
+        {
+            var loader = new Template.TemplateLoader(BaseTemplatePath);
+
+            var constructors = new StringBuilder();
+            var methods = new StringBuilder();
+            var properties = new StringBuilder();
+            var enums = new StringBuilder();
+            foreach (var member in members)
+            {
+                if (member.Type == MethodType.Method || member.Type == MethodType.Constructor)
+                {
+                    var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
+                    var parametersStr = ResolveMethodParameter(member);
+                    var paramStr = ResolveParameterTable(member, ParameterTableTemplate);
+                    var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
+                    var hash = Sha256.GetSha256(name + parametersStr);
+                    methodLoader.Assign("MethodHash", hash);
+                    methodLoader.Assign("MethodName", name);
+                    methodLoader.Assign("MethodParameters", parametersStr);
+                    methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value));
+
+                    if (!string.IsNullOrEmpty(member.ReturnComment))
+                    {
+                        methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment));
+                        methodLoader.Assign("HasReturn", true.ToString());
+                    }
+                    if (!string.IsNullOrEmpty(paramStr))
+                    {
+                        methodLoader.Assign("Parameters", paramStr, true);
+                        methodLoader.Assign("HasParameter", true);
+                    }
+
+                    if (member.Type == MethodType.Method)
+                    {
+                        methods.Append(methodLoader.ToString());
+                        loader.Assign("HasMethod", true);
+                    }
+                    else
+                    {
+                        constructors.Append(methodLoader.ToString());
+                        loader.Assign("HasConstructor", true);
+                    }
+                }
+                else if (member.Type == MethodType.Property || member.Type == MethodType.EnumItem)
+                {
+                    var propertyLoader = new Template.TemplateLoader(BasePropertyTemplate);
+                    var hash = Sha256.GetSha256(member.Name);
+                    propertyLoader.Assign("PropertyHash", hash);
+                    propertyLoader.Assign("PropertyName", member.Name);
+                    propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value));
+
+                    if (member.Type == MethodType.Property)
+                    {
+                        properties.Append(propertyLoader.ToString());
+                        loader.Assign("HasProperty", true);
+                    }
+                    else
+                    {
+                        enums.Append(propertyLoader.ToString());
+                        loader.Assign("HasEnum", true);
+                    }
+                }
+            }
+
+            var linkCount = parent.Namespace.NamespaceCount;
+            loader.Assign("RelativePath", CreateRelativePath(linkCount));
+            loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
+            loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value)));
+            loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
+            loader.Assign("Namespace", parent.Namespace);
+            loader.Assign("Menu", CreateMenu(root, linkCount), true);
+            loader.Assign("Toc", CreateToc(members, parent), true);
+            loader.Assign("ConstructorItems", constructors, true);
+            loader.Assign("MethodItems", methods, true);
+            loader.Assign("PropertyItems", properties, true);
+            loader.Assign("EnumItems", enums, true);
+
+            var template = loader.ToString();
+            var templateBytes = Encoding.UTF8.GetBytes(template);
+            stream.Write(templateBytes, 0, templateBytes.Length);
+        }
+
+        private static void CloneFiles(string outPath)
         {
             var di = new DirectoryInfo("BaseTemplate/Clone");
             if (di.Exists)
@@ -99,12 +204,23 @@ namespace XmlDocumentToHtml.Writer
             }
         }
 
-        private string ResolvePathSeparator(string path)
+        private static void CreateDirectory(Element element, string suffix = "")
         {
-            return path.Replace("\\", "/");
+            if (element != null)
+            {
+                if (element.Namespaces != null)
+                {
+                    var name = suffix + element.Name;
+                    var di = new DirectoryInfo(name);
+                    if (!di.Exists)
+                        di.Create();
+                    foreach (var elem in element.Namespaces)
+                        CreateDirectory(elem, name + "/");
+                }
+            }
         }
-
-        private string CreateMenu(Element element, int link,string suffix = "")
+        
+        private static string CreateMenu(Element element, int link,string suffix = "")
         {
             if (element.Type == ElementType.Root)
             {
@@ -139,79 +255,7 @@ namespace XmlDocumentToHtml.Writer
             return sb.ToString();
         }
 
-        private void WriteHtml(Stream stream, List<Member> members, Element parent, Element root)
-        {
-            var loader = new Template.TemplateLoader(BaseTemplatePath);
-
-            var constructors = new StringBuilder();
-            var methods = new StringBuilder();
-            var properties = new StringBuilder();
-            foreach (var member in members)
-            {
-                if (member.Type == MethodType.Method || member.Type == MethodType.Constructor)
-                {
-                    var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
-                    var parametersStr = ResolveMethodParameter(member);
-                    var paramStr = ResolveParameterTable(member, ParameterTableTemplate);
-                    var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
-                    var hash = Sha256.GetSha256(name + parametersStr);
-                    methodLoader.Assign("MethodHash", hash);
-                    methodLoader.Assign("MethodName", name);
-                    methodLoader.Assign("MethodParameters", parametersStr);
-                    methodLoader.Assign("MethodComment", member.Value);
-
-                    if (!string.IsNullOrEmpty(member.ReturnComment))
-                    {
-                        methodLoader.Assign("MethodReturnComment", member.ReturnComment);
-                        methodLoader.Assign("HasReturn", true.ToString());
-                    }
-                    if (!string.IsNullOrEmpty(paramStr))
-                    {
-                        methodLoader.Assign("Parameters", paramStr, true);
-                        methodLoader.Assign("HasParameter", true);
-                    }
-
-                    if (member.Type == MethodType.Method)
-                    {
-                        methods.Append(methodLoader.ToString());
-                        loader.Assign("HasMethod", true);
-                    }
-                    else
-                    {
-                        constructors.Append(methodLoader.ToString());
-                        loader.Assign("HasConstructor", true);
-                    }
-                }
-                else if (member.Type == MethodType.Property)
-                {
-                    var propertyLoader = new Template.TemplateLoader(BasePropertyTemplate);
-                    var hash = Sha256.GetSha256(member.Name);
-                    propertyLoader.Assign("PropertyHash", hash);
-                    propertyLoader.Assign("PropertyName", member.Name);
-                    propertyLoader.Assign("PropertyComment", member.Value);
-                    properties.Append(propertyLoader.ToString());
-                    loader.Assign("HasProperty", true);
-                }
-            }
-
-            var linkCount = parent.Namespace.NamespaceCount;
-            loader.Assign("RelativePath", CreateRelativePath(linkCount));
-            loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
-            loader.Assign("ClassComment", "{0}".FormatString(parent.Value));
-            loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
-            loader.Assign("Namespace", parent.Namespace);
-            loader.Assign("Menu", CreateMenu(root, linkCount), true);
-            loader.Assign("Toc", CreateToc(members, parent), true);
-            loader.Assign("ConstructorItems", constructors, true);
-            loader.Assign("MethodItems", methods, true);
-            loader.Assign("PropertyItems", properties, true);
-
-            var template = loader.ToString();
-            var templateBytes = Encoding.UTF8.GetBytes(template);
-            stream.Write(templateBytes, 0, templateBytes.Length);
-        }
-        
-        private string CreateToc(List<Member> members, Element parent)
+        private static string CreateToc(List<Member> members, Element parent)
         {
             var toc = new StringBuilder();
 
@@ -230,7 +274,7 @@ namespace XmlDocumentToHtml.Writer
                 }
                 if (list.Count > 0)
                 {
-					tocElement.AppendFormat("<h3>{0}</h3>\n", typeName);
+                    tocElement.AppendFormat("<h3>{0}</h3>\n", typeName);
                     tocElement.AppendLine("<ol>");
                     tocElement.AppendLine(list.GetString());
                     tocElement.AppendLine("</ol>");
@@ -241,16 +285,36 @@ namespace XmlDocumentToHtml.Writer
             toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + ResolveMethodParameter(member), "Constructor"));
             toc.Append(GetElement(MethodType.Method, (member) => member.Name + ResolveMethodParameter(member), "Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
+            toc.Append(GetElement(MethodType.EnumItem, (member) => member.Name, "Enums"));
 
             return toc.ToString();
         }
 
+        private static string ResolveSpecificXmlElement(string text)
+        {
+            var regex = new Regex("<c>(?<value>.*)<\\/c>");
+            Match match = regex.Match(text);
+            while (match.Success)
+            {
+                var full = match.Value;
+                var value = match.Groups["value"].ToString();
+                text = text.Replace(full, "<span class=\"specific-element\">{0}</span>".FormatString(value));
+                match = regex.Match(text);
+            }
+            return text;
+        }
+        
         private static string CreateRelativePath(int link)
         {
             string linkStr = "";
             for (int i = 0; i < link; i++)
                 linkStr += "../";
             return linkStr;
+        }
+
+        private static string ResolvePathSeparator(string path)
+        {
+            return path.Replace("\\", "/");
         }
 
         private static string ResolveMethodParameter(Member member)
@@ -311,6 +375,14 @@ namespace XmlDocumentToHtml.Writer
                 return ResolveGenericsType(str);
             }
             return str;
+        }
+
+        private static string GetTemplatePath(string templateDir, string templateFileName, string baseTemplateDir)
+        {
+            var templateFilePath = "{0}/{1}".FormatString(templateDir, templateFileName);
+            if (File.Exists(templateFilePath))
+                return templateFilePath;
+            return "{0}/{1}".FormatString(baseTemplateDir, templateFileName);
         }
 
         private void ShowElements(Element element, string suffix = "")

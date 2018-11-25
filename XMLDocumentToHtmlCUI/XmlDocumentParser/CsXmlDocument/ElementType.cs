@@ -6,11 +6,29 @@ using System.Threading.Tasks;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
+    /// <summary>
+    /// Type of tree structure element such as namespace.
+    /// </summary>
     public enum ElementType
     {
+        /// <summary>
+        /// Root.
+        /// </summary>
         Root,
+
+        /// <summary>
+        /// Namespace.
+        /// </summary>
         Namespace,
+
+        /// <summary>
+        /// Class.
+        /// </summary>
         Class,
+
+        /// <summary>
+        /// Interface.
+        /// </summary>
         Interface,
     }
 }

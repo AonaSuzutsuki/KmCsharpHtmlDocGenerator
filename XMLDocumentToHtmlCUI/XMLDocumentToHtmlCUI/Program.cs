@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentParser;
 using XmlDocumentParser.CsXmlDocument;
-using XmlDocumentToHtml.Crypto;
+using CommonCoreLib.Crypto;
 using XmlDocumentToHtml.Extensions;
 using XmlDocumentToHtml.Writer;
 
@@ -23,18 +23,9 @@ namespace XMLDocumentToHtmlCUI
             var inputFiles = envParser.GetValues();
             var outputPath = envParser.GetOutputFilepath();
 
-            Element root = new Element()
-            {
-                Name = outputPath,
-                Type = ElementType.Root
-            };
-            foreach (var input in inputFiles)
-            {
-                var parser = new CsXmlDocumentParser(input);
-                root.Namespaces.AddRange(parser.Parse().Namespaces);
-            }
+            Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, outputPath);
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
-            converter.WriteToDisk();
+            converter.WriteToDisk("{0}/".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
         }
     }
 }

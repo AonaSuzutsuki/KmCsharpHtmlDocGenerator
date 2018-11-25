@@ -4,6 +4,7 @@
 
 #body-container {
     position: relative;
+    margin-bottom: 50px;
 }
 
     #body-container::after {
@@ -23,6 +24,12 @@
 #body-content {
     width: 900px;
     margin-left: 400px;
+}
+
+.specific-element {
+    border: 1px solid #999;
+    background-color: #eee;
+    padding: 2px;
 }
 
 h1 {

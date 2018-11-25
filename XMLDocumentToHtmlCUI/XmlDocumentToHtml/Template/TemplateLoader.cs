@@ -50,11 +50,24 @@ namespace XmlDocumentToHtml.Template
                 map.Add(key, new ValueIndentPair() { Value = value.ToString(), IsIndent = isIndent });
         }
 
+        /// <summary>
+        /// Reset key value map on TemplateLoader.
+        /// </summary>
         public void Reset()
         {
             map = new Dictionary<string, ValueIndentPair>();
         }
-		private string Analyze()
+
+        /// <summary>
+        /// Returns a string with a value added to the key.
+        /// </summary>
+        /// <returns>Completed string.</returns>
+        public override string ToString()
+        {
+            return Analyze();
+        }
+
+        private string Analyze()
 		{
 			var converted = new List<string>();
 			var lines = File.ReadAllLines(templatePath);
@@ -91,10 +104,10 @@ namespace XmlDocumentToHtml.Template
                     }
                 }
 			}
-			return Analyze2(converted.GetString());
+			return SecondAnalyze(converted.GetString());
 		}
 
-        private string Analyze2(string text)
+        private string SecondAnalyze(string text)
         {
             var reg = new Regex("(?<startStatement>{(?<start>.*) +\\$(?<key>.*) == (?<statementValue>.*)})(?<value>[\\s\\S]*)(?<endStatement>{\\/(?<end>.*)})");
             var match = reg.Match(text);
@@ -124,13 +137,13 @@ namespace XmlDocumentToHtml.Template
                         }
                     }
 
-                    return Analyze2(text);
+                    return SecondAnalyze(text);
                 }
             }
             return text;
         }
 
-        private string ResolveIndent(string text, string indent)
+        private static string ResolveIndent(string text, string indent)
         {
             var sb = new StringBuilder();
             var textArray = new List<string>(ResolveNewLine(text).Split('\n'));
@@ -147,14 +160,14 @@ namespace XmlDocumentToHtml.Template
             return sb.ToString();
         }
 
-        private string ResolveNewLine(string text)
+        private static string ResolveNewLine(string text)
         {
             text = text.Replace("\r\n", "\r");
             text = text.Replace("\r", "\n");
             return text;
         }
 
-        private string GetIndent(string text)
+        private static string GetIndent(string text)
         {
             var reg = new Regex("(?<spaces> +)(.*)");
             var match = reg.Match(text);
@@ -165,10 +178,5 @@ namespace XmlDocumentToHtml.Template
             }
             return string.Empty;
         }
-
-        public override string ToString()
-		{         
-			return Analyze();
-		}
     }
 }
