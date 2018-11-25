@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using XmlDocumentParser.XmlWrapper;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
@@ -65,7 +66,8 @@ namespace XmlDocumentParser.CsXmlDocument
             var members = new List<Member>();
             using (var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                var reader = new Reader(fs);
+                var reader = new Reader();
+                reader.LoadFromStream(fs);
                 var vals = reader.GetAttributes("name", "/doc/members/member");
                 foreach (var val in vals)
                 {
