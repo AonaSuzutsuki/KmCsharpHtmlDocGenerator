@@ -22,8 +22,7 @@ namespace XMLDocumentToHtmlCUI
             var envParser = new Parser.EnvArgumentParser(args);
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
             var inputFiles = envParser.GetValues();
-            var outputPath = envParser.GetOutputFilepath() ?? "{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath());
-            outputPath = PathUtils.ResolvePathSeparator(outputPath);
+            var outputPath = envParser.GetOutputFilepath() ?? PathUtils.ResolvePathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
             var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
 

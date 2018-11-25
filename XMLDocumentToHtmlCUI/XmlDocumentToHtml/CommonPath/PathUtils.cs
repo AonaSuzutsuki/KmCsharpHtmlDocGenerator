@@ -20,7 +20,7 @@ namespace XmlDocumentToHtml.CommonPath
         /// <returns></returns>
         public static string ResolvePathSeparator(string path)
         {
-            return path.Replace(Path.DirectorySeparatorChar, '/');
+            return path.Replace('\\', '/').Replace('/', Path.DirectorySeparatorChar);
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace XmlDocumentToHtml.CommonPath
         /// <returns></returns>
         public static string GetSingleDirectoryName(string path)
         {
-            var list = new List<string>(path.Split('/'));
+            var list = new List<string>(path.Split(Path.DirectorySeparatorChar));
             list.Remove("");
             if (list.Count > 0)
                 return list[list.Count - 1];
@@ -44,9 +44,9 @@ namespace XmlDocumentToHtml.CommonPath
         /// <returns></returns>
         public static (string singleDirectoryName, string directoryName) GetSingleDirectoryNameAndDirectoryName(string path)
         {
-            path = path.TrimEnd('/');
+            path = path.TrimEnd(Path.DirectorySeparatorChar);
             var singleDirectoryName = GetSingleDirectoryName(path);
-            var directoryName = "{0}/".FormatString(ResolvePathSeparator(Path.GetDirectoryName(path)));
+            var directoryName = "{0}{1}".FormatString(Path.GetDirectoryName(path), Path.DirectorySeparatorChar);
             return (singleDirectoryName, directoryName);
         }
     }
