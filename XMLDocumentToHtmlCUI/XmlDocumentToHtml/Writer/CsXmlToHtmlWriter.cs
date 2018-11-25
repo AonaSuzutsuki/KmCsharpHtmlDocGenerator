@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using XmlDocumentParser.CsXmlDocument;
 using CommonCoreLib.Crypto;
 using XmlDocumentToHtml.Extensions;
+using XmlDocumentToHtml.CommonPath;
 
 namespace XmlDocumentToHtml.Writer
 {
@@ -187,7 +188,7 @@ namespace XmlDocumentToHtml.Writer
                 var dirs = DirectorySearcher.GetAllDirectories(di.FullName);
                 foreach (var dir in dirs)
                 {
-                    var relativeDir = ResolvePathSeparator(dir).Replace(ResolvePathSeparator(di.FullName) + "/", "");
+                    var relativeDir = PathUtils.ResolvePathSeparator(dir).Replace(PathUtils.ResolvePathSeparator(di.FullName) + "/", "");
                     relativeDir = "{0}/{1}".FormatString(outPath, relativeDir);
                     if (!Directory.Exists(relativeDir))
                         Directory.CreateDirectory(relativeDir);
@@ -196,7 +197,7 @@ namespace XmlDocumentToHtml.Writer
                 var files = DirectorySearcher.GetAllFiles(di.FullName);
                 foreach (var file in files)
                 {
-                    var relativeFile = ResolvePathSeparator(file).Replace(ResolvePathSeparator(di.FullName) + "/", "");
+                    var relativeFile = PathUtils.ResolvePathSeparator(file).Replace(PathUtils.ResolvePathSeparator(di.FullName) + "/", "");
                     relativeFile = "{0}/{1}".FormatString(outPath, relativeFile);
                     if (!File.Exists(relativeFile))
                         File.Copy(file, relativeFile);
@@ -311,12 +312,7 @@ namespace XmlDocumentToHtml.Writer
                 linkStr += "../";
             return linkStr;
         }
-
-        private static string ResolvePathSeparator(string path)
-        {
-            return path.Replace("\\", "/");
-        }
-
+        
         private static string ResolveMethodParameter(Member member)
         {
             var parameters = member.MethodParameters.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });

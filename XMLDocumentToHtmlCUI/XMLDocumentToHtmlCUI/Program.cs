@@ -11,6 +11,7 @@ using XmlDocumentParser.CsXmlDocument;
 using CommonCoreLib.Crypto;
 using XmlDocumentToHtml.Extensions;
 using XmlDocumentToHtml.Writer;
+using XmlDocumentToHtml.CommonPath;
 
 namespace XMLDocumentToHtmlCUI
 {
@@ -21,11 +22,14 @@ namespace XMLDocumentToHtmlCUI
             var envParser = new Parser.EnvArgumentParser(args);
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
             var inputFiles = envParser.GetValues();
-            var outputPath = envParser.GetOutputFilepath();
+            var outputPath = envParser.GetOutputFilepath() ?? "{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath());
+            outputPath = PathUtils.ResolvePathSeparator(outputPath);
 
-            Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, outputPath);
+            var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
+
+            Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
-            converter.WriteToDisk("{0}/".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
+            converter.WriteToDisk(directoryName);
         }
     }
 }
