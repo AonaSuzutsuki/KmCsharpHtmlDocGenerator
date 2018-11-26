@@ -170,8 +170,47 @@ namespace XmlDocumentParser.CsXmlDocument
             }
             return root;
         }
+        
+        private static string ConvertConstructorType(string baseType, string methodName)
+        {
+            if (methodName.Equals("#ctor"))
+                return "C";
+            return baseType;
+        }
 
-        private static Member ConvertMemberNameToMember(string text)
+        private static (NamespaceItem nameSpaces, string methodName) SplitMethodName(string fullname)
+        {
+            var namespaceItem = new NamespaceItem(fullname);
+            return (namespaceItem.GetParentNamespace(), namespaceItem.GetLastName());
+        }
+
+        private static MethodType ConvertMethodType(string text)
+        {
+            var map = new Dictionary<string, MethodType>
+            {
+                { "T", MethodType.Class },
+                { "P", MethodType.Property },
+                { "C", MethodType.Constructor },
+                { "M", MethodType.Method },
+				{ "F", MethodType.Field }
+            };
+            return map[text];
+        }
+
+        private static string RemoveFirstLastBreakLine(string text)
+        {
+            text = text.Replace("\r\n", "\r");
+            text = text.Replace("\r", "\n");
+            text = text.TrimStart('\n').TrimEnd('\n');
+            return text;
+        }
+
+        /// <summary>
+		/// Converts the name text to <see cref="Member"/>.
+        /// </summary>
+        /// <returns><see cref="Member"/>.</returns>
+        /// <param name="text">The name text.</param>
+		public static Member ConvertMemberNameToMember(string text)
         {
             string ResolveSplitParameter(string split)
             {
@@ -242,41 +281,6 @@ namespace XmlDocumentParser.CsXmlDocument
 
             return member;
         }
-
-        private static string ConvertConstructorType(string baseType, string methodName)
-        {
-            if (methodName.Equals("#ctor"))
-                return "C";
-            return baseType;
-        }
-
-        private static (NamespaceItem nameSpaces, string methodName) SplitMethodName(string fullname)
-        {
-            var namespaceItem = new NamespaceItem(fullname);
-            return (namespaceItem.GetParentNamespace(), namespaceItem.GetLastName());
-        }
-
-        private static MethodType ConvertMethodType(string text)
-        {
-            var map = new Dictionary<string, MethodType>
-            {
-                { "T", MethodType.Class },
-                { "P", MethodType.Property },
-                { "C", MethodType.Constructor },
-                { "M", MethodType.Method },
-                { "F", MethodType.EnumItem }
-            };
-            return map[text];
-        }
-
-        private static string RemoveFirstLastBreakLine(string text)
-        {
-            text = text.Replace("\r\n", "\r");
-            text = text.Replace("\r", "\n");
-            text = text.TrimStart('\n').TrimEnd('\n');
-            return text;
-        }
-
 
         /// <summary>
         /// Parse multiple Files.

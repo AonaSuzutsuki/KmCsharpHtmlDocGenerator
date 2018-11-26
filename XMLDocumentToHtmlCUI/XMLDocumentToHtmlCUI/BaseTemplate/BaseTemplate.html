@@ -23,25 +23,20 @@
         </div>
 
         <div id="body-content">
-
             <div>
                 <h1>{$ClassName}</h1>
                 <span>Namespace: {$Namespace}</span>
             </div>
-
             <br />
             {$ClassComment}
             <br />
-
             <div>
                 {$Toc}
             </div>
-
             {if $HasConstructor == true}
             <br />
             <div id="methods">
                 <h2>Constructors</h2>
-
                 {$ConstructorItems}
 
             </div>
@@ -51,7 +46,6 @@
             <br />
             <div id="methods">
                 <h2>Methods</h2>
-
                 {$MethodItems}
 
             </div>
@@ -61,21 +55,19 @@
             <br />
             <div id="properties">
                 <h2>Properties</h2>
-
                 {$PropertyItems}
 
             </div>
             {/if $HasProperty}
 
-            {if $HasEnum == true}
+            {if $HasField == true}
             <br />
             <div id="enums">
-                <h2>Enums</h2>
-
-                {$EnumItems}
+                <h2>Fields</h2>
+                {$FieldItems}
 
             </div>
-            {/if $HasEnum}
+            {/if $HasField}
         </div>
 
     </div>

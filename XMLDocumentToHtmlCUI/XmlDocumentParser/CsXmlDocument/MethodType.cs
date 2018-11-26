@@ -35,11 +35,6 @@ namespace XmlDocumentParser.CsXmlDocument
         /// Property.
         /// </summary>
         Property,
-
-        /// <summary>
-        /// Enum item.
-        /// </summary>
-        EnumItem,
         
     }
 }

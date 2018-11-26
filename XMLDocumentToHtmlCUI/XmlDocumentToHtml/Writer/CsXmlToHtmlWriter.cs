@@ -16,17 +16,17 @@ using XmlDocumentToHtml.Template;
 namespace XmlDocumentToHtml.Writer
 {
     /// <summary>
-    /// C# Xml Document to HTML Writer with <c>Element</c>.
+    /// C# Xml Document to HTML Writer with <c><see cref="Element"/></c>.
     /// </summary>
     public class CsXmlToHtmlWriter
     {
 
         #region Constants
-        private const string BaseTemplateDir = "BaseTemplate";
+		private const string BaseTemplateDir = "BaseTemplate";
         #endregion
 
         #region Fields
-        private readonly Element root;
+		private readonly Element rootElement;
         #endregion
 
         #region Properties
@@ -36,28 +36,33 @@ namespace XmlDocumentToHtml.Writer
         public string TemplateDir { get; set; } = BaseTemplateDir;
 
         /// <summary>
-        /// 
+        /// Gets the base index template path.
         /// </summary>
+        /// <value>The base index template path.</value>
         public string BaseIndexTemplatePath { get => GetTemplatePath(TemplateDir, "BaseIndex.html", BaseTemplateDir); }
 
         /// <summary>
-        /// Gets the top-level template-based file path.
+		/// Gets the top-level template-based file path.
         /// </summary>
+        /// <value>The base template path.</value>
         public string BaseTemplatePath { get => GetTemplatePath(TemplateDir, "BaseTemplate.html", BaseTemplateDir); }
 
         /// <summary>
-        /// Gets the file path of template-based for methods.
+		/// Gets the file path of template-based for methods.
         /// </summary>
+        /// <value>The base method template.</value>
         public string BaseMethodTemplate { get => GetTemplatePath(TemplateDir, "BaseMethodTemplate.html", BaseTemplateDir); }
 
         /// <summary>
-        /// Gets the file path of template-based for properties.
+		/// Gets the file path of template-based for properties.
         /// </summary>
+        /// <value>The base property template.</value>
         public string BasePropertyTemplate { get => GetTemplatePath(TemplateDir, "BasePropertyTemplate.html", BaseTemplateDir); }
 
         /// <summary>
-        /// Gets the file path of template-based for method and property parameters.
+		/// Gets the file path of template-based for method and property parameters.
         /// </summary>
+        /// <value>The parameter table template.</value>
         public string ParameterTableTemplate { get => GetTemplatePath(TemplateDir, "BaseParameterTemplate.html", BaseTemplateDir); }
         #endregion
 
@@ -67,7 +72,7 @@ namespace XmlDocumentToHtml.Writer
         /// <param name="root">Root <c>Element</c>.</param>
         public CsXmlToHtmlWriter(Element root)
         {
-            this.root = root;
+            this.rootElement = root;
         }
 
         /// <summary>
@@ -77,10 +82,10 @@ namespace XmlDocumentToHtml.Writer
         public void WriteToDisk(string outputDirPath = "")
         {
             //var menu = CreateMenu(root);
-            WriteIndex(outputDirPath, root);
-            CreateDirectory(root, outputDirPath);
-            CreateClassFile(root, root, outputDirPath);
-            CloneFiles(root.Name);
+			CreateDirectory(rootElement, outputDirPath);
+            WriteIndex(outputDirPath, rootElement);
+            CreateClassFile(rootElement, rootElement, outputDirPath);
+            CloneFiles(rootElement.Name);
         }
 
         private void CreateClassFile(Element element, Element root, string suffix = "")
@@ -106,8 +111,8 @@ namespace XmlDocumentToHtml.Writer
 
         private void WriteIndex(string outputDirPath, Element element)
         {
-            var indexText = CreateIndex(root);
-            var menu = CreateMenu(root, 0);
+            var indexText = CreateIndex(rootElement);
+            var menu = CreateMenu(rootElement, 0);
 
             var loader = new TemplateLoader(BaseIndexTemplatePath);
             loader.Assign("HasClass", true);
@@ -172,11 +177,11 @@ namespace XmlDocumentToHtml.Writer
                     methodLoader.Assign("MethodHash", hash);
                     methodLoader.Assign("MethodName", name);
                     methodLoader.Assign("MethodParameters", parametersStr);
-                    methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value));
+					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, parent));
 
                     if (!string.IsNullOrEmpty(member.ReturnComment))
                     {
-                        methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment));
+						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, parent));
                         methodLoader.Assign("HasReturn", true.ToString());
                     }
                     if (!string.IsNullOrEmpty(paramStr))
@@ -196,13 +201,13 @@ namespace XmlDocumentToHtml.Writer
                         loader.Assign("HasConstructor", true);
                     }
                 }
-                else if (member.Type == MethodType.Property || member.Type == MethodType.EnumItem)
+				else if (member.Type == MethodType.Property || member.Type == MethodType.Field)
                 {
                     var propertyLoader = new Template.TemplateLoader(BasePropertyTemplate);
                     var hash = Sha256.GetSha256(member.Name);
                     propertyLoader.Assign("PropertyHash", hash);
                     propertyLoader.Assign("PropertyName", member.Name);
-                    propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value));
+					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, parent));
 
                     if (member.Type == MethodType.Property)
                     {
@@ -212,7 +217,7 @@ namespace XmlDocumentToHtml.Writer
                     else
                     {
                         enums.Append(propertyLoader.ToString());
-                        loader.Assign("HasEnum", true);
+                        loader.Assign("HasField", true);
                     }
                 }
             }
@@ -220,7 +225,7 @@ namespace XmlDocumentToHtml.Writer
             var linkCount = parent.Namespace.NamespaceCount;
             loader.Assign("RelativePath", CreateRelativePath(linkCount));
             loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
-            loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value)));
+			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, parent)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
@@ -228,7 +233,7 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("ConstructorItems", constructors, true);
             loader.Assign("MethodItems", methods, true);
             loader.Assign("PropertyItems", properties, true);
-            loader.Assign("EnumItems", enums, true);
+            loader.Assign("FieldItems", enums, true);
 
             var template = loader.ToString();
             var templateBytes = Encoding.UTF8.GetBytes(template);
@@ -343,12 +348,12 @@ namespace XmlDocumentToHtml.Writer
             toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + ResolveMethodParameter(member), "Constructor"));
             toc.Append(GetElement(MethodType.Method, (member) => member.Name + ResolveMethodParameter(member), "Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
-            toc.Append(GetElement(MethodType.EnumItem, (member) => member.Name, "Enums"));
+			toc.Append(GetElement(MethodType.Field, (member) => member.Name, "Fields"));
 
             return toc.ToString();
         }
 
-        private static string ResolveSpecificXmlElement(string text)
+		private static string ResolveSpecificXmlElement(string text, Element parent)
         {
             var regex = new Regex("<c>(?<value>.*)<\\/c>");
             Match match = regex.Match(text);
@@ -359,6 +364,22 @@ namespace XmlDocumentToHtml.Writer
                 text = text.Replace(full, "<span class=\"specific-element\">{0}</span>".FormatString(value));
                 match = regex.Match(text);
             }
+
+			var linkCount = parent.Namespace.NamespaceCount;
+			var relativePath = CreateRelativePath(linkCount);
+			var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.*)\"[ ]*\\/>");
+			var match2 = regex2.Match(text);
+			while (match2.Success)
+			{
+				var full = match2.Value;
+				var cref = match2.Groups["crefValue"].ToString();
+				var member = CsXmlDocumentParser.ConvertMemberNameToMember(cref);
+				var namespacePath = member.NameSpace.ToString().Replace(".", "/");
+				text = text.Replace(full, "<a href=\"{0}{1}/{2}.html\">{3}.{2}</a>".FormatString(relativePath, namespacePath, member.Name, member.NameSpace.ToString()));
+
+				match2 = regex2.Match(text);
+			}
+
             return text;
         }
         
