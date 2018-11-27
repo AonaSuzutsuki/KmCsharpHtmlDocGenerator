@@ -149,7 +149,7 @@ namespace XmlDocumentParser.CsXmlDocument
                         Namespace = member.NameSpace,
                         Name = name,
                         Value = member.Value,
-                        Namespaces = null
+						Namespaces = new List<Element>()
                     };
 
                     if (name.StartsWith("I"))
@@ -189,6 +189,7 @@ namespace XmlDocumentParser.CsXmlDocument
             var map = new Dictionary<string, MethodType>
             {
                 { "T", MethodType.Class },
+				{ "E", MethodType.Event },
                 { "P", MethodType.Property },
                 { "C", MethodType.Constructor },
                 { "M", MethodType.Method },

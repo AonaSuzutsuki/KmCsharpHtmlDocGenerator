@@ -92,7 +92,7 @@ namespace XmlDocumentToHtml.Writer
         {
             if (element != null)
             {
-                if (element.Namespaces != null)
+				if (element.Namespaces != null && element.Namespaces.Count > 0)
                 {
                     var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
@@ -143,7 +143,7 @@ namespace XmlDocumentToHtml.Writer
             }
 
             var sb = new StringBuilder();
-            if (element.Namespaces != null)
+			if (element.Namespaces != null && element.Namespaces.Count > 0)
             {
                 foreach (var elem in element.Namespaces)
                     sb.Append(CreateIndex(elem));
@@ -269,7 +269,7 @@ namespace XmlDocumentToHtml.Writer
         {
             if (element != null)
             {
-                if (element.Namespaces != null)
+				if (element.Namespaces != null && element.Namespaces.Count > 0)
                 {
                     var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
                     var di = new DirectoryInfo(name);
@@ -299,7 +299,7 @@ namespace XmlDocumentToHtml.Writer
 
 
             var sb = new StringBuilder();
-            if (element.Namespaces != null)
+			if (element.Namespaces != null && element.Namespaces.Count > 0)
             {
                 var name = suffix + "<li>" + element.Name;
                 sb.AppendLine(name);
@@ -367,7 +367,7 @@ namespace XmlDocumentToHtml.Writer
 
 			var linkCount = parent.Namespace.NamespaceCount;
 			var relativePath = CreateRelativePath(linkCount);
-			var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.*)\"[ ]*\\/>");
+			var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.[^\"]*)\"[ ]*\\/>");
 			var match2 = regex2.Match(text);
 			while (match2.Success)
 			{

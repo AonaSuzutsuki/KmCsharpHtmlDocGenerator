@@ -6,114 +6,283 @@
     <members>
         <member name="T:FileManagerLib.Dat.DatFileManager">
             <summary>
-            データファイルの管理を提供します。
+            Provides a method of managing data files.
             </summary>
+        </member>
+        <member name="P:FileManagerLib.Dat.DatFileManager.FilePath">
+            <summary>
+            Gets the file path.
+            </summary>
+            <value>The file path.</value>
         </member>
         <member name="P:FileManagerLib.Dat.DatFileManager.SplitSize">
             <summary>
-            ファイルへの書き込みの際に分割読み込みをするしきい値
-            </summary>
-        </member>
-        <member name="P:FileManagerLib.Dat.DatFileManager.IsShiftJsonPosition">
-            <summary>
-            既に書き込まれているJSONをスキップして書き込むか上書きするかどうかを設定または取得します。
-            </summary>
-        </member>
-        <member name="P:FileManagerLib.Dat.DatFileManager.LastPositionWithoutJson">
-            <summary>
-            取り除くべき既に書き込まれているJSONのサイズを負数ベースで返します。
+            Threshold for split reading when reading or writing files.
             </summary>
         </member>
         <member name="P:FileManagerLib.Dat.DatFileManager.IsCheckHash">
             <summary>
-            ハッシュ計算によるデータの整合性を確認するかどうかを設定あるいは取得します。
+            Set or get whether to check the consistency of data by hash calculation.
             </summary>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileManagerLib.Dat.DatFileManager"/> class.
+            </summary>
+            <param name="filePath">File path.</param>
         </member>
         <member name="M:FileManagerLib.Dat.DatFileManager.GetBytes(System.Int64,System.Int32)">
             <summary>
-            指定された位置からデータの長さを除いたデータをバイト配列で返します。
+            Returns the actual data excluding the data length from the specified position as a byte array.
             </summary>
-            <param name="start">データの開始位置を指定します。</param>
-            <param name="identifierLength">データの長さを格納するバイトサイズを指定します。</param>
-            <returns>実データのバイト配列</returns>
+            <param name="start">Start position of data.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
+            <returns>Byte array of actual data.</returns>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.ActionBytes(System.Int64,System.Int32,System.Action{System.Byte[],System.Int32},System.Int32)">
+            <summary>
+            Reads the actual data little by little the data length from the specified position and executes the designated delegate every time it reads it.
+            </summary>
+            <param name="start">Start position.</param>
+            <param name="size">Threshold value for division and reading.</param>
+            <param name="action">Delegate for execution.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
         </member>
         <member name="M:FileManagerLib.Dat.DatFileManager.GetBytesFromEnd(System.Int32)">
             <summary>
-            末尾から実データの長さを除いたデータをバイト配列で返します。
+            Returns the data excluding the actual data length from the end as a byte array.
             </summary>
-            <param name="identifierLength">データの長さを格納するバイトサイズ</param>
-            <returns>実データのバイト配列</returns>
+            <param name="identifierLength">Byte size of the data length.</param>
+            <returns>Byte array of actual data.</returns>
         </member>
         <member name="M:FileManagerLib.Dat.DatFileManager.GetPartialBytes(System.Int64,System.Int64,System.Int32)">
             <summary>
-            指定された位置からデータの長さを除いたデータの部分をバイト配列で返します。
+            Returns the part of the data from the specified position as a byte array.
             </summary>
-            <param name="start">データの開始位置を指定します。</param>
-            <param name="length">取得したいデータの長さを指定します。</param>
-            <param name="identifierLength">データの長さを格納するバイトサイズを指定します。</param>
-            <returns>実データの部分バイト配列</returns>
+            <param name="start">Start position.</param>
+            <param name="length">The length of the data.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
+            <returns>Byte array of actual data.</returns>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.WriteToFile(System.Int64,System.String,System.String,System.Int32)">
+            <summary>
+            Write to the file system.
+            </summary>
+            <returns><c>true</c>, if to file was writed, <c>false</c> otherwise.</returns>
+            <param name="start">Start position.</param>
+            <param name="outFilePath">Output file path.</param>
+            <param name="expHash">Expected hash.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.Dispose">
+            <summary>
+            Releases all resource used by the <see cref="T:FileManagerLib.Dat.DatFileManager"/> object.
+            </summary>
+            <remarks>Call <see cref="M:FileManagerLib.Dat.DatFileManager.Dispose"/> when you are finished using the
+            <see cref="T:FileManagerLib.Dat.DatFileManager"/>. The <see cref="M:FileManagerLib.Dat.DatFileManager.Dispose"/> method leaves the
+            <see cref="T:FileManagerLib.Dat.DatFileManager"/> in an unusable state. After calling <see cref="M:FileManagerLib.Dat.DatFileManager.Dispose"/>,
+            you must release all references to the <see cref="T:FileManagerLib.Dat.DatFileManager"/> so the garbage
+            collector can reclaim the memory that the <see cref="T:FileManagerLib.Dat.DatFileManager"/> was occupying.</remarks>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.Write(System.Byte[],System.Int32)">
+            <summary>
+            Write the specified <paramref name="data"/>.
+            </summary>
+            <returns>The write.</returns>
+            <param name="data">Byte array of data.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.Write(System.IO.Stream,System.Action{Clusterable.IO.IClusterableStream},System.Int32)">
+            <summary>
+            Write to the specified stream with the writer delegate.
+            </summary>
+            <returns>Start position of writen data.</returns>
+            <param name="stream">Written stream.</param>
+            <param name="writeAction">Write action delegate.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
+        </member>
+        <member name="M:FileManagerLib.Dat.DatFileManager.WriteToEnd(System.Byte[],System.Int32)">
+            <summary>
+            Writes to end.
+            </summary>
+            <returns>Start position.</returns>
+            <param name="data">Written data.</param>
+            <param name="identifierLength">Byte size of the data length.</param>
+        </member>
+        <member name="T:FileManagerLib.Extensions.Imager.ImageExtension">
+            <summary>
+            Provides <c>Image</c> related extension methods.
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.Extensions.Imager.ImageExtension.ByteArrayToImage(System.Byte[])">
+            <summary>
+            Bytes the array to <c>Image</c>.
+            </summary>
+            <returns>Converted <c>Image</c>.</returns>
+            <param name="b">Target byte array.</param>
+        </member>
+        <member name="M:FileManagerLib.Extensions.Imager.ImageExtension.ImageToByteArray(System.Drawing.Image)">
+            <summary>
+            <c>Image</c> to byte array.
+            </summary>
+            <returns>The to byte array.</returns>
+            <param name="img">Target <c>Image</c>.</param>
         </member>
         <member name="T:FileManagerLib.Extensions.Path.PathItemExtensions">
             <summary>
-            PathItemの拡張メソッドを提供します。
+            Provides <c>PathItem</c> related extension methods.
             </summary>
         </member>
         <member name="M:FileManagerLib.Extensions.Path.PathItemExtensions.GetFilenameAndParent(System.String)">
             <summary>
-            文字列をファイル名と親ディレクトリに分解してタプルで返します。
+            It decomposes a character string into a file name and parent directory and returns it as a tuple.
             </summary>
-            <param name="fullPath">対象のパス文字列</param>
-            <returns>親ディレクトリのPathItemとファイル名文字列のタプル</returns>
+            <param name="fullPath">Target string of full path.</param>
+            <returns>Tuple of parent directory <c>PathItem</c> and file name string.</returns>
         </member>
         <member name="T:FileManagerLib.Extensions.Collections.DictionaryExtension">
             <summary>
-            Dictionary関連の拡張メソッドを提供します。
+            Provides <c>Dictionary</c> related extension methods.
             </summary>
         </member>
         <member name="M:FileManagerLib.Extensions.Collections.DictionaryExtension.ToArray``2(System.Collections.Generic.SortedDictionary{``0,``1}.ValueCollection)">
             <summary>
-            SortedDictionaryのValue値を配列に変換します。
+            Convert value of <c>SortedDictionary</c> to array.
             </summary>
-            <typeparam name="TKey">SortedDictionaryのキーの型</typeparam>
-            <typeparam name="TValue">SortedDictionaryの値の型</typeparam>
-            <param name="values">変換したいSortedDictionaryのValue</param>
-            <returns>変換された配列</returns>
+            <typeparam name="TKey">Type of <c>SortedDictionary</c> key</typeparam>
+            <typeparam name="TValue">Type of <c>SortedDictionary</c> value</typeparam>
+            <param name="values">Target SortedDictionary.Value</param>
+            <returns>Converted array.</returns>
         </member>
         <member name="T:FileManagerLib.Extensions.Collections.ArrayExtension">
             <summary>
-            配列関連の拡張メソッドを提供します。
+            Provides array related extension methods.
             </summary>
         </member>
         <member name="M:FileManagerLib.Extensions.Collections.ArrayExtension.ForEach``1(``0[],System.Action{``0})">
             <summary>
-            配列の各要素に対して、指定されたデリゲートの処理を実行します。
+            Performs the processing of the specified delegate for each element of the array.
             </summary>
-            <typeparam name="T">配列の総称型</typeparam>
-            <param name="array">対象の配列</param>
-            <param name="action">実行するデリゲート</param>
+            <typeparam name="T">Generics type of Array.</typeparam>
+            <param name="array">Target array.</param>
+            <param name="action">Delegate to execute.</param>
         </member>
         <member name="T:FileManagerLib.File.ByteLoader">
             <summary>
-            バイト関連の読み込み機能を提供します。
+            Provides byte related reading function.
             </summary>
         </member>
         <member name="M:FileManagerLib.File.ByteLoader.FromStream(System.IO.Stream)">
             <summary>
-            ストリームから全てのバイト配列を読み込みます。
+            Read all byte array of <c>Stream</c>.
             </summary>
-            <param name="stream">読み込む対象のストリーム</param>
-            <returns>読み込んだバイト配列</returns>
+            <param name="stream">Target <c>Stream</c>.</param>
+            <returns>Read byte array.</returns>
         </member>
         <member name="T:FileManagerLib.File.Exceptions.FileDirectoryExistedException">
             <summary>
-            ファイルまたはディレクトリが存在する時に発生する例外です。
+            Exception raised when a file or directory exists.
             </summary>
         </member>
         <member name="M:FileManagerLib.File.Exceptions.FileDirectoryExistedException.#ctor(System.String)">
             <summary>
-            独自のメッセージを受けて例外を初期化します。
+            Initialize exception with original message.
             </summary>
-            <param name="message"></param>
+            <param name="message">Message to initialize.</param>
+        </member>
+        <member name="T:FileManagerLib.File.Json.JsonFileManager">
+            <summary>
+            Json file manager.
+            </summary>
+        </member>
+        <member name="E:FileManagerLib.File.Json.JsonFileManager.WriteToFilesProgress">
+            <summary>
+            Occurs when write to files progress.
+            </summary>
+        </member>
+        <member name="E:FileManagerLib.File.Json.JsonFileManager.WriteIntoResourceProgress">
+            <summary>
+            Occurs when write into resource progress.
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileManagerLib.File.Json.JsonFileManager"/> class.
+            </summary>
+            <param name="filePath">File path.</param>
+            <param name="newFile">If set to <c>true</c> new file.</param>
+            <param name="isCheckHash">If set to <c>true</c> checking hash.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateFile(System.String,System.String,System.String,System.Action{System.String})">
+            <summary>
+            Creates the file.
+            </summary>
+            <param name="fileName">File name.</param>
+            <param name="parent">Parent.</param>
+            <param name="inFilePath">In file path.</param>
+            <param name="action">Action.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateFile(System.String,System.String)">
+            <summary>
+            Creates the file.
+            </summary>
+            <param name="fullPath">Full path.</param>
+            <param name="inFilePath">In file path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateFiles(System.String,System.String[])">
+            <summary>
+            Creates the files.
+            </summary>
+            <param name="parent">Parent.</param>
+            <param name="filePaths">File paths.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateFiles(System.String,System.String,System.Action{System.Int32,System.String,System.Boolean})">
+            <summary>
+            Creates the files.
+            </summary>
+            <param name="parent">Parent.</param>
+            <param name="dirPath">Dir path.</param>
+            <param name="action">Action.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateFilesOnDirectories(System.String,System.String[])">
+            <summary>
+            Creates the files on directories.
+            </summary>
+            <param name="fullPath">Full path.</param>
+            <param name="inDirPaths">In dir paths.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.DeleteFile(System.String)">
+            <summary>
+            Deletes the file.
+            </summary>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.DeleteFile(System.Int32)">
+            <summary>
+            Deletes the file.
+            </summary>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.ExistFile(System.String)">
+            <summary>
+            Exists the file.
+            </summary>
+            <returns><c>true</c>, if file was existed, <c>false</c> otherwise.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.GetFiles(System.String)">
+            <summary>
+            Gets the files.
+            </summary>
+            <returns>The files.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.GetFiles(System.Int32)">
+            <summary>
+            Gets the files.
+            </summary>
+            <returns>The files.</returns>
+            <param name="dirId">Dir identifier.</param>
         </member>
         <member name="M:FileManagerLib.File.Json.JsonFileManager.ResolveAbsolutePath(System.String,System.String,System.String[])">
             <summary>
@@ -124,62 +293,809 @@
             <param name="dirPathArray">filepaths on file system</param>
             <returns></returns>
         </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.WriteToFile(System.String,System.String,System.Action{System.String,System.Boolean})">
+            <summary>
+            Writes to file on file system.
+            </summary>
+            <returns><c>true</c>, if to file was writed, <c>false</c> otherwise.</returns>
+            <param name="filePath">File path.</param>
+            <param name="outFilePath">Out file path.</param>
+            <param name="action">Action.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.WriteToDir(System.String,System.String,System.Action{System.String,System.Boolean})">
+            <summary>
+            Writes to dir on file system.
+            </summary>
+            <param name="filePath">File path.</param>
+            <param name="outFilePath">Out file path.</param>
+            <param name="action">Action.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.WriteToFile(System.Int32,System.String)">
+            <summary>
+            Writes to file.
+            </summary>
+            <returns><c>true</c>, if to file was writed, <c>false</c> otherwise.</returns>
+            <param name="id">Identifier.</param>
+            <param name="outFilePath">Out file path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.WriteToDir(System.Int32,System.String)">
+            <summary>
+            Writes to dir.
+            </summary>
+            <param name="id">Identifier.</param>
+            <param name="outFilePath">Out file path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.WriteToFile(FileManagerLib.File.Json.FileStructure,System.String)">
+            <summary>
+            Writes to file.
+            </summary>
+            <returns><c>true</c>, if to file was writed, <c>false</c> otherwise.</returns>
+            <param name="structure">Structure.</param>
+            <param name="outFilePath">Out file path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.GetAllFilesCount(System.String)">
+            <summary>
+            Gets all files count.
+            </summary>
+            <returns>The all files count.</returns>
+            <param name="dirPath">Dir path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.JsonFileManager"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.JsonFileManager"/>.</returns>
+        </member>
+        <member name="T:FileManagerLib.File.Json.JsonStructureManager">
+            <summary>
+            Structure manager for JSON.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonStructureManager.NextDirectoryId">
+            <summary>
+            Gets the next directory identifier.
+            </summary>
+            <value>The next directory identifier.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonStructureManager.NextFileId">
+            <summary>
+            Gets the next file identifier.
+            </summary>
+            <value>The next file identifier.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonStructureManager.IsChenged">
+            <summary>
+            Gets a value indicating whether this <see cref="T:FileManagerLib.File.Json.JsonStructureManager"/> is chenged.
+            </summary>
+            <value><c>true</c> if is chenged; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonStructureManager.IsCheckHash">
+            <summary>
+            Gets a value indicating whether this <see cref="T:FileManagerLib.File.Json.JsonStructureManager"/> is check hash.
+            </summary>
+            <value><c>true</c> if is check hash; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.#ctor(System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileManagerLib.File.Json.JsonStructureManager"/> class.
+            </summary>
+            <param name="text">Text.</param>
+            <param name="isCheckhHash">If set to <c>true</c> is checkh hash.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.CreateDirectory(FileManagerLib.File.Json.DirectoryStructure)">
+            <summary>
+            Creates the directory.
+            </summary>
+            <param name="directoryStructure">Directory structure.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.CreateDirectory(System.Int32,System.Int32,System.String)">
+            <summary>
+            Creates the directory.
+            </summary>
+            <param name="id">Identifier.</param>
+            <param name="parent">Parent.</param>
+            <param name="name">Name.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetDirectoryStructure(System.Int32)">
+            <summary>
+            Gets the directory structure.
+            </summary>
+            <returns>The directory structure.</returns>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetDirectoryAllStructuresFromParent(System.Int32)">
+            <summary>
+            Gets the directory all structures from parent.
+            </summary>
+            <returns>The directory all structures from parent.</returns>
+            <param name="parentId">Parent identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetDirectoryStructures">
+            <summary>
+            Gets the directory structures.
+            </summary>
+            <returns>The directory structures.</returns>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.ChangeDirectory(System.Int32,FileManagerLib.File.Json.DirectoryStructure)">
+            <summary>
+            Changes the directory.
+            </summary>
+            <param name="id">Identifier.</param>
+            <param name="directoryStructure">Directory structure.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.DeleteDirectory(System.Int32)">
+            <summary>
+            Deletes the directory.
+            </summary>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.DeleteDirectoryFromParent(System.Int32)">
+            <summary>
+            Deletes the directory from parent.
+            </summary>
+            <param name="parentId">Parent identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.ExistedDirectory(System.Int32,System.String)">
+            <summary>
+            Existeds the directory.
+            </summary>
+            <returns><c>true</c>, if directory was existeded, <c>false</c> otherwise.</returns>
+            <param name="parentId">Parent identifier.</param>
+            <param name="name">Name.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.CreateFile(FileManagerLib.File.Json.FileStructure)">
+            <summary>
+            Creates the file.
+            </summary>
+            <param name="fileStructure">File structure.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.CreateFile(System.Int32,System.Int32,System.String,System.Int64,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates the file.
+            </summary>
+            <param name="id">Identifier.</param>
+            <param name="parent">Parent.</param>
+            <param name="name">Name.</param>
+            <param name="location">Location.</param>
+            <param name="hash">Hash.</param>
+            <param name="additionals">Additionals.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetFileStructure(System.Int32)">
+            <summary>
+            Gets the file structure.
+            </summary>
+            <returns>The file structure.</returns>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetFileStructures">
+            <summary>
+            Gets the file structures.
+            </summary>
+            <returns>The file structures.</returns>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetFileStructureFromParent(System.Int32,System.String)">
+            <summary>
+            Gets the file structure from parent.
+            </summary>
+            <returns>The file structure from parent.</returns>
+            <param name="parentId">Parent identifier.</param>
+            <param name="name">Name.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetFileStructuresFromParent(System.Int32)">
+            <summary>
+            Gets the file structures from parent.
+            </summary>
+            <returns>The file structures from parent.</returns>
+            <param name="parentId">Parent identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.GetFileAllStructuresFromParent(System.Int32)">
+            <summary>
+            Gets the file all structures from parent.
+            </summary>
+            <returns>The file all structures from parent.</returns>
+            <param name="parentId">Parent identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.ChangeFile(System.Int32,FileManagerLib.File.Json.FileStructure)">
+            <summary>
+            Changes the file.
+            </summary>
+            <param name="id">Identifier.</param>
+            <param name="fileStructure">File structure.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.DeleteFile(System.Int32)">
+            <summary>
+            Deletes the file.
+            </summary>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.DeleteFileFromParent(System.Int32)">
+            <summary>
+            Deletes the file from parent.
+            </summary>
+            <param name="parentId">Parent identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.ExistedFile(System.Int32,System.String)">
+            <summary>
+            Existeds the file.
+            </summary>
+            <returns><c>true</c>, if file was existeded, <c>false</c> otherwise.</returns>
+            <param name="parentId">Parent identifier.</param>
+            <param name="name">Name.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.ExistedFile(System.Int32)">
+            <summary>
+            Existeds the file.
+            </summary>
+            <returns><c>true</c>, if file was existeded, <c>false</c> otherwise.</returns>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.Vacuum(FileManagerLib.Dat.DatFileManager,FileManagerLib.Dat.DatFileManager,System.Int32,System.Action{System.Int32,System.Int32,System.String})">
+            <summary>
+            Vacuum the specified srcfileManager, destfileManager, identifierLength and action.
+            </summary>
+            <param name="srcfileManager">Srcfile manager.</param>
+            <param name="destfileManager">Destfile manager.</param>
+            <param name="identifierLength">Identifier length.</param>
+            <param name="action">Action.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.JsonStructureManager"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.JsonStructureManager"/>.</returns>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.WriteToFile(System.String)">
+            <summary>
+            Writes to file.
+            </summary>
+            <param name="filePath">File path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonStructureManager.WriteJson(FileManagerLib.Dat.DatFileManager,System.Int32)">
+            <summary>
+            Writes the json.
+            </summary>
+            <param name="fileManager">File manager.</param>
+            <param name="len">Length.</param>
+        </member>
+        <member name="T:FileManagerLib.File.Json.TableStructure">
+            <summary>
+            Table structure.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.File.Json.TableStructure.Directory">
+            <summary>
+            Gets or sets the directory.
+            </summary>
+            <value>The directory.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.TableStructure.File">
+            <summary>
+            Gets or sets the file.
+            </summary>
+            <value>The file.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.TableStructure.IsCheckHash">
+            <summary>
+            Whether consistency is confirmed using hash calculation
+            </summary>
+            <value><c>true</c> if is check hash; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="T:FileManagerLib.File.Json.DirectoryStructure">
+            <summary>
+            Directory structure.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.File.Json.DirectoryStructure.Id">
+            <summary>
+            Gets or sets the identifier.
+            </summary>
+            <value>The identifier.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.DirectoryStructure.Parent">
+            <summary>
+            Gets or sets the parent.
+            </summary>
+            <value>The parent.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.DirectoryStructure.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>The name.</value>
+        </member>
+        <member name="M:FileManagerLib.File.Json.DirectoryStructure.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.DirectoryStructure"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.DirectoryStructure"/>.</returns>
+        </member>
+        <member name="T:FileManagerLib.File.Json.FileStructure">
+            <summary>
+            File structure.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.File.Json.FileStructure.Id">
+            <summary>
+            Gets or sets the identifier.
+            </summary>
+            <value>The identifier.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.FileStructure.Parent">
+            <summary>
+            Gets or sets the parent.
+            </summary>
+            <value>The parent.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.FileStructure.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>The name.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.FileStructure.Location">
+            <summary>
+            Gets or sets the location.
+            </summary>
+            <value>The location.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.FileStructure.Hash">
+            <summary>
+            Gets or sets the hash.
+            </summary>
+            <value>The hash.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.FileStructure.Additional">
+            <summary>
+            Gets or sets the additional.
+            </summary>
+            <value>The additional.</value>
+        </member>
+        <member name="M:FileManagerLib.File.Json.FileStructure.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.FileStructure"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.FileStructure"/>.</returns>
+        </member>
+        <member name="T:FileManagerLib.File.Json.JsonResourceManager">
+            <summary>
+            Resource manager by JSON.
+            </summary>
+        </member>
+        <member name="F:FileManagerLib.File.Json.JsonResourceManager.LEN">
+            <summary>
+            The identifier length.
+            </summary>
+        </member>
+        <member name="F:FileManagerLib.File.Json.JsonResourceManager.JSON_LEN">
+            <summary>
+            The identifier length of the json.
+            </summary>
+        </member>
+        <member name="F:FileManagerLib.File.Json.JsonResourceManager.jsonStructureManager">
+            <summary>
+            The json structure manager.
+            </summary>
+        </member>
+        <member name="F:FileManagerLib.File.Json.JsonResourceManager.fManager">
+            <summary>
+            The dat file manager.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonResourceManager.FilePath">
+            <summary>
+            Gets the file path.
+            </summary>
+            <value>The file path.</value>
+        </member>
+        <member name="T:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs">
+            <summary>
+            Read write progress event arguments.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs.CompletedNumber">
+            <summary>
+            Gets the completed number.
+            </summary>
+            <value>The completed number.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs.FullNumber">
+            <summary>
+            Gets the full number.
+            </summary>
+            <value>The full number.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs.Percentage">
+            <summary>
+            Gets the percentage.
+            </summary>
+            <value>The percentage.</value>
+        </member>
+        <member name="P:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs.CurrentFilepath">
+            <summary>
+            Gets the current filepath.
+            </summary>
+            <value>The current filepath.</value>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs.#ctor(System.Int32,System.Int32,System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventArgs"/> class.
+            </summary>
+            <param name="completedNumber">Completed number.</param>
+            <param name="fullNumber">Full number.</param>
+            <param name="currentFilePath">Current file path.</param>
+            <param name="isCompleted">If set to <c>true</c> is completed.</param>
+        </member>
+        <member name="T:FileManagerLib.File.Json.JsonResourceManager.ReadWriteProgressEventHandler">
+            <summary>
+            Read write progress event handler.
+            </summary>
+        </member>
+        <member name="E:FileManagerLib.File.Json.JsonResourceManager.VacuumProgress">
+            <summary>
+            Occurs when vacuum progress.
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/> class.
+            </summary>
+            <param name="filePath">File path.</param>
+            <param name="newFile">If set to <c>true</c> new file.</param>
+            <param name="isCheckHash">If set to <c>true</c> is check hash.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.ResolveTermParameters(System.String,System.String)">
+            <summary>
+            Resolves the term parameters.
+            </summary>
+            <returns>The term parameters.</returns>
+            <param name="fileName">File name.</param>
+            <param name="parent">Parent.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.CreateDirectory(System.String)">
+            <summary>
+            Creates the directory.
+            </summary>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.DeleteDirectory(System.String)">
+            <summary>
+            Deletes the directory.
+            </summary>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.DeleteDirectory(System.Int32)">
+            <summary>
+            Deletes the directory.
+            </summary>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.ExistDirectory(System.String)">
+            <summary>
+            Exists the directory.
+            </summary>
+            <returns><c>true</c>, if directory was existed, <c>false</c> otherwise.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectoryId(System.String,System.Int32)">
+            <summary>
+            Gets the directory identifier.
+            </summary>
+            <returns>The directory identifier.</returns>
+            <param name="dirName">Dir name.</param>
+            <param name="rootId">Root identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectoryId(FileManagerLib.Path.PathItem)">
+            <summary>
+            Gets the directory identifier.
+            </summary>
+            <returns>The directory identifier.</returns>
+            <param name="pathItem">Path item.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectories(System.Int32)">
+            <summary>
+            Gets the directories.
+            </summary>
+            <returns>The directories.</returns>
+            <param name="dirId">Dir identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectories(System.String)">
+            <summary>
+            Gets the directories.
+            </summary>
+            <returns>The directories.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.DeleteResource(System.String)">
+            <summary>
+            Deletes the resource.
+            </summary>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.DeleteResource(System.Int32)">
+            <summary>
+            Deletes the resource.
+            </summary>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.ExistResource(System.String)">
+            <summary>
+            Exists the resource.
+            </summary>
+            <returns><c>true</c>, if resource was existed, <c>false</c> otherwise.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetResources(System.String)">
+            <summary>
+            Gets the resources.
+            </summary>
+            <returns>The resources.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetResources(System.Int32)">
+            <summary>
+            Gets the resources.
+            </summary>
+            <returns>The resources.</returns>
+            <param name="dirId">Dir identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetBytes(System.String)">
+            <summary>
+            Gets the bytes.
+            </summary>
+            <returns>The bytes.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.ActionBytes(System.String,System.Int32,System.Action{System.Byte[],System.Int32})">
+            <summary>
+            Reads the actual data little by little the data and executes the designated delegate every time it reads it.
+            </summary>
+            <param name="fullPath">Full path.</param>
+            <param name="size">Size.</param>
+            <param name="action">Action.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetBytes(System.Int32)">
+            <summary>
+            Gets the bytes.
+            </summary>
+            <returns>The bytes.</returns>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetString(System.String)">
+            <summary>
+            Gets the string.
+            </summary>
+            <returns>The string.</returns>
+            <param name="fullPath">Full path.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.WriteBytesWithoutException(System.String,System.Byte[])">
+            <summary>
+            Writes the bytes without exception.
+            </summary>
+            <param name="fullPath">Full path.</param>
+            <param name="bytes">Bytes.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.WriteBytes(System.String,System.Byte[])">
+            <summary>
+            Writes the bytes.
+            </summary>
+            <param name="fullPath">Full path.</param>
+            <param name="data">Data.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.WriteBytes(System.String,System.String,System.Byte[],System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Writes the bytes.
+            </summary>
+            <param name="fileName">File name.</param>
+            <param name="parent">Parent.</param>
+            <param name="data">Data.</param>
+            <param name="hash">Hash.</param>
+            <param name="options">Options.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.WriteBytes(System.String,System.String,System.String,System.Func{System.Int64},System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Writes the bytes.
+            </summary>
+            <param name="fileName">File name.</param>
+            <param name="parent">Parent.</param>
+            <param name="hash">Hash.</param>
+            <param name="func">Func.</param>
+            <param name="options">Options.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.WriteString(System.String,System.String)">
+            <summary>
+            Writes the string.
+            </summary>
+            <param name="fullPath">Full path.</param>
+            <param name="text">Text.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectoryPath(FileManagerLib.File.Json.JsonStructureManager,System.Int32)">
+            <summary>
+            Gets the directory path.
+            </summary>
+            <returns>The directory path.</returns>
+            <param name="jsonStructureManager">Json structure manager.</param>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetFilePath(FileManagerLib.File.Json.JsonStructureManager,System.Int32)">
+            <summary>
+            Gets the file path.
+            </summary>
+            <returns>The file path.</returns>
+            <param name="jsonStructureManager">Json structure manager.</param>
+            <param name="id">Identifier.</param>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.TraceDirs">
+            <summary>
+            Traces the dirs.
+            </summary>
+            <returns>The dirs.</returns>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.TraceFiles">
+            <summary>
+            Traces the files.
+            </summary>
+            <returns>The files.</returns>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/>.</returns>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.DataVacuum">
+            <summary>
+            Datas the vacuum.
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.Save">
+            <summary>
+            Save this instance.
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.Dispose">
+            <summary>
+            Releases all resource used by the <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/> object.
+            </summary>
+            <remarks>Call <see cref="M:FileManagerLib.File.Json.JsonResourceManager.Dispose"/> when you are finished using the
+            <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/>. The <see cref="M:FileManagerLib.File.Json.JsonResourceManager.Dispose"/> method leaves the
+            <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/> in an unusable state. After calling
+            <see cref="M:FileManagerLib.File.Json.JsonResourceManager.Dispose"/>, you must release all references to the
+            <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/> so the garbage collector can reclaim the memory
+            that the <see cref="T:FileManagerLib.File.Json.JsonResourceManager"/> was occupying.</remarks>
+        </member>
         <member name="T:FileManagerLib.MimeType.MimeTypeMap">
             <summary>
-            MimeTypeの変換系を提供します。
+            Provides MimeType conversion system.
             </summary>
         </member>
         <member name="M:FileManagerLib.MimeType.MimeTypeMap.GetMimeTypeFromExtension(System.String)">
             <summary>
-            拡張子からMimeTypeを判別します。
+            Determine the MimeType from the extension.
             </summary>
-            <param name="extension">対象の拡張子</param>
-            <returns>MimeType</returns>
+            <param name="extension">Target extension.</param>
+            <returns>MimeType.</returns>
         </member>
         <member name="M:FileManagerLib.MimeType.MimeTypeMap.GetMimeType(System.String)">
             <summary>
-            ファイルパスからMimeTypeを判別します。
+            Determine the MimeType from the filepath.
             </summary>
-            <param name="filepath">対象のファイルパス</param>
-            <returns>MimeType</returns>
+            <param name="filepath">Target file path.</param>
+            <returns>MimeType.</returns>
         </member>
         <member name="M:FileManagerLib.MimeType.MimeTypeMap.IsImage(System.String)">
             <summary>
-            MimeTypeが画像系かどうかを判定します。
+            Determine whether MimeType is an image system or not.
             </summary>
-            <param name="mimeType">MimeTypeの文字列</param>
-            <returns>画像系かどうか</returns>
+            <param name="mimeType">String of mime-type</param>
+            <returns>Whether it is an image or not</returns>
+        </member>
+        <member name="T:FileManagerLib.Path.PathItem">
+            <summary>
+            Provide the function to manage the path.
+            </summary>
+        </member>
+        <member name="P:FileManagerLib.Path.PathItem.IsRoot">
+            <summary>
+            Gets a value indicating whether this <see cref="T:FileManagerLib.Path.PathItem"/> is root.
+            </summary>
+            <value><c>true</c> if is root; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileManagerLib.Path.PathItem"/> class.
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileManagerLib.Path.PathItem"/> class with path array.
+            </summary>
+            <param name="array">Array of string.</param>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.AddPath(System.String)">
+            <summary>
+            Adds the path.
+            </summary>
+            <param name="path">Added the path.</param>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.GetPath(System.Int32)">
+            <summary>
+            Gets the path.
+            </summary>
+            <returns>The path.</returns>
+            <param name="index">Index.</param>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.Pop">
+            <summary>
+            Pop a path from this instance.
+            </summary>
+            <returns>Path.</returns>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.GetLast">
+            <summary>
+            Gets the last path.
+            </summary>
+            <returns>The last path.</returns>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.GetPathItemFrom(System.Int32)">
+            <summary>
+            Returns the path from the specified index as a <c>PathItem</c>.
+            </summary>
+            <returns>The <c>PathItem</c>.</returns>
+            <param name="start">Start index.</param>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.GetPathItemFrom(System.String)">
+            <summary>
+            Returns the path from the specified path as a <c>PathItem</c>.
+            </summary>
+            <returns>The <c>PathItem</c>.</returns>
+            <param name="basePath">The specified path.</param>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.GetHashCode">
+            <summary>
+            Serves as a hash function for a <see cref="T:FileManagerLib.Path.PathItem"/> object.
+            </summary>
+            <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a
+            hash table.</returns>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:FileManagerLib.Path.PathItem"/>.
+            </summary>
+            <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:FileManagerLib.Path.PathItem"/>.</param>
+            <returns><c>true</c> if the specified <see cref="T:System.Object"/> is equal to the current
+            <see cref="T:FileManagerLib.Path.PathItem"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.ToArray">
+            <summary>
+            To the array.
+            </summary>
+            <returns>The array.</returns>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.ToArray(System.Int32)">
+            <summary>
+            To the array exclude specific count from end.
+            </summary>
+            <returns>The array.</returns>
+            <param name="end">End.</param>
+        </member>
+        <member name="M:FileManagerLib.Path.PathItem.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.Path.PathItem"/>.
+            </summary>
+            <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.Path.PathItem"/>.</returns>
         </member>
         <member name="T:FileManagerLib.Path.PathSplitter">
             <summary>
-            パスの分割系機能を提供します。
+            It provides path division system function.
             </summary>
         </member>
         <member name="M:FileManagerLib.Path.PathSplitter.SplitPath(System.String)">
             <summary>
-            パス文字列を分割し、PathItemで返します。
+            Split path string and return it as <c>PathItem</c>.
             </summary>
             <param name="pathArg">対象のパス文字列</param>
             <returns>変換されたPathItem</returns>
-        </member>
-        <member name="T:FileManagerLib.Crypto.Sha256">
-            <summary>
-            Sha256を計算するクラスを提供します。
-            </summary>
-        </member>
-        <member name="M:FileManagerLib.Crypto.Sha256.GetSha256(System.IO.Stream)">
-            <summary>
-            StreamからSHA256を計算します。
-            </summary>
-            <param name="stream">計算する対象のStream</param>
-            <returns>変換されたSHA256の文字列</returns>
-        </member>
-        <member name="M:FileManagerLib.Crypto.Sha256.GetSha256(System.Byte[])">
-            <summary>
-            バイト配列からSHA256を計算します。
-            </summary>
-            <param name="bytes">計算する対象のバイト配列</param>
-            <returns>変換されたSHA256の文字列</returns>
         </member>
     </members>
 </doc>

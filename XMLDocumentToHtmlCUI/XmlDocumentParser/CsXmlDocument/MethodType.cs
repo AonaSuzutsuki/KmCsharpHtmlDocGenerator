@@ -17,6 +17,11 @@ namespace XmlDocumentParser.CsXmlDocument
         Class,
 
         /// <summary>
+        /// The event.
+        /// </summary>
+        Event,
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         Constructor,
