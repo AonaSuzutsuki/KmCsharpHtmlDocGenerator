@@ -105,11 +105,14 @@ namespace XmlDocumentParser.CsXmlDocument
             };
 
             Element preElem = root;
-            Element classElem = root;
+            //Element classElem = root;
+
+            var elemMap = new Dictionary<string, Element>();
+            var classElemMap = new Dictionary<string, Element>();
 
             foreach (var member in members)
             {
-                var nameSpace = member.NameSpace;
+                var nameSpace = member.Namespace;
                 while (true)
                 {
                     var firstName = nameSpace.GetFirstName();
@@ -121,7 +124,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     var elem = new Element()
                     {
                         Type = ElementType.Namespace,
-                        Namespace = member.NameSpace,
+                        Namespace = member.Namespace,
                         Name = firstName,
                         Members = null
                     };
@@ -144,10 +147,10 @@ namespace XmlDocumentParser.CsXmlDocument
                 {
                     var name = member.Name;
 
-                    classElem = new Element()
+                    var classElem = new Element()
                     {
                         Type = ElementType.Class,
-                        Namespace = member.NameSpace,
+                        Namespace = member.Namespace,
                         Name = name,
                         Value = member.Value,
 						Namespaces = new List<Element>()
@@ -157,13 +160,16 @@ namespace XmlDocumentParser.CsXmlDocument
                     {
                         classElem.Type = ElementType.Interface;
                     }
+
+                    classElemMap.CheckAndAdd("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name), classElem);
                     
                     preElem.Namespaces.Add(classElem);
                     ClassCount++;
                 }
                 else
                 {
-                    if (classElem.Namespace.ToString().Equals(member.NameSpace.ToString()))
+                    var classElem = classElemMap.Get(member.Namespace.ToString());
+                    if ("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name).Equals(member.Namespace.ToString()))
                         classElem.Members.Add(member);
                 }
 
@@ -274,9 +280,9 @@ namespace XmlDocumentParser.CsXmlDocument
 
                 member.Type = type;
                 if (type != MethodType.Class)
-                    member.NameSpace = nameSpace.GetParentNamespace();
+                    member.Namespace = nameSpace;
                 else
-                    member.NameSpace = nameSpace;
+                    member.Namespace = nameSpace;
                 member.Name = methodName;
                 member.MethodParameters.AddRange(parameters);
             }

@@ -88,11 +88,12 @@ namespace XmlDocumentToHtml.Writer
             CloneFiles(rootElement.Name);
         }
 
+
         private void CreateClassFile(Element element, Element root, string suffix = "")
         {
             if (element != null)
             {
-				if (element.Namespaces != null && element.Namespaces.Count > 0)
+				if ((element.Namespaces != null && element.Namespaces.Count > 0) && (element.Members == null || element.Members.Count <= 0))
                 {
                     var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
@@ -105,6 +106,10 @@ namespace XmlDocumentToHtml.Writer
                     {
                         WriteHtml(fs, element.Members, element, root);
                     }
+
+                    name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    foreach (var elem in element.Namespaces)
+                        CreateClassFile(elem, root, name + "/");
                 }
             }
         }
@@ -142,22 +147,36 @@ namespace XmlDocumentToHtml.Writer
                 return sb2.ToString();
             }
 
+            
+
             var sb = new StringBuilder();
-			if (element.Namespaces != null && element.Namespaces.Count > 0)
+            void writeMenuElem()
+            {
+                var namespacePath = element.Namespace.ToString().Replace(".", "/");
+                var name = "    <li><a href=\"{0}/{1}.html\">{2}.{1}</a></li>".FormatString(namespacePath, element.Name, element.Namespace.ToString()); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
+                sb.AppendLine(name);
+            }
+
+            if ((element.Namespaces != null && element.Namespaces.Count > 0) && (element.Members != null && element.Members.Count > 0))
+            {
+                foreach (var elem in element.Namespaces)
+                    sb.Append(CreateIndex(elem));
+
+                writeMenuElem();
+            }
+            else if (element.Namespaces != null && element.Namespaces.Count > 0)
             {
                 foreach (var elem in element.Namespaces)
                     sb.Append(CreateIndex(elem));
             }
             else
             {
-                var namespacePath = element.Namespace.ToString().Replace(".", "/");
-                var name = "    <li><a href=\"{0}/{1}.html\">{2}.{1}</a></li>".FormatString(namespacePath, element.Name, element.Namespace.ToString()); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
-                sb.AppendLine(name);
+                writeMenuElem();
             }
             return sb.ToString();
         }
 
-        private void WriteHtml(Stream stream, List<Member> members, Element parent, Element root)
+        private void WriteHtml(FileStream stream, List<Member> members, Element parent, Element root)
         {
             var loader = new Template.TemplateLoader(BaseTemplatePath);
 
@@ -299,7 +318,18 @@ namespace XmlDocumentToHtml.Writer
 
 
             var sb = new StringBuilder();
-			if (element.Namespaces != null && element.Namespaces.Count > 0)
+            if ((element.Namespaces != null && element.Namespaces.Count > 0) && (element.Members != null && element.Members.Count > 0))
+            {
+                var namespacePath = element.Namespace.ToString().Replace(".", "/");
+                var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{3}</a>".FormatString(suffix, CreateRelativePath(link), namespacePath, element.Name);
+                sb.AppendLine(name);
+                sb.AppendLine(suffix + "    <ul>");
+                foreach (var elem in element.Namespaces)
+                    sb.Append(CreateMenu(elem, link, suffix + "        "));
+                sb.AppendLine(suffix + "    </ul>");
+                sb.AppendLine(suffix + "</li>");
+            }
+            else if (element.Namespaces != null && element.Namespaces.Count > 0)
             {
                 var name = suffix + "<li>" + element.Name;
                 sb.AppendLine(name);

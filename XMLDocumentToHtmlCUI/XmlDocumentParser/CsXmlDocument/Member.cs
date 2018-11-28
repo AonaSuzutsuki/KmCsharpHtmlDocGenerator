@@ -19,7 +19,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Namespace of member.
         /// </summary>
-        public NamespaceItem NameSpace { get; set; }
+        public NamespaceItem Namespace { get; set; }
 
         /// <summary>
         /// Name of member.
