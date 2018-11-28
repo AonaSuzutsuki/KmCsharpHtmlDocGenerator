@@ -196,11 +196,11 @@ namespace XmlDocumentToHtml.Writer
                     methodLoader.Assign("MethodHash", hash);
                     methodLoader.Assign("MethodName", name);
                     methodLoader.Assign("MethodParameters", parametersStr);
-					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, parent));
+					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, parent, stream.Name));
 
                     if (!string.IsNullOrEmpty(member.ReturnComment))
                     {
-						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, parent));
+						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, parent, stream.Name));
                         methodLoader.Assign("HasReturn", true.ToString());
                     }
                     if (!string.IsNullOrEmpty(paramStr))
@@ -226,7 +226,7 @@ namespace XmlDocumentToHtml.Writer
                     var hash = Sha256.GetSha256(member.Name);
                     propertyLoader.Assign("PropertyHash", hash);
                     propertyLoader.Assign("PropertyName", member.Name);
-					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, parent));
+					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, parent, stream.Name));
 
                     if (member.Type == MethodType.Property)
                     {
@@ -244,7 +244,7 @@ namespace XmlDocumentToHtml.Writer
             var linkCount = parent.Namespace.NamespaceCount;
             loader.Assign("RelativePath", CreateRelativePath(linkCount));
             loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
-			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, parent)));
+			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, parent, stream.Name)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
@@ -383,9 +383,32 @@ namespace XmlDocumentToHtml.Writer
             return toc.ToString();
         }
 
-		private static string ResolveSpecificXmlElement(string text, Element parent)
+		private static string ResolveSpecificXmlElement(string text, Element parent, string writePath)
         {
-            var regex = new Regex("<c>(?<value>.*)<\\/c>");
+            var linkCount = parent.Namespace.NamespaceCount;
+            var relativePath = CreateRelativePath(linkCount);
+            var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.[^\"]*)\"[ ]*\\/>");
+            var match2 = regex2.Match(text);
+            while (match2.Success)
+            {
+                var full = match2.Value;
+                var cref = match2.Groups["crefValue"].ToString();
+                var member = CsXmlDocumentParser.ConvertMemberNameToMember(cref);
+                var namespacePath = member.Namespace.ToString().Replace(".", "/");
+
+                var name = "{0}.{1}".FormatString(member.Namespace.ToString(), member.Name);
+                var fullpath = "{0}{1}/{2}.html".FormatString(relativePath, namespacePath, member.Name);
+
+                var linkUri = new Uri(new Uri(writePath), fullpath);
+                if (File.Exists(linkUri.LocalPath))
+                    text = text.Replace(full, "<c><a href=\"{0}\">{1}</a></c>".FormatString(fullpath, name));
+                else
+                    text = text.Replace(full, "<c>{0}</c>".FormatString(name));
+
+                match2 = regex2.Match(text);
+            }
+
+            var regex = new Regex("<(c)[^<>]*>.*?(<\\1[^<>]*>.*?<\\/\\1>)*(?<value>.*?)<\\/\\1>");
             Match match = regex.Match(text);
             while (match.Success)
             {
@@ -394,22 +417,7 @@ namespace XmlDocumentToHtml.Writer
                 text = text.Replace(full, "<span class=\"specific-element\">{0}</span>".FormatString(value));
                 match = regex.Match(text);
             }
-
-			var linkCount = parent.Namespace.NamespaceCount;
-			var relativePath = CreateRelativePath(linkCount);
-			var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.[^\"]*)\"[ ]*\\/>");
-			var match2 = regex2.Match(text);
-			while (match2.Success)
-			{
-				var full = match2.Value;
-				var cref = match2.Groups["crefValue"].ToString();
-				var member = CsXmlDocumentParser.ConvertMemberNameToMember(cref);
-				var namespacePath = member.NameSpace.ToString().Replace(".", "/");
-				text = text.Replace(full, "<a href=\"{0}{1}/{2}.html\">{3}.{2}</a>".FormatString(relativePath, namespacePath, member.Name, member.NameSpace.ToString()));
-
-				match2 = regex2.Match(text);
-			}
-
+            
             return text;
         }
         
