@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace XmlDocumentExtensions.Extensions
 {
     /// <summary>
-    /// Extension functions of <c>List</c>.
+    /// Extension functions of <see cref="IList"/>.
     /// </summary>
     public static class ListExtension
     {

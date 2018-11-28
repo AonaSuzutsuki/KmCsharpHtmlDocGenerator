@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace XmlDocumentExtensions.Extensions
 {
     /// <summary>
-    /// Extension functions of <c>Dictionary</c>.
+    /// Extension functions of <see cref="IDictionary"/>.
     /// </summary>
     public static class DictionaryExtension
     {

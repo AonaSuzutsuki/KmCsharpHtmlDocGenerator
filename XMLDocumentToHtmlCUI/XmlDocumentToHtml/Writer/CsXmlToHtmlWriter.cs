@@ -396,7 +396,7 @@ namespace XmlDocumentToHtml.Writer
                 var member = CsXmlDocumentParser.ConvertMemberNameToMember(cref);
                 var namespacePath = member.Namespace.ToString().Replace(".", "/");
 
-                var name = "{0}.{1}".FormatString(member.Namespace.ToString(), member.Name);
+                var name = "{0}".FormatString(member.Name);
                 var fullpath = "{0}{1}/{2}.html".FormatString(relativePath, namespacePath, member.Name);
 
                 var linkUri = new Uri(new Uri(writePath), fullpath);
