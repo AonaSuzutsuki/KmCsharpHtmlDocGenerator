@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace XmlDocumentToHtml.Extensions
+namespace XmlDocumentExtensions.Extensions
 {
     /// <summary>
     /// Extension functions of <c>Dictionary</c>.
@@ -23,5 +23,11 @@ namespace XmlDocumentToHtml.Extensions
 				return dict[key];
 			return default;
 		}
+
+        public static void CheckAndAdd<K, V>(this Dictionary<K, V> dict, K key, V value)
+        {
+            if (!dict.ContainsKey(key))
+                dict.Add(key, value);
+        }
     }
 }

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using XmlDocumentToHtml.Extensions;
+using XmlDocumentExtensions.Extensions;
 using System.Text;
 using System.Linq;
 

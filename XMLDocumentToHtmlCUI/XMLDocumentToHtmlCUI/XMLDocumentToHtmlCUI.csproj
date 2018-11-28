@@ -86,6 +86,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XmlDocumentExtensions\XmlDocumentExtensions.csproj">
+      <Project>{4d788502-0340-48fd-9fec-c1d0122873eb}</Project>
+      <Name>XmlDocumentExtensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XmlDocumentParser\XmlDocumentParser.csproj">
       <Project>{72316bb7-b134-480e-9d67-fa1c82a46a1c}</Project>
       <Name>XmlDocumentParser</Name>

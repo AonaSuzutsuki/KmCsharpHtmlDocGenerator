@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentParser.CsXmlDocument;
 using CommonCoreLib.Crypto;
-using XmlDocumentToHtml.Extensions;
+using XmlDocumentExtensions.Extensions;
 using XmlDocumentToHtml.CommonPath;
 using XmlDocumentToHtml.Template;
 

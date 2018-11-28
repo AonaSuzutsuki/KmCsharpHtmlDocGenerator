@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XmlDocumentToHtml.Extensions
+namespace XmlDocumentExtensions.Extensions
 {
     /// <summary>
     /// Extension functions of <c>List</c>.

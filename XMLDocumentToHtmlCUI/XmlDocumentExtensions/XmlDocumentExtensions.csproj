@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{72316BB7-B134-480E-9D67-FA1C82A46A1C}</ProjectGuid>
+    <ProjectGuid>{4D788502-0340-48FD-9FEC-C1D0122873EB}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>XmlDocumentParser</RootNamespace>
-    <AssemblyName>XmlDocumentParser</AssemblyName>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XmlDocumentExtensions</RootNamespace>
+    <AssemblyName>XmlDocumentExtensions</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,29 +20,17 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.1</LangVersion>
-    <DocumentationFile>bin\Debug\XmlDocumentParser.xml</DocumentationFile>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.1</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonCoreLib">
-      <HintPath>..\..\Lib\CommonCoreLib.dll</HintPath>
-    </Reference>
-    <Reference Include="CommonExtensionLib">
-      <HintPath>..\..\Lib\CommonExtensionLib.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -54,23 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CsXmlDocument\CsXmlDocumentParser.cs" />
-    <Compile Include="CsXmlDocument\Element.cs" />
-    <Compile Include="CsXmlDocument\ElementType.cs" />
-    <Compile Include="CsXmlDocument\Member.cs" />
-    <Compile Include="CsXmlDocument\MethodType.cs" />
-    <Compile Include="CsXmlDocument\NamespaceItem.cs" />
+    <Compile Include="Extensions\ArrayExtension.cs" />
+    <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XmlWrapper\Reader.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XmlDocumentExtensions\XmlDocumentExtensions.csproj">
-      <Project>{4D788502-0340-48FD-9FEC-C1D0122873EB}</Project>
-      <Name>XmlDocumentExtensions</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
