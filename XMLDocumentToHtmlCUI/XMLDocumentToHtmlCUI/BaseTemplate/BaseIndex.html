@@ -1,0 +1,48 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>{$Title}</title>
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/main.css" />
+    <script type="text/javascript" src="{$RelativePath}js/jquery-1.7.1.min.js"></script>
+    <style type="text/css">
+        
+    </style>
+    <script type="text/javascript">
+        $(function () {
+
+        });
+    </script>
+</head>
+<body>
+
+    <div id="body-container">
+
+        <div id="menu">
+            {$Menu}
+        </div>
+
+        <div id="body-content">
+
+            <div>
+                <h1>{$ClassName}</h1>
+                <span>Namespace: {$Namespace}</span>
+            </div>
+
+            <br />
+            {$ClassComment}
+            <br />
+
+            <div>
+                {if $HasClass == true}
+                <h3>Classes</h3>
+                {$ClassItems}
+                {/if $HasClass}
+
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

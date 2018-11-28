@@ -1,0 +1,27 @@
+﻿<br />
+<div class="method-elem">
+    <h3 id="{$MethodHash}">{$MethodName}{$MethodParameters}</h3>
+
+    <div class="method-elem">
+        {if $HasParameter == true}
+        <table class="parameter">
+            <caption>Parameters</caption>
+            {$Parameters}
+        </table>
+        {/if $HasParameter}
+
+        {if $HasReturn == true}
+        <table class="parameter">
+            <caption>Return</caption>
+            <tr>
+                <td>{$MethodReturnComment}</td>
+            </tr>
+        </table>
+        {/if $HasReturn}
+
+        <div class="elem-content">
+            {$MethodComment}
+        </div>
+    </div>
+    
+</div>
