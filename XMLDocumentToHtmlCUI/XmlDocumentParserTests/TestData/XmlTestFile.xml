@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+  <members>
+    <member name="test" />
+    <member name="test2">
+      test2-value
+    </member>
+    <member name="test3" />
+  </members>
+</root>
