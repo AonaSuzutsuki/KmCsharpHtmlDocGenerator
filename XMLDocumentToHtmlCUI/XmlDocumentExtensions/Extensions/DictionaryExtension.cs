@@ -17,13 +17,15 @@ namespace XmlDocumentExtensions.Extensions
         /// <typeparam name="V">Value type.</typeparam>
         /// <param name="dict">Target dictionary.</param>
         /// <param name="key">The key you want to search</param>
+        /// <param name="defaultValue">Default value/</param>
         /// <returns></returns>
-		public static V Get<K, V>(this Dictionary<K, V> dict, K key)
+        public static V Get<K, V>(this Dictionary<K, V> dict, K key, V defaultValue = default)
 		{
 			if (dict.ContainsKey(key))
 				return dict[key];
-			return default;
+			return defaultValue;
 		}
+
 
         public static void CheckAndAdd<K, V>(this Dictionary<K, V> dict, K key, V value)
         {

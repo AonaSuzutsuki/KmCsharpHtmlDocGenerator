@@ -16,7 +16,7 @@ using XmlDocumentToHtml.Template;
 namespace XmlDocumentToHtml.Writer
 {
     /// <summary>
-    /// C# Xml Document to HTML Writer with <c><see cref="Element"/></c>.
+    /// C# Xml Document to HTML Writer with <see cref="Element"/>.
     /// </summary>
     public class CsXmlToHtmlWriter
     {
@@ -67,9 +67,9 @@ namespace XmlDocumentToHtml.Writer
         #endregion
 
         /// <summary>
-        /// Initialize C# Xml Document to HTML Writer with <c>Element</c>.
+        /// Initialize C# Xml Document to HTML Writer with <see cref="Element"/>.
         /// </summary>
-        /// <param name="root">Root <c>Element</c>.</param>
+        /// <param name="root">Root element.</param>
         public CsXmlToHtmlWriter(Element root)
         {
             this.rootElement = root;
@@ -447,7 +447,7 @@ namespace XmlDocumentToHtml.Writer
         private static string ResolveParameterTable(Member member, string templatePath)
         {
             var paramSb = new StringBuilder();
-            var parameterLoader = new Template.TemplateLoader(templatePath);
+            var parameterLoader = new TemplateLoader(templatePath);
             var p1 = member.MethodParameters.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
             var p2 = member.Parameters.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
