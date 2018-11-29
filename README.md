@@ -9,26 +9,27 @@ JavaなどのようにHTML出力してどのような端末でもWebブラウザ
 ## 開発環境
 **Windows**
 1. Visual Studio 2017
-2. .Net Framework 4.7.2
+2. .Net Framework 4.7.1
 
 **Mac**
 1. Visual Studio for Mac
 
 ## 最低限動作に必要な環境
-1. .Net Framework 4.7.2
+1. .Net Framework 4.7.1
 
 ## 使用方法
 **CUI**
 ```
-XMLDocumentToHtmlCUI.exe -o {OutputDir} {XmlDocuments}
+XMLDocumentToHtmlCUI.exe -b BaseTemplate -o {OutputDir} {XmlDocuments}
 example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 ```
 
 **オプション**  
 
-| オプション | 説明 |
-|-----|:----|
-|-o   |出力先のディレクトリパスを指定します。|
+| オプション | 説明 | 標準値 |
+|-----|:----|:----|
+|-b   |テンプレートファイルが格納されているディレクトリを指定します。これを指定すると独自のテンプレートで出力ができます。|BaseTemplate|
+|-o   |出力先のディレクトリパスを変更します。|実行ファイルのディレクトリ/Root|
 
 **引数**  
 C# XML Documentが出力するXMLを一つまたは複数指定します。
