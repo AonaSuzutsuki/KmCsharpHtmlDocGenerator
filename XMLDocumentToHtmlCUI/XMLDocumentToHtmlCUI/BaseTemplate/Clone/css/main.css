@@ -1,0 +1,127 @@
+﻿body {
+    font-family: "Consolas", "Meiryo", Helvetica, "Bitstream Vera Sans Mono", "Courier New", Courier, monospace, sans-serif;
+}
+
+#body-container {
+    position: relative;
+    margin-bottom: 50px;
+}
+
+    #body-container::after {
+        content: '';
+        clear: both;
+    }
+
+#menu {
+    float: left;
+}
+
+    #menu ul ul {
+        margin: 0 0 0 20px;
+        padding: 0;
+    }
+
+#body-content {
+    width: 900px;
+    margin-left: 400px;
+}
+
+.specific-element {
+    border: 1px solid #999;
+    background-color: #eee;
+    padding: 2px;
+}
+
+h1 {
+    display: block;
+    font-size: 2em;
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    text-align: left;
+}
+
+h2 {
+    border-bottom: 1px solid;
+    margin: 0;
+}
+
+/*
+            Method
+        */
+.method-elem {
+    margin-left: 30px;
+}
+
+/*
+            Table
+        */
+table {
+    width: 100%;
+    margin: 5px 0;
+    border-collapse: collapse;
+}
+
+    table caption {
+        text-align: left;
+        border-left: 10px solid;
+        border-bottom: 1px solid;
+        margin: 10px 0;
+        padding: 5px 10px;
+    }
+
+    table th {
+        width: 40%;
+    }
+
+    table td, table th {
+        border: 1px solid;
+        padding: 5px 10px;
+        text-align: left;
+    }
+
+    table.double-table th {
+        width: 200px;
+    }
+
+
+    /*
+            Functions Table
+        */
+    table.functions th, table.functions td {
+        font-size: 0.9em;
+    }
+
+
+    /*
+            Parameter Table
+        */
+    table.parameter {
+        margin: 30px 0;
+        border: 1px dotted;
+        padding: 5px 10px;
+        border-collapse: separate;
+        font-size: 0.9em;
+    }
+
+        table.parameter caption {
+            text-align: left;
+            border-left: 0;
+            border-bottom: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        table.parameter td.omission {
+            width: 60px;
+        }
+
+        table.parameter th, table.parameter td.name {
+            width: 120px;
+        }
+
+        table.parameter td, table.parameter th {
+            border: 0;
+            padding: 5px 10px;
+            text-align: left;
+        }
