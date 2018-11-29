@@ -20,7 +20,7 @@ JavaなどのようにHTML出力してどのような端末でもWebブラウザ
 ## 使用方法
 **CUI**
 ```
-XMLDocumentToHtmlCUI.exe -b BaseTemplate -o {OutputDir} {XmlDocuments}
+XMLDocumentToHtmlCUI.exe -b {TemplateBaseDir} -o {OutputDir} {XmlDocuments}
 example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 ```
 
