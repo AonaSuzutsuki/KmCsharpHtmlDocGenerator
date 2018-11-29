@@ -27,7 +27,7 @@ namespace XmlDocumentExtensions.Extensions
 		}
 
 
-        public static void CheckAndAdd<K, V>(this Dictionary<K, V> dict, K key, V value)
+        public static void Put<K, V>(this Dictionary<K, V> dict, K key, V value)
         {
             if (!dict.ContainsKey(key))
                 dict.Add(key, value);

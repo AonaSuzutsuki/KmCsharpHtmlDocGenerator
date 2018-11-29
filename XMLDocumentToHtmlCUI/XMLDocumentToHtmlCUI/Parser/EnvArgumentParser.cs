@@ -25,7 +25,7 @@ namespace XMLDocumentToHtmlCUI.Parser
 
         public void AddOptionCount(string key, int count)
         {
-            optionCountMap.CheckAndAdd(key, count);
+            optionCountMap.Put(key, count);
         }
 
         public void Analyze()

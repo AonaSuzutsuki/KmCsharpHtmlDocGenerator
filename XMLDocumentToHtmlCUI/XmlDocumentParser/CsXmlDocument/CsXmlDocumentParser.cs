@@ -161,7 +161,7 @@ namespace XmlDocumentParser.CsXmlDocument
                         classElem.Type = ElementType.Interface;
                     }
 
-                    classElemMap.CheckAndAdd("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name), classElem);
+                    classElemMap.Put("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name), classElem);
                     
                     preElem.Namespaces.Add(classElem);
                     ClassCount++;
