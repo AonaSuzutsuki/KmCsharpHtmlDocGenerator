@@ -1,12 +1,13 @@
 # C# XMLDocument To Html
-このプログラムではC# Compilerから出力できるXML Documentをユーザー定義のHTMLドキュメントへ変換する手法を提供します。  
+This program provides a method for converting an XML document that can be output from C# Compiler to a user defined HTML document.  
 
-# 開発経緯とゴール
-C# XML Documentはソースコード上で記述したDocコメントをXMLで出力を行うものの、それだけでは人が読むには適しません。  
-JavaなどのようにHTML出力してどのような端末でもWebブラウザ(標準インストールされているアプリケーション)を用いて見られることが理想ですが、残念ながらC# XML Documentには搭載されていません。手書きでHTMLを実装しても良いですが、毎回行うには不便で、理想は少ない操作でHTMLが生成されることです。  
-そこでXML Documentが出力するXMLを解析してHTMLフォーマットに変換し、誰もが読めるように整えるのがこのプログラムおよび、プロジェクトのゴールです。  
+# Development history and goals
+C# XML Document outputs Doc comment written in source code by XML, but it is not suitable for people to read.  
+It is ideal that it can be seen using HTML output such as Java and using any Web browser (application installed as a standard application), unfortunately it is not included in C# XML Document. HTML may be implemented by handwriting, but it is inconvenient to do it every time, ideal is to generate HTML with less operation.  
+I think inconvenienced when I create my own document.  
+So it is the goal of this program and the project to analyze the XML outputted by the C# XML Document, convert it to HTML format, and arrange it so that everyone can read it.  
 
-## 開発環境
+## Development environment
 **Windows**
 1. Visual Studio 2017
 2. .Net Framework 4.7.1
@@ -14,26 +15,26 @@ JavaなどのようにHTML出力してどのような端末でもWebブラウザ
 **Mac**
 1. Visual Studio for Mac
 
-## 最低限動作に必要な環境
+## Minimum environment required for operation
 1. .Net Framework 4.7.1
 
-## 使用方法
+## Usage
 **CUI**
 ```
 XMLDocumentToHtmlCUI.exe -b {TemplateBaseDir} -o {OutputDir} {XmlDocuments}
 example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 ```
 
-**オプション**  
+**Options**  
 
-| オプション | 説明 | 標準値 |
+| Option | Description | Default |
 |-----|:----|:----|
-|-b   |テンプレートファイルが格納されているディレクトリを指定します。これを指定すると独自のテンプレートで出力ができます。|BaseTemplate|
-|-o   |出力先のディレクトリパスを変更します。|実行ファイルのディレクトリ/Root|
+|-b   |Specify the directory where the template file is stored. If you specify this, you can output with your own template.|BaseTemplate|
+|-o   |Change the directory path of the output destination.|{Directory of executable file}/Root|
 
-**引数**  
-C# XML Documentが出力するXMLを一つまたは複数指定します。
+**Argument**  
+Specifies one or more XML Docment outputted by C# XML Document.  
 
-## ビルド
-1. XMLDocumentToHtmlCUI.slnを開く
-2. メニュー上のビルドボタンをクリック
+## Build
+1. Open XMLDocumentToHtmlCUI.sln
+2. Click the Build button on the menu
