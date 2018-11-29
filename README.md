@@ -35,6 +35,9 @@ example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 **Argument**  
 Specifies one or more XML Docment outputted by C# XML Document.  
 
+## Sample
+[https://aonsztk.xyz/XMLDocumentToHtml/](https://aonsztk.xyz/XMLDocumentToHtml/)  
+
 ## Build
 1. Open XMLDocumentToHtmlCUI.sln
 2. Click the Build button on the menu
