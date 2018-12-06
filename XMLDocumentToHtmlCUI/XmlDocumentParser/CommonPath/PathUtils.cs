@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XmlDocumentToHtml.CommonPath
+namespace XmlDocumentParser.CommonPath
 {
     /// <summary>
     /// Path related utility class.

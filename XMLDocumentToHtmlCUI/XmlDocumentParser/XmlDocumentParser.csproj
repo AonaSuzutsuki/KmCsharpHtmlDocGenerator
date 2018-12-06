@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonPath\PathUtils.cs" />
     <Compile Include="CsXmlDocument\CsXmlDocumentParser.cs" />
     <Compile Include="CsXmlDocument\Element.cs" />
     <Compile Include="CsXmlDocument\ElementType.cs" />
