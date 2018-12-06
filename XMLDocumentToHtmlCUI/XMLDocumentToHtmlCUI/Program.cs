@@ -11,6 +11,7 @@ using XmlDocumentParser.CsXmlDocument;
 using CommonCoreLib.Crypto;
 using XmlDocumentExtensions.Extensions;
 using XmlDocumentToHtml.Writer;
+using XmlDocumentParser.EasyCs;
 
 namespace XMLDocumentToHtmlCUI
 {
@@ -18,27 +19,31 @@ namespace XMLDocumentToHtmlCUI
     {
         static void Main(string[] args)
         {
-            var envParser = new Parser.EnvArgumentParser(args);
-            envParser.AddOptionCount("-h", 0);
-            envParser.AddOptionCount("-b", 1);
-            envParser.AddOptionCount("-o", 1);
+            var parser = new CsEasyParser();
+            parser.Parse();
+            Console.ReadLine();
 
-            envParser.Analyze();
-            if (envParser.GetOption("-h") != null)
-            {
-                ShowHelp();
-                return;
-            }
+            //var envParser = new Parser.EnvArgumentParser(args);
+            //envParser.AddOptionCount("-h", 0);
+            //envParser.AddOptionCount("-b", 1);
+            //envParser.AddOptionCount("-o", 1);
 
-            var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
-            var inputFiles = envParser.GetValues();
-            var outputPath = envParser.GetOutputFilepath() ?? PathUtils.ResolvePathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
+            //envParser.Analyze();
+            //if (envParser.GetOption("-h") != null)
+            //{
+            //    ShowHelp();
+            //    return;
+            //}
 
-            var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
+            //var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
+            //var inputFiles = envParser.GetValues();
+            //var outputPath = envParser.GetOutputFilepath() ?? PathUtils.ResolvePathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
-            Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
-            var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
-            converter.WriteToDisk(directoryName);
+            //var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
+
+            //Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
+            //var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
+            //converter.WriteToDisk(directoryName);
         }
 
         static void ShowHelp()

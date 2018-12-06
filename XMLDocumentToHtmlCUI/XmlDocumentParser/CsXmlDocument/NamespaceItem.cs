@@ -20,6 +20,8 @@ namespace XmlDocumentParser.CsXmlDocument
         public int NamespaceCount { get => items.Count; }
         #endregion
 
+        public NamespaceItem() { }
+
         /// <summary>
         /// Initialize NamespaceItem with a namespace text.
         /// </summary>
