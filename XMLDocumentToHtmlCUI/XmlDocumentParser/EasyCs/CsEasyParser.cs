@@ -31,10 +31,14 @@ namespace XmlDocumentParser.EasyCs
         public bool IsStatic { get; set; }
         public bool IsAbstract { get; set; }
         public bool IsSealed { get; set; }
+        public string FullName { get; set; }
         public string Name { get; set; }
         public string Inheritance { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class CsEasyParser
     {
 
@@ -71,35 +75,33 @@ namespace XmlDocumentParser.EasyCs
             var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
             var fieldSyntaxArray = tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>();
             
-            void PutDeclaration(Dictionary<string, ClassInfo> dic, SyntaxNode syntax, ClassType classType)
+            void PutDeclaration(Dictionary<string, ClassInfo> dic, IEnumerable<SyntaxNode> syntaxNodes, ClassType classType)
             {
-                var symbol = semanticModel.GetDeclaredSymbol(syntax);
-                var key = ConvertGenerics(symbol.ToString()).Replace(" ", "");
-                var fullClassName = symbol.ToString();
-                var namespaceName = symbol.ContainingSymbol.ToString();
-                dic.Put(key, new ClassInfo()
+                foreach (var syntax in syntaxNodes)
                 {
-                    Name = fullClassName,
-                    Accessibility = symbol.DeclaredAccessibility,
-                    ClassType = classType,
-                    IsStatic = symbol.IsStatic,
-                    IsSealed = symbol.IsSealed,
-                    IsAbstract = symbol.IsAbstract,
-                });
+                    var symbol = semanticModel.GetDeclaredSymbol(syntax);
+                    var key = ConvertGenerics(symbol.ToString()).Replace(" ", "");
+                    var fullClassName = symbol.ToString();
+                    var namespaceName = symbol.ContainingSymbol.ToString();
+                    dic.Put(key, new ClassInfo()
+                    {
+                        FullName = fullClassName,
+                        Name = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
+                        Accessibility = symbol.DeclaredAccessibility,
+                        ClassType = classType,
+                        IsStatic = symbol.IsStatic,
+                        IsSealed = symbol.IsSealed,
+                        IsAbstract = symbol.IsAbstract,
+                    });
+                }
             }
-
-            foreach (var syntax in classSyntaxArray)
-                PutDeclaration(classMap, syntax, ClassType.Class);
-            foreach (var syntax in inSyntaxArray)
-                PutDeclaration(classMap, syntax, ClassType.Interface);
-            foreach (var syntax in enumSyntaxArray)
-                PutDeclaration(classMap, syntax, ClassType.Enum);
-            foreach (var syntax in structSyntaxArray)
-                PutDeclaration(classMap, syntax, ClassType.Struct);
-            foreach (var syntax in methodSyntaxArray)
-                PutDeclaration(methodMap, syntax, ClassType.Method);
-            foreach (var syntax in constructorSyntaxArray)
-                PutDeclaration(methodMap, syntax, ClassType.Method);
+            
+                PutDeclaration(classMap, classSyntaxArray, ClassType.Class);
+                PutDeclaration(classMap, inSyntaxArray, ClassType.Interface);
+                PutDeclaration(classMap, enumSyntaxArray, ClassType.Enum);
+                PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
+                PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
+                PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
         }
 
         public void AddAttributesToElement(Element element)
@@ -153,19 +155,50 @@ namespace XmlDocumentParser.EasyCs
                             var item = methodMap.Get(fullname);
                             if (item != null)
                             {
+                                var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.Name);
+
+                                int cnt = parameterTypes.Length > method.MethodParameters.Count ? method.MethodParameters.Count : parameterTypes.Length;
+                                for (int i = 0; i < cnt; i++)
+                                {
+                                    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
+                                }
+                                method.Name = methodName.Replace("<", "{").Replace(">", "}");
                                 method.Accessibility = item.Accessibility;
                                 if (item.IsStatic)
                                     method.Type = MethodType.Function;
                             }
-                            //else
-                            //{
-                            //    Console.WriteLine();
-                            //}
+                            else
+                            {
+                                Console.WriteLine();
+                            }
                         }
                         
                     }
                 }
             }
+        }
+
+        private static (string methodName, string[] parameterTypes) SplitMethodNameAndParameter(string text)
+        {
+            var regex = new Regex("(?<name>[\\S ]+)\\((?<parameterStr>[\\S ]+)\\)");
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                var name = match.Groups["name"].ToString();
+                var parameterStr = match.Groups["parameterStr"].ToString();
+                var parameters = new List<string>();
+
+                var paramRegex = new Regex("[a-zA-Z]+<[a-zA-Z, ]+>[.a-zA-Z]*|[a-zA-Z]+");
+                var paramMatch = paramRegex.Match(parameterStr);
+                while (paramMatch.Success)
+                {
+                    parameters.Add(paramMatch.ToString());
+                    paramMatch = paramMatch.NextMatch();
+                }
+
+                return (name, parameters.ToArray());
+            }
+            return (text, new string[0]);
         }
 
         /// <summary>
@@ -201,8 +234,6 @@ namespace XmlDocumentParser.EasyCs
         /// <summary>
         /// Get{K, V}(Dictionary{K, V}, K, V) => Get``2(Dictionary{``0, ``1}, ``0, ``1)
         /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
         private static string ConvertGenerics(string text)
         {
             var regex = new Regex("(?<methodName>[\\S]+)<(?<genericsTypes>[a-zA-Z ,]+)>\\((?<arguments>[\\S ]+)\\)");

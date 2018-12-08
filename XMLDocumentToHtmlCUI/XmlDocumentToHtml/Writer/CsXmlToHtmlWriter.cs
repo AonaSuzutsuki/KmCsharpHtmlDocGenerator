@@ -195,7 +195,7 @@ namespace XmlDocumentToHtml.Writer
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
-                    methodLoader.Assign("MethodName", "{0} {1}".FormatString(member.Accessibility, name));
+                    methodLoader.Assign("MethodName", "{0} {1}".FormatString(member.Accessibility, ResolveType(name)));
                     methodLoader.Assign("MethodParameters", parametersStr);
 					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, parent, stream.Name));
 
