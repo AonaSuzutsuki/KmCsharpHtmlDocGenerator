@@ -181,12 +181,13 @@ namespace XmlDocumentToHtml.Writer
             var loader = new Template.TemplateLoader(BaseTemplatePath);
 
             var constructors = new StringBuilder();
+            var functions = new StringBuilder();
             var methods = new StringBuilder();
             var properties = new StringBuilder();
             var enums = new StringBuilder();
             foreach (var member in members)
             {
-                if (member.Type == MethodType.Method || member.Type == MethodType.Constructor)
+                if (member.Type == MethodType.Method || member.Type == MethodType.Function || member.Type == MethodType.Constructor)
                 {
                     var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
                     var parametersStr = ResolveMethodParameter(member);
@@ -194,7 +195,7 @@ namespace XmlDocumentToHtml.Writer
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
-                    methodLoader.Assign("MethodName", name);
+                    methodLoader.Assign("MethodName", "{0} {1}".FormatString(member.Accessibility, name));
                     methodLoader.Assign("MethodParameters", parametersStr);
 					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, parent, stream.Name));
 
@@ -213,6 +214,11 @@ namespace XmlDocumentToHtml.Writer
                     {
                         methods.Append(methodLoader.ToString());
                         loader.Assign("HasMethod", true);
+                    }
+                    else if (member.Type == MethodType.Function)
+                    {
+                        functions.Append(methodLoader.ToString());
+                        loader.Assign("HasFunction", true);
                     }
                     else
                     {
@@ -250,6 +256,7 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
             loader.Assign("Toc", CreateToc(members, parent), true);
             loader.Assign("ConstructorItems", constructors, true);
+            loader.Assign("FunctionItems", functions, true);
             loader.Assign("MethodItems", methods, true);
             loader.Assign("PropertyItems", properties, true);
             loader.Assign("FieldItems", enums, true);
@@ -376,6 +383,7 @@ namespace XmlDocumentToHtml.Writer
             }
 
             toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + ResolveMethodParameter(member), "Constructor"));
+            toc.Append(GetElement(MethodType.Function, (member) => member.Name + ResolveMethodParameter(member), "Functions"));
             toc.Append(GetElement(MethodType.Method, (member) => member.Name + ResolveMethodParameter(member), "Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
 			toc.Append(GetElement(MethodType.Field, (member) => member.Name, "Fields"));
@@ -463,14 +471,6 @@ namespace XmlDocumentToHtml.Writer
 
         private static string ResolveType(string text)
         {
-            text = text.Replace("System.Byte", "byte");
-            text = text.Replace("System.Int32", "int");
-            text = text.Replace("System.Int64", "long");
-            text = text.Replace("System.Boolean", "bool");
-            text = text.Replace("System.String", "string");
-
-            //text = ResolveGenericsType(text);
-
             return text.Replace("{", "&lt;").Replace("}", "&gt;");
         }
 

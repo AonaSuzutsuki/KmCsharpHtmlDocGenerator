@@ -42,6 +42,15 @@
             </div>
             {/if $HasConstructor}
 
+            {if $HasFunction == true}
+            <br />
+            <div id="methods">
+                <h2>Functions</h2>
+                {$FunctionItems}
+
+            </div>
+            {/if $HasFunction}
+
             {if $HasMethod == true}
             <br />
             <div id="methods">

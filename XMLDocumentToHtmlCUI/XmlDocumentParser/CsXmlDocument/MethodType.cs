@@ -26,6 +26,8 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         Constructor,
 
+        Function,
+
         /// <summary>
         /// Method.
         /// </summary>

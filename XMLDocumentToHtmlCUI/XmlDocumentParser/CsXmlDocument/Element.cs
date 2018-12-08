@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Element
     {
+        public Accessibility Accessibility { get; set; }
+
         /// <summary>
         /// Tree structure element type.
         /// </summary>
@@ -19,17 +22,21 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Namespace of element.
         /// </summary>
-        public NamespaceItem Namespace { get; set; }
+        public NamespaceItem Namespace { get; set; } = new NamespaceItem();
 
         /// <summary>
         /// Name of element.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Value of element.
         /// </summary>
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
+
+        public bool IsStatic { get; set; }
+        public bool IsAbstract { get; set; }
+        public bool IsSealed { get; set; }
 
         /// <summary>
         /// List of namespaces this element holds.

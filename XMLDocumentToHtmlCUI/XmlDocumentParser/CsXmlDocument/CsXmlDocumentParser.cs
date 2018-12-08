@@ -125,8 +125,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     {
                         Type = ElementType.Namespace,
                         Namespace = member.Namespace,
-                        Name = firstName,
-                        Members = null
+                        Name = firstName
                     };
 
                     if (!preElem.HasElement(elem.Name))
@@ -156,11 +155,6 @@ namespace XmlDocumentParser.CsXmlDocument
 						Namespaces = new List<Element>()
                     };
 
-                    if (name.StartsWith("I"))
-                    {
-                        classElem.Type = ElementType.Interface;
-                    }
-
                     classElemMap.Put("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name), classElem);
                     
                     preElem.Namespaces.Add(classElem);
@@ -168,7 +162,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 }
                 else
                 {
-                    var classElem = classElemMap.Get(member.Namespace.ToString());
+                    var classElem = classElemMap.Get(member.Namespace.ToString(), new Element());
                     if ("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name).Equals(member.Namespace.ToString()))
                         classElem.Members.Add(member);
                 }
@@ -244,24 +238,22 @@ namespace XmlDocumentParser.CsXmlDocument
             {
                 for (int i = 0; i < ParameterLoopLimit; i++)
                 {
-                    var splitReg = new Regex("\\{(.*)\\}");
+                    var splitReg = new Regex("(?<parameter>\\{(.*)\\}),|(?<parameter>\\{(.*)\\})");
                     var splitMatch = splitReg.Match(parameterText);
-                    if (splitMatch.Success)
+                    while (splitMatch.Success)
                     {
-                        var full = splitMatch.ToString();
+                        var full = splitMatch.Groups["parameter"].ToString();
                         var replacedText = parameterText.Replace(full, "~{0}~".FormatString(Convert.ToBase64String(Encoding.UTF8.GetBytes(full))));
                         parameterText = replacedText;
-                    }
-                    else
-                    {
-                        break;
+
+                        splitMatch = splitMatch.NextMatch();
                     }
                 }
 
                 var splits = parameterText.Split(',');
                 for (int i = 0; i < splits.Length; i++)
                 {
-                    splits[i] = ResolveSplitParameter(splits[i]);
+                    splits[i] = ResolveSystemType(ResolveSplitParameter(splits[i]));
                 }
 
                 return splits;
@@ -288,6 +280,17 @@ namespace XmlDocumentParser.CsXmlDocument
             }
 
             return member;
+        }
+
+        private static string ResolveSystemType(string text)
+        {
+            text = text.Replace("System.Byte", "byte");
+            text = text.Replace("System.Int32", "int");
+            text = text.Replace("System.Int64", "long");
+            text = text.Replace("System.Boolean", "bool");
+            text = text.Replace("System.String", "string");
+            text = text.Replace("System.Object", "object");
+            return text;
         }
 
         /// <summary>

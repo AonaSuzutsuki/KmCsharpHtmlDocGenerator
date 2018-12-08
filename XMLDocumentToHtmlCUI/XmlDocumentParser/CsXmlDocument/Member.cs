@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
+        public Accessibility Accessibility { get; set; } = Accessibility.Public;
+
         /// <summary>
         /// Method type of member.
         /// </summary>
