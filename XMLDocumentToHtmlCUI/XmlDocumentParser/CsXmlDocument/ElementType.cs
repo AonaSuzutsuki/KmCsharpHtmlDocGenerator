@@ -34,5 +34,7 @@ namespace XmlDocumentParser.CsXmlDocument
         Enum,
 
         Struct,
+
+        Delegate,
     }
 }

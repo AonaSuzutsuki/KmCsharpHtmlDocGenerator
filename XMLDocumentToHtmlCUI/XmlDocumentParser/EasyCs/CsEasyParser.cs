@@ -21,6 +21,7 @@ namespace XmlDocumentParser.EasyCs
         Interface,
         Enum,
         Struct,
+        Delegate,
         Method
     }
 
@@ -71,6 +72,7 @@ namespace XmlDocumentParser.EasyCs
             var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
             var enumSyntaxArray = tree.GetRoot().DescendantNodes().OfType<EnumDeclarationSyntax>();
             var structSyntaxArray = tree.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>();
+            var delegateSyntaxArray = tree.GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>();
             var methodSyntaxArray = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>();
             var constructorSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>();
             var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
@@ -97,13 +99,14 @@ namespace XmlDocumentParser.EasyCs
                     });
                 }
             }
-            
-                PutDeclaration(classMap, classSyntaxArray, ClassType.Class);
-                PutDeclaration(classMap, inSyntaxArray, ClassType.Interface);
-                PutDeclaration(classMap, enumSyntaxArray, ClassType.Enum);
-                PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
-                PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
-                PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
+
+            PutDeclaration(classMap, classSyntaxArray, ClassType.Class);
+            PutDeclaration(classMap, inSyntaxArray, ClassType.Interface);
+            PutDeclaration(classMap, enumSyntaxArray, ClassType.Enum);
+            PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
+            PutDeclaration(classMap, delegateSyntaxArray, ClassType.Delegate);
+            PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
+            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
         }
 
         public void AddAttributesToElement(Element element)
@@ -130,6 +133,8 @@ namespace XmlDocumentParser.EasyCs
                                     elem.Type = ElementType.Struct;
                                 if (classInfo.ClassType == ClassType.Enum)
                                     elem.Type = ElementType.Enum;
+                                else if (classInfo.ClassType == ClassType.Delegate)
+                                    elem.Type = ElementType.Delegate;
                                 elem.IsAbstract = classInfo.IsAbstract;
                                 elem.IsSealed = classInfo.IsSealed;
                                 elem.IsStatic = classInfo.IsStatic;
