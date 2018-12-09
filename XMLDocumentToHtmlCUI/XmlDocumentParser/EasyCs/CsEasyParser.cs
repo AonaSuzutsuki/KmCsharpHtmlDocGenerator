@@ -64,9 +64,19 @@ namespace XmlDocumentParser.EasyCs
         public void RoslynAnalyze(string code, string parent)
         {
             var tree = CSharpSyntaxTree.ParseText(code);
+
+            IEnumerable<MetadataReference> references = new[]{
+                //microlib.dll
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                //System.dll
+                MetadataReference.CreateFromFile(typeof(System.Collections.ObjectModel.ObservableCollection<>).Assembly.Location),
+                //System.Core.dll
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+            };
+
             var compilation = CSharpCompilation.Create("sample",
                 syntaxTrees: new[] { tree },
-                references: new[] { MetadataReference.CreateFromFile(parent) });
+                references: references);
             var semanticModel = compilation.GetSemanticModel(tree);
             var classSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
             var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
@@ -83,10 +93,16 @@ namespace XmlDocumentParser.EasyCs
                 foreach (var syntax in syntaxNodes)
                 {
                     var symbol = semanticModel.GetDeclaredSymbol(syntax);
-                    var key = ConvertGenerics(symbol.ToString()).Replace(" ", "");
+                    if (syntax is ClassDeclarationSyntax)
+                    {
+                        var baseSyntax = (syntax as ClassDeclarationSyntax).BaseList.Types.First();
+                        var sym = semanticModel.GetDeclaredSymbol(baseSyntax.Type);
+                        var baseId = baseSyntax.Type.ToString();
+                    }
+                    var id = symbol.GetDocumentationCommentId();
                     var fullClassName = symbol.ToString();
                     var namespaceName = symbol.ContainingSymbol.ToString();
-                    dic.Put(key, new ClassInfo()
+                    dic.Put(id, new ClassInfo()
                     {
                         Id = id,
                         FullName = fullClassName,
@@ -151,15 +167,7 @@ namespace XmlDocumentParser.EasyCs
                     {
                         if (method.Type == MethodType.Method)
                         {
-                            var sb = new StringBuilder();
-                            foreach (var parameter in method.MethodParameters)
-                            {
-                                sb.AppendFormat("{0},", GetLastTypeWithoutNamespace(parameter).Replace("{", "<").Replace("}", ">"));
-                            }
-                            sb.Remove(sb.Length - 1, 1);
-                            var fullname = method.Namespace.IsRoot ? method.Name : "{0}.{1}".FormatString(method.Namespace, method.Name);
-                            fullname = "{0}({1})".FormatString(fullname, sb.ToString()).Replace(" ", "");
-                            var item = methodMap.Get(fullname);
+                            var item = methodMap.Get(method.Id);
                             if (item != null)
                             {
                                 var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.Name);
@@ -195,7 +203,7 @@ namespace XmlDocumentParser.EasyCs
                 var parameterStr = match.Groups["parameterStr"].ToString();
                 var parameters = new List<string>();
 
-                var paramRegex = new Regex("[a-zA-Z]+<[a-zA-Z, ]+>[.a-zA-Z]*|[a-zA-Z]+");
+                var paramRegex = new Regex("[a-zA-Z.]+<[a-zA-Z, ]+>[.a-zA-Z]*|[a-zA-Z]+");
                 var paramMatch = paramRegex.Match(parameterStr);
                 while (paramMatch.Success)
                 {
@@ -205,92 +213,9 @@ namespace XmlDocumentParser.EasyCs
 
                 return (name, parameters.ToArray());
             }
-            return (text, new string[0]);
+            return (text.Replace("(", "").Replace(")", ""), new string[0]);
         }
-
-        /// <summary>
-        /// System.Int32 => Int32
-        /// System.Action{System.Int32} => Action{Int32}
-        /// </summary>
-        private static string GetLastTypeWithoutNamespace(string text)
-        {
-            var regex = new Regex("[\\S]+\\.(?<genericType>([\\S]+)\\{[\\S]+\\}[\\S]*)|[\\S]+\\.(?<normalType>[\\S]+)");
-            var match = regex.Match(text);
-            if (match.Success)
-            {
-                var genericType = match.Groups["genericType"].ToString();
-                var normalType = match.Groups["normalType"].ToString();
-
-                if (!string.IsNullOrEmpty(genericType))
-                {
-                    var internalRegex = new Regex("{(?<internalType>[\\S]+)}");
-                    var internalMatch = internalRegex.Match(genericType);
-                    if (internalMatch.Success)
-                    {
-                        var internalType = internalMatch.Groups["internalType"].ToString();
-                        var last = internalType.Split('.').Last();
-                        return genericType.Replace(internalType, last);
-                    }
-                    return genericType;
-                }
-                return normalType;
-            }
-            return text.Split('.').Last();
-        }
-
-        /// <summary>
-        /// Get{K, V}(Dictionary{K, V}, K, V) => Get``2(Dictionary{``0, ``1}, ``0, ``1)
-        /// </summary>
-        private static string ConvertGenerics(string text)
-        {
-            var regex = new Regex("(?<methodName>[\\S]+)<(?<genericsTypes>[a-zA-Z ,]+)>\\((?<arguments>[\\S ]+)\\)");
-            var match = regex.Match(text);
-            if (match.Success)
-            {
-                var sb = new StringBuilder();
-
-                var methodName = match.Groups["methodName"].ToString();
-                var genericsTypesStr = match.Groups["genericsTypes"].ToString().Replace(" ", "");
-                var genericsTypes = genericsTypesStr.Split(',');
-
-                sb.AppendFormat("{0}``{1}(", methodName, genericsTypes.Length);
-
-                var genericsMap = new Dictionary<string, string>();
-                var genericsSb = new StringBuilder();
-                for (int i = 0; i < genericsTypes.Length; i++)
-                {
-                    genericsSb.AppendFormat("``{0},", i);
-                    genericsMap.Put(genericsTypes[i], "``{0}".FormatString(i));
-                }
-                genericsSb.Remove(genericsSb.Length - 1, 1);
-
-                var argumentsStr = match.Groups["arguments"].ToString().Replace(" ", "");
-                var argumentRegex = new Regex("(?<notGenericsType>[\\S]+<[\\S ]+>[\\S]*)|(?<genericsType>[a-zA-Z]+)", RegexOptions.Multiline);
-                var argMatch = argumentRegex.Match(argumentsStr);
-                while (argMatch.Success)
-                {
-                    var notGenericsType = argMatch.Groups["notGenericsType"].ToString();
-                    var genericsType = argMatch.Groups["genericsType"].ToString();
-
-                    if (!string.IsNullOrEmpty(notGenericsType))
-                    {
-                        sb.AppendFormat("{0},", notGenericsType.Replace(genericsTypesStr, genericsSb.ToString()));
-                    }
-                    else if (!string.IsNullOrEmpty(genericsType))
-                    {
-                        var convertedType = genericsMap.Get(genericsType, genericsType);
-                        sb.AppendFormat("{0},", convertedType);
-                    }
-                    argMatch = argMatch.NextMatch();
-                }
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append(")");
-
-                return sb.ToString();
-            }
-            return text;
-        }
-
+        
         private Tuple<string, string>[] GetCsFiles(string csprojParentPath)
         {
             var list = new List<Tuple<string, string>>();
