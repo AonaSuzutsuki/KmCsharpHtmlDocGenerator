@@ -148,6 +148,7 @@ namespace XmlDocumentParser.CsXmlDocument
 
                     var classElem = new Element()
                     {
+                        Id = member.Id,
                         Type = ElementType.Class,
                         Namespace = member.Namespace,
                         Name = name,
@@ -279,6 +280,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 member.MethodParameters.AddRange(parameters);
             }
 
+            member.Id = text;
             return member;
         }
 

@@ -26,6 +26,7 @@ namespace XmlDocumentParser.EasyCs
 
     public class ClassInfo
     {
+        public string Id { get; set; }
         public Accessibility Accessibility { get; set; }
         public ClassType ClassType { get; set; }
         public bool IsStatic { get; set; }
@@ -85,6 +86,7 @@ namespace XmlDocumentParser.EasyCs
                     var namespaceName = symbol.ContainingSymbol.ToString();
                     dic.Put(key, new ClassInfo()
                     {
+                        Id = id,
                         FullName = fullClassName,
                         Name = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
                         Accessibility = symbol.DeclaredAccessibility,

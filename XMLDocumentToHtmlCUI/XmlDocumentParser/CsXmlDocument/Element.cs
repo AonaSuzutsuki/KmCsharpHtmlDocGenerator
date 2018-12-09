@@ -12,6 +12,8 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Element
     {
+        public string Id { get; set; }
+
         public Accessibility Accessibility { get; set; }
 
         /// <summary>

@@ -12,6 +12,7 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
+        public string Id { get; set; }
         public Accessibility Accessibility { get; set; } = Accessibility.Public;
 
         /// <summary>
