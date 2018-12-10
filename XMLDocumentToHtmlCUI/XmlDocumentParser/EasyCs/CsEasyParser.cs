@@ -239,7 +239,6 @@ namespace XmlDocumentParser.EasyCs
 				csFilePathList.AddRange(includes);
 
 				var targetFramework = GetTargetFramework(reader);
-				var systemAssemblyDir = "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono", targetFramework);
 				var hintPaths = reader.GetValues("/ns:Project/ns:ItemGroup/ns:Reference/ns:HintPath", false);
 				var references = reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Reference");
 				foreach (var hintPath in hintPaths)
@@ -254,25 +253,51 @@ namespace XmlDocumentParser.EasyCs
 					var referenceName = reference.Split(',').First();
 					if (!assemblyNameMap.ContainsKey(referenceName))
 					{
-						try
-						{
-							var assembly = Assembly.LoadFrom("{0}/{1}.dll".FormatString(systemAssemblyDir, referenceName));
-							assemblyNameMap.Add(reference, assembly);
-						}
-						catch (BadImageFormatException)
-						{
-							var assemblyPath = DirectorySearcher.GetAllFiles("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono/gac", "{0}.dll".FormatString(reference)).Last();
-							var assembly = Assembly.LoadFile(assemblyPath);
-							assemblyNameMap.Add(reference, assembly);
-						}
-						catch
-						{
-							Console.WriteLine();
-						}
-					}
+                        //try
+                        //{
+                        //  var systemAssemblyDir = "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono", targetFramework);
+                        //	var assembly = Assembly.LoadFrom("{0}/{1}.dll".FormatString(systemAssemblyDir, referenceName));
+                        //	assemblyNameMap.Add(reference, assembly);
+                        //}
+                        //catch (BadImageFormatException)
+                        //{
+                        //	var assemblyPath = DirectorySearcher.GetAllFiles("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono/gac", "{0}.dll".FormatString(reference)).Last();
+                        //	var assembly = Assembly.LoadFile(assemblyPath);
+                        //	assemblyNameMap.Add(reference, assembly);
+                        //}
+                        //catch
+                        //{
+                        //	Console.WriteLine();
+                        //}
+
+                        try
+                        {
+                            //C:\Windows\assembly\GAC_MSIL
+                            var assemblyPath = GetSystemAssemblyPath(targetFramework, reference);
+                            var assembly = Assembly.LoadFrom(assemblyPath);
+                            assemblyNameMap.Add(reference, assembly);
+                        }
+                        catch
+                        {
+                            Console.WriteLine();
+                        }
+                    }
 				}
 			}
 			return (csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
+        }
+
+        private string GetSystemAssemblyPath(string targetFramework, string reference)
+        {
+            var systemAssemblyDir = "{0}{1}".FormatString(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v", targetFramework);
+            var assemblyPathArray = DirectorySearcher.GetAllFiles(systemAssemblyDir, "{0}.dll".FormatString(reference));
+            var assemblyPath = assemblyPathArray.Length > 0 ? assemblyPathArray.Last() : null;
+            if (assemblyPath == null)
+            {
+                assemblyPathArray = DirectorySearcher.GetAllFiles(@"C:\Windows\assembly\GAC_MSIL", "{0}.dll".FormatString(reference));
+                assemblyPath = assemblyPathArray.Length > 0 ? assemblyPathArray.Last() : null;
+            }
+            return assemblyPath;
         }
 
 		private string GetTargetFramework(XmlWrapper.Reader reader)
