@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -49,21 +50,21 @@ namespace XmlDocumentParser.EasyCs
 
         public void Parse()
         {
-            var filepaths = GetCsFiles(@"D:\Develop\Git\XMLDocumentToHtml\XMLDocumentToHtmlCUI\XMLDocumentToHtmlCUI\bin\Debug\src");
-            foreach (var filename in filepaths)
+            var (csFilePathArray, referenceArray) = GetCsFiles(@"src");
+			var syntaxTrees = new List<SyntaxTree>();
+			foreach (var filename in csFilePathArray)
             {
-                var text = File.ReadAllText(filename.Item2).Replace("\r\n", "\r").Replace("\r", "\n");
+                var text = File.ReadAllText(filename).Replace("\r\n", "\r").Replace("\r", "\n");
                 text = RemoveComments(text);
 
                 var namespaceItem = GetNamespace(text);
 
-                RoslynAnalyze(text, filename.Item1);
+				syntaxTrees.Add(CSharpSyntaxTree.ParseText(text));
             }
-        }
 
-        public void RoslynAnalyze(string code, string parent)
-        {
-            var tree = CSharpSyntaxTree.ParseText(code);
+			var metadataReferences = new List<MetadataReference>();
+			foreach (var reference in referenceArray)
+				metadataReferences.Add(MetadataReference.CreateFromFile(reference.Location));
 
             IEnumerable<MetadataReference> references = new[]{
                 //microlib.dll
@@ -72,11 +73,17 @@ namespace XmlDocumentParser.EasyCs
                 MetadataReference.CreateFromFile(typeof(System.Collections.ObjectModel.ObservableCollection<>).Assembly.Location),
                 //System.Core.dll
                 MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            };
+            };         
+			var compilation = CSharpCompilation.Create("sample", syntaxTrees, metadataReferences);
 
-            var compilation = CSharpCompilation.Create("sample",
-                syntaxTrees: new[] { tree },
-                references: references);
+			foreach (var tree in syntaxTrees)
+			{
+				RoslynAnalyze(tree, compilation);
+			}
+        }
+
+		public void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
+        {         
             var semanticModel = compilation.GetSemanticModel(tree);
             var classSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
             var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
@@ -93,12 +100,12 @@ namespace XmlDocumentParser.EasyCs
                 foreach (var syntax in syntaxNodes)
                 {
                     var symbol = semanticModel.GetDeclaredSymbol(syntax);
-                    if (syntax is ClassDeclarationSyntax)
-                    {
-                        var baseSyntax = (syntax as ClassDeclarationSyntax).BaseList.Types.First();
-                        var sym = semanticModel.GetDeclaredSymbol(baseSyntax.Type);
-                        var baseId = baseSyntax.Type.ToString();
-                    }
+                    //if (syntax is ClassDeclarationSyntax)
+                    //{
+                    //    var baseSyntax = (syntax as ClassDeclarationSyntax).BaseList.Types.First();
+                    //    var sym = semanticModel.GetDeclaredSymbol(baseSyntax.Type);
+                    //    var baseId = baseSyntax.Type.ToString();
+                    //}
                     var id = symbol.GetDocumentationCommentId();
                     var fullClassName = symbol.ToString();
                     var namespaceName = symbol.ContainingSymbol.ToString();
@@ -140,7 +147,7 @@ namespace XmlDocumentParser.EasyCs
                         else
                         {
                             var fullname = elem.Namespace.IsRoot ? elem.Name : "{0}.{1}".FormatString(elem.Namespace, elem.Name);
-                            var classInfo = classMap.Get(fullname);
+							var classInfo = classMap.Get(elem.Id);
                             if (classInfo != null)
                             {
                                 if (classInfo.ClassType == ClassType.Interface)
@@ -216,9 +223,11 @@ namespace XmlDocumentParser.EasyCs
             return (text.Replace("(", "").Replace(")", ""), new string[0]);
         }
         
-        private Tuple<string, string>[] GetCsFiles(string csprojParentPath)
-        {
-            var list = new List<Tuple<string, string>>();
+		private (string[] csFilePathArray, Assembly[] referenceArray) GetCsFiles(string csprojParentPath)
+		{
+			var csFilePathList = new List<string>();
+            var assemblyNameMap = new Dictionary<string, Assembly>();
+
             var filepaths = DirectorySearcher.GetAllFiles(csprojParentPath, "*.csproj");
             foreach (var file in filepaths)
             {
@@ -227,13 +236,56 @@ namespace XmlDocumentParser.EasyCs
                 reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
                 var parent = "{0}/".FormatString(Path.GetDirectoryName(file));
                 var includes = MergeParentPath(reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Compile"), parent);
-                foreach (var include in includes)
-                {
-                    list.Add(new Tuple<string, string>(file, include));
-                }
-            }
-            return list.ToArray();
+				csFilePathList.AddRange(includes);
+
+				var targetFramework = GetTargetFramework(reader);
+				var systemAssemblyDir = "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono", targetFramework);
+				var hintPaths = reader.GetValues("/ns:Project/ns:ItemGroup/ns:Reference/ns:HintPath", false);
+				var references = reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Reference");
+				foreach (var hintPath in hintPaths)
+				{
+					var relativePath = Path.Combine(parent, CommonPath.PathUtils.ResolvePathSeparator(hintPath));
+					var absolutePath = Path.GetFullPath(relativePath);
+					var assembly = Assembly.LoadFile(absolutePath);
+					assemblyNameMap.Put(assembly.GetName().Name, assembly);
+				}
+				foreach (var reference in references)
+				{
+					var referenceName = reference.Split(',').First();
+					if (!assemblyNameMap.ContainsKey(referenceName))
+					{
+						try
+						{
+							var assembly = Assembly.LoadFrom("{0}/{1}.dll".FormatString(systemAssemblyDir, referenceName));
+							assemblyNameMap.Add(reference, assembly);
+						}
+						catch (BadImageFormatException)
+						{
+							var assemblyPath = DirectorySearcher.GetAllFiles("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono/gac", "{0}.dll".FormatString(reference)).Last();
+							var assembly = Assembly.LoadFile(assemblyPath);
+							assemblyNameMap.Add(reference, assembly);
+						}
+						catch
+						{
+							Console.WriteLine();
+						}
+					}
+				}
+			}
+			return (csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
         }
+
+		private string GetTargetFramework(XmlWrapper.Reader reader)
+		{
+			var version = reader.GetValue("/ns:Project/ns:PropertyGroup/ns:TargetFrameworkVersion", false);
+			var regex = new Regex("[0-9.]+");
+			var match = regex.Match(version);
+			if (match.Success)
+			{
+				return match.ToString();
+			}
+			return null;
+		}
 
         private List<string> MergeParentPath(List<string> list, string parent)
         {
