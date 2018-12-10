@@ -471,6 +471,14 @@ namespace XmlDocumentToHtml.Writer
 
         private static string ResolveType(string text)
         {
+
+            text = text.Replace("System.Byte", "byte");
+            text = text.Replace("System.Int32", "int");
+            text = text.Replace("System.Int64", "long");
+            text = text.Replace("System.Boolean", "bool");
+            text = text.Replace("System.String", "string");
+            text = text.Replace("System.Object", "object");
+
             return text.Replace("{", "&lt;").Replace("}", "&gt;");
         }
 

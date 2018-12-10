@@ -254,7 +254,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 var splits = parameterText.Split(',');
                 for (int i = 0; i < splits.Length; i++)
                 {
-                    splits[i] = ResolveSystemType(ResolveSplitParameter(splits[i]));
+                    splits[i] = ResolveSplitParameter(splits[i]);
                 }
 
                 return splits;
@@ -282,17 +282,6 @@ namespace XmlDocumentParser.CsXmlDocument
 
             member.Id = text;
             return member;
-        }
-
-        private static string ResolveSystemType(string text)
-        {
-            text = text.Replace("System.Byte", "byte");
-            text = text.Replace("System.Int32", "int");
-            text = text.Replace("System.Int64", "long");
-            text = text.Replace("System.Boolean", "bool");
-            text = text.Replace("System.String", "string");
-            text = text.Replace("System.Object", "object");
-            return text;
         }
 
         /// <summary>
