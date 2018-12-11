@@ -50,14 +50,14 @@ namespace XmlDocumentParser.EasyCs
             foreach (var reference in referenceArray)
                 metadataReferences.Add(MetadataReference.CreateFromFile(reference.Location));
 
-            IEnumerable<MetadataReference> references = new[]{
-                //microlib.dll
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                //System.dll
-                MetadataReference.CreateFromFile(typeof(System.Collections.ObjectModel.ObservableCollection<>).Assembly.Location),
-                //System.Core.dll
-                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            };
+            //IEnumerable<MetadataReference> references = new[]{
+            //             //microlib.dll
+            //             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            //             //System.dll
+            //             MetadataReference.CreateFromFile(typeof(System.Collections.ObjectModel.ObservableCollection<>).Assembly.Location),
+            //             //System.Core.dll
+            //             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+            //};
             var compilation = CSharpCompilation.Create("sample", syntaxTrees, metadataReferences);
 
             foreach (var tree in syntaxTrees)
