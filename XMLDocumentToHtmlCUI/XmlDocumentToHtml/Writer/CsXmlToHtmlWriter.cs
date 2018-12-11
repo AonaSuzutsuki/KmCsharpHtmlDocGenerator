@@ -373,9 +373,9 @@ namespace XmlDocumentToHtml.Writer
                 {
                     if (member.Type == type)
                     {
-                        var name = ResolveType(func(member));
+                        var name = func(member);
                         var hash = Sha256.GetSha256(name);
-                        list.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, name));
+                        list.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, ResolveType(name)));
                     }
                 }
                 if (list.Count > 0)
