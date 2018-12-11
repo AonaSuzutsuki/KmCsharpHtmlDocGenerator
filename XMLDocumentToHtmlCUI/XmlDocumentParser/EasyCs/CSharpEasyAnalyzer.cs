@@ -198,7 +198,7 @@ namespace XmlDocumentParser.EasyCs
                 var parameterStr = match.Groups["parameterStr"].ToString();
                 var parameters = new List<string>();
 
-                var paramRegex = new Regex("[a-zA-Z.]+<[a-zA-Z, ]+>[.a-zA-Z]*|[a-zA-Z]+");
+                var paramRegex = new Regex("[a-zA-Z.]+<[a-zA-Z,. ]+>[.a-zA-Z]*|[.a-zA-Z]+");
                 var paramMatch = paramRegex.Match(parameterStr);
                 while (paramMatch.Success)
                 {
