@@ -25,9 +25,12 @@ namespace XmlDocumentParser.EasyCs
         private readonly Dictionary<string, ClassInfo> classMap = new Dictionary<string, ClassInfo>();
         private readonly Dictionary<string, ClassInfo> methodMap = new Dictionary<string, ClassInfo>();
 
-        public void Parse()
+        public void Parse(string csProjDirPath = "src")
         {
-            var (csFilePathArray, referenceArray) = GetCsFiles(@"src");
+            if (!Directory.Exists(csProjDirPath))
+                return;
+
+            var (csFilePathArray, referenceArray) = GetCsFiles(csProjDirPath);
             var syntaxTrees = new List<SyntaxTree>();
             foreach (var filename in csFilePathArray)
             {
