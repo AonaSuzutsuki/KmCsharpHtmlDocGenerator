@@ -66,56 +66,6 @@ namespace XmlDocumentParser.EasyCs
             }
         }
 
-        public void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
-        {
-            var semanticModel = compilation.GetSemanticModel(tree);
-            var classSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
-            var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
-            var enumSyntaxArray = tree.GetRoot().DescendantNodes().OfType<EnumDeclarationSyntax>();
-            var structSyntaxArray = tree.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>();
-            var delegateSyntaxArray = tree.GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>();
-            var methodSyntaxArray = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>();
-            var constructorSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>();
-            var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-            var fieldSyntaxArray = tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>();
-
-            void PutDeclaration(Dictionary<string, ClassInfo> dic, IEnumerable<SyntaxNode> syntaxNodes, ClassType classType)
-            {
-                foreach (var syntax in syntaxNodes)
-                {
-                    var symbol = semanticModel.GetDeclaredSymbol(syntax);
-                    //if (syntax is ClassDeclarationSyntax)
-                    //{
-                    //    var baseSyntax = (syntax as ClassDeclarationSyntax).BaseList.Types.First();
-                    //    var sym = semanticModel.GetDeclaredSymbol(baseSyntax.Type);
-                    //    var baseId = baseSyntax.Type.ToString();
-                    //}
-                    var id = symbol.GetDocumentationCommentId();
-                    var fullClassName = symbol.ToString();
-                    var namespaceName = symbol.ContainingSymbol.ToString();
-                    dic.Put(id, new ClassInfo()
-                    {
-                        Id = id,
-                        FullName = fullClassName,
-                        Name = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
-                        Accessibility = symbol.DeclaredAccessibility,
-                        ClassType = classType,
-                        IsStatic = symbol.IsStatic,
-                        IsSealed = symbol.IsSealed,
-                        IsAbstract = symbol.IsAbstract,
-                    });
-                }
-            }
-
-            PutDeclaration(classMap, classSyntaxArray, ClassType.Class);
-            PutDeclaration(classMap, inSyntaxArray, ClassType.Interface);
-            PutDeclaration(classMap, enumSyntaxArray, ClassType.Enum);
-            PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
-            PutDeclaration(classMap, delegateSyntaxArray, ClassType.Delegate);
-            PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
-            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
-        }
-
         /// <summary>
         /// Adds the attributes on C# codes to <see cref="Element"/>.
         /// </summary>
@@ -186,6 +136,61 @@ namespace XmlDocumentParser.EasyCs
                     }
                 }
             }
+        }
+
+        private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
+        {
+            var semanticModel = compilation.GetSemanticModel(tree);
+            var classSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
+            var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
+            var enumSyntaxArray = tree.GetRoot().DescendantNodes().OfType<EnumDeclarationSyntax>();
+            var structSyntaxArray = tree.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>();
+            var delegateSyntaxArray = tree.GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>();
+            var methodSyntaxArray = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>();
+            var constructorSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>();
+            var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
+            var fieldSyntaxArray = tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>();
+
+            void PutDeclaration(Dictionary<string, ClassInfo> dic, IEnumerable<SyntaxNode> syntaxNodes, ClassType classType)
+            {
+                foreach (var syntax in syntaxNodes)
+                {
+                    var symbol = semanticModel.GetDeclaredSymbol(syntax);
+                    //if (syntax is ClassDeclarationSyntax)
+                    //{
+                    //    var baseSyntax = (syntax as ClassDeclarationSyntax).BaseList.Types.First();
+                    //    var sym = semanticModel.GetDeclaredSymbol(baseSyntax.Type);
+                    //    var baseId = baseSyntax.Type.ToString();
+                    //}
+                    var id = symbol.GetDocumentationCommentId();
+                    var fullClassName = symbol.ToString();
+                    var namespaceName = symbol.ContainingSymbol.ToString();
+
+                    var classInfo = new ClassInfo
+                    {
+                        Id = id,
+                        FullName = fullClassName,
+                        Name = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
+                        Accessibility = symbol.DeclaredAccessibility,
+                        ClassType = classType,
+                        IsStatic = symbol.IsStatic,
+                        IsSealed = symbol.IsSealed,
+                        IsAbstract = symbol.IsAbstract,
+                    };
+
+
+                    dic.Put(id, classInfo);
+                }
+            }
+
+            PutDeclaration(classMap, classSyntaxArray, ClassType.Class);
+            PutDeclaration(classMap, inSyntaxArray, ClassType.Interface);
+            PutDeclaration(classMap, enumSyntaxArray, ClassType.Enum);
+            PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
+            PutDeclaration(classMap, delegateSyntaxArray, ClassType.Delegate);
+            PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
+            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
+            PutDeclaration(methodMap, propertySyntaxArray, ClassType.Property);
         }
 
         private static (string methodName, string[] parameterTypes) SplitMethodNameAndParameter(string text)
