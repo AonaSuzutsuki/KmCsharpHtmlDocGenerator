@@ -191,7 +191,7 @@ namespace XmlDocumentToHtml.Writer
                 {
                     var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
                     var parametersStr = ResolveMethodParameter(member);
-                    var paramStr = ResolveParameterTable(member, ParameterTableTemplate);
+					var paramStr = ResolveParameterTable(member, ParameterTableTemplate, (text) => ResolveSpecificXmlElement(text, parent, stream.Name));
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
@@ -452,7 +452,7 @@ namespace XmlDocumentToHtml.Writer
             return "({0})".FormatString(parameterSb.ToString());
         }
 
-        private static string ResolveParameterTable(Member member, string templatePath)
+		private static string ResolveParameterTable(Member member, string templatePath, Func<string, string> func)
         {
             var paramSb = new StringBuilder();
             var parameterLoader = new TemplateLoader(templatePath);
