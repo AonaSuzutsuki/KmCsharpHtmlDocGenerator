@@ -202,7 +202,13 @@ namespace XmlDocumentToHtml.Writer
                     if (!string.IsNullOrEmpty(member.ReturnComment))
                     {
 						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, parent, stream.Name));
-                        methodLoader.Assign("HasReturn", true.ToString());
+                        methodLoader.Assign("HasReturn", true);
+
+						if (!member.ReturnType.Equals(XmlDocumentParser.Constants.SystemVoid))
+						{
+							methodLoader.Assign("MethodReturnType", member.ReturnType);
+							methodLoader.Assign("HasReturnType", true);
+						}
                     }
                     if (!string.IsNullOrEmpty(paramStr))
                     {
@@ -462,7 +468,7 @@ namespace XmlDocumentToHtml.Writer
             {
                 parameterLoader.Assign("Type", ResolveType(parameter.Parameter.Type));
                 parameterLoader.Assign("TypeName", parameter.Parameter.Name);
-                parameterLoader.Assign("TypeComment", parameter.Comment);
+				parameterLoader.Assign("TypeComment", func(parameter.Comment));
                 paramSb.Append(parameterLoader.ToString());
                 parameterLoader.Reset();
             }

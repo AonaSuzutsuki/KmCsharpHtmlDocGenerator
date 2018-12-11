@@ -1,7 +1,6 @@
 ﻿<br />
 <div class="method-elem">
     <h3 id="{$MethodHash}">{$MethodName}{$MethodParameters}</h3>
-
     <div class="method-elem">
         {if $HasParameter == true}
         <table class="parameter">
@@ -14,6 +13,9 @@
         <table class="parameter">
             <caption>Return</caption>
             <tr>
+                {if $HasReturnType == true}
+                <td>{$MethodReturnType}</td>
+                {/if $HasReturnType}
                 <td>{$MethodReturnComment}</td>
             </tr>
         </table>
@@ -23,5 +25,5 @@
             {$MethodComment}
         </div>
     </div>
-    
+
 </div>

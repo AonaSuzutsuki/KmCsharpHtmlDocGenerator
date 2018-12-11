@@ -124,6 +124,7 @@ namespace XmlDocumentParser.EasyCs
                                 }
                                 method.Name = methodName.Replace("<", "{").Replace(">", "}");
                                 method.Accessibility = item.Accessibility;
+                                method.ReturnType = item.ReturnType;
                                 if (item.IsStatic)
                                     method.Type = MethodType.Function;
                             }
@@ -178,6 +179,11 @@ namespace XmlDocumentParser.EasyCs
                         IsAbstract = symbol.IsAbstract,
                     };
 
+                    if (symbol is IMethodSymbol)
+                    {
+                        var returnType = ((IMethodSymbol)symbol).ReturnType;
+                        classInfo.ReturnType = returnType.ToString();
+                    }
 
                     dic.Put(id, classInfo);
                 }

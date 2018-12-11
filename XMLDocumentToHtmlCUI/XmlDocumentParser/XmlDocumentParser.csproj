@@ -201,6 +201,7 @@
     <Compile Include="EasyCs\ArraySplitter.cs" />
     <Compile Include="EasyCs\ClassType.cs" />
     <Compile Include="EasyCs\ClassInfo.cs" />
+    <Compile Include="Constants.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
