@@ -17,7 +17,7 @@ using XmlDocumentParser.CsXmlDocument;
 namespace XmlDocumentParser.EasyCs
 {
     /// <summary>
-    /// 
+    /// Be analyzed C# code by Roslyn and add attributes into elements of C# XML Document.
     /// </summary>
     public class CSharpEasyAnalyzer
     {
@@ -25,6 +25,10 @@ namespace XmlDocumentParser.EasyCs
         private readonly Dictionary<string, ClassInfo> classMap = new Dictionary<string, ClassInfo>();
         private readonly Dictionary<string, ClassInfo> methodMap = new Dictionary<string, ClassInfo>();
 
+        /// <summary>
+        /// Parse C# codes in csproj files.
+        /// </summary>
+        /// <param name="csProjDirPath">Directory path included csproj file.</param>
         public void Parse(string csProjDirPath = "src")
         {
             if (!Directory.Exists(csProjDirPath))
@@ -112,6 +116,10 @@ namespace XmlDocumentParser.EasyCs
             PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
         }
 
+        /// <summary>
+        /// Adds the attributes on C# codes to <see cref="Element"/>.
+        /// </summary>
+        /// <param name="element">Added <see cref="Element"/>.</param>
         public void AddAttributesToElement(Element element)
         {
             if (element != null)
