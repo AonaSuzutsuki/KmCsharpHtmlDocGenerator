@@ -255,26 +255,8 @@ namespace XmlDocumentParser.EasyCs
                     var referenceName = reference.Split(',').First();
                     if (!assemblyNameMap.ContainsKey(referenceName))
                     {
-                        //try
-                        //{
-                        //  var systemAssemblyDir = "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono", targetFramework);
-                        //  var assembly = Assembly.LoadFrom("{0}/{1}.dll".FormatString(systemAssemblyDir, referenceName));
-                        //  assemblyNameMap.Add(reference, assembly);
-                        //}
-                        //catch (BadImageFormatException)
-                        //{
-                        //  var assemblyPath = DirectorySearcher.GetAllFiles("/Library/Frameworks/Mono.framework/Versions/5.10.1/lib/mono/gac", "{0}.dll".FormatString(reference)).Last();
-                        //  var assembly = Assembly.LoadFile(assemblyPath);
-                        //  assemblyNameMap.Add(reference, assembly);
-                        //}
-                        //catch
-                        //{
-                        //  Console.WriteLine();
-                        //}
-
                         try
                         {
-                            //C:\Windows\assembly\GAC_MSIL
                             var assemblyPath = GetSystemAssemblyPath(targetFramework, reference);
                             var assembly = Assembly.LoadFrom(assemblyPath);
                             assemblyNameMap.Add(reference, assembly);
@@ -309,23 +291,6 @@ namespace XmlDocumentParser.EasyCs
                 }
             }
             return null;
-
-            //string assemblyPath = null;
-            //try
-            //{
-            //  var systemAssemblyDir = "{0}{1}".FormatString(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v", targetFramework);
-            //  var assemblyPathArray = DirectorySearcher.GetAllFiles(systemAssemblyDir, "{0}.dll".FormatString(reference));
-            //  assemblyPath = assemblyPathArray.Length > 0 ? assemblyPathArray.Last() : null;
-            //  if (assemblyPath == null)
-            //  {
-            //      systemAssemblyDir = @"C:\Windows\assembly\GAC_MSIL";
-            //      assemblyPathArray = DirectorySearcher.GetAllFiles(systemAssemblyDir, "{0}.dll".FormatString(reference));
-            //      assemblyPath = assemblyPathArray.Length > 0 ? assemblyPathArray.Last() : null;
-            //  }
-            //}
-            //catch { }
-
-            //return assemblyPath;
         }
 
         private string GetTargetFramework(XmlWrapper.Reader reader)
