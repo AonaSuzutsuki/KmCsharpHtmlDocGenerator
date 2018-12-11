@@ -40,7 +40,7 @@ namespace XMLDocumentToHtmlCUI
 
             Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
             
-            var parser = new CsEasyParser();
+            var parser = new CSharpEasyAnalyzer();
             parser.Parse();
             parser.AddAttributesToElement(root);
 
