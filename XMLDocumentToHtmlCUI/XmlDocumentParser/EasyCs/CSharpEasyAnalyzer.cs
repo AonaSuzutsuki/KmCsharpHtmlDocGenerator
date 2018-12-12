@@ -46,9 +46,10 @@ namespace XmlDocumentParser.EasyCs
                 syntaxTrees.Add(CSharpSyntaxTree.ParseText(text));
             }
 
-            var metadataReferences = new List<MetadataReference>();
-            foreach (var reference in referenceArray)
-                metadataReferences.Add(MetadataReference.CreateFromFile(reference.Location));
+            var metadataReferences = new List<MetadataReference>
+            {
+                { referenceArray, (item) => MetadataReference.CreateFromFile(item.Location) }
+            };
 
             //IEnumerable<MetadataReference> references = new[]{
             //             //microlib.dll
