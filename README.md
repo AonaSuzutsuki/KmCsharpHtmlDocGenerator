@@ -7,18 +7,22 @@ It is ideal that it can be seen using HTML output such as Java and using any Web
 I think inconvenienced when I create my own document.  
 So it is the goal of this program and the project to analyze the XML outputted by the C# XML Document, convert it to HTML format, and arrange it so that everyone can read it.  
 
-## Development environment
+# Development environment
 **Windows**
 1. Visual Studio 2017
 2. .Net Framework 4.7.1
 
 **Mac**
 1. Visual Studio for Mac
+2. Mono for macOS
 
-## Minimum environment required for operation
-1. .Net Framework 4.7.1
+# Minimum environment required for operation
+1. .Net Framework 4.7.1 (Windows) / Mono for macOS (macOS)
 
-## Usage
+# Note
+The .Net Core project will not work properly because system assembly can not be resolved.
+
+# Usage
 **CUI**
 ```
 XMLDocumentToHtmlCUI.exe -b {TemplateBaseDir} -o {OutputDir} {XmlDocuments}
@@ -31,13 +35,14 @@ example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 |-----|:----|:----|
 |-b   |Specify the directory where the template file is stored. If you specify this, you can output with your own template.|BaseTemplate|
 |-o   |Change the directory path of the output destination.|{Directory of executable file}/Root|
+|-s   |csproj file and Source codes directory.|{Directory of executable file}/src|
 
 **Argument**  
 Specifies one or more XML Docment outputted by C# XML Document.  
 
-## Sample
+# Sample
 [https://aonsztk.xyz/XMLDocumentToHtml/](https://aonsztk.xyz/XMLDocumentToHtml/)  
 
-## Build
+# Build
 1. Open XMLDocumentToHtmlCUI.sln
 2. Click the Build button on the menu
