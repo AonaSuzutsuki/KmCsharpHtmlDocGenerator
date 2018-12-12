@@ -6,7 +6,7 @@ using System.Text;
 namespace XmlDocumentExtensions.Extensions
 {
     /// <summary>
-    /// Extension functions of <see cref="IList"/>.
+    /// Extension functions of <see cref="List{T}"/>.
     /// </summary>
     public static class ListExtension
     {
