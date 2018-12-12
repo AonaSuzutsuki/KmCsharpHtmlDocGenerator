@@ -272,10 +272,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 var type = ConvertMethodType(strType);
 
                 member.Type = type;
-                if (type != MethodType.Class)
-                    member.Namespace = nameSpace;
-                else
-                    member.Namespace = nameSpace;
+                member.Namespace = nameSpace;
                 member.Name = methodName;
                 member.MethodParameters.AddRange(parameters);
             }
