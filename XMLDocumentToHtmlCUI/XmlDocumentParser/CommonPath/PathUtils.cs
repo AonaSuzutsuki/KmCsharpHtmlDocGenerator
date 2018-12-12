@@ -18,7 +18,7 @@ namespace XmlDocumentParser.CommonPath
         /// </summary>
         /// <param name="path">Target path.</param>
         /// <returns>Unified path.</returns>
-        public static string ResolvePathSeparator(string path)
+        public static string UnifiedPathSeparator(string path)
         {
             return path.Replace('\\', '/').Replace('/', Path.DirectorySeparatorChar);
         }

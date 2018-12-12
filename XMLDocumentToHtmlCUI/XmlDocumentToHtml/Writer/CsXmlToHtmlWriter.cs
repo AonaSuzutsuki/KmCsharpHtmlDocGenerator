@@ -95,7 +95,7 @@ namespace XmlDocumentToHtml.Writer
             {
 				if ((element.Namespaces != null && element.Namespaces.Count > 0) && (element.Members == null || element.Members.Count <= 0))
                 {
-                    var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    var name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
                         CreateClassFile(elem, root, name + "/");
                 }
@@ -107,7 +107,7 @@ namespace XmlDocumentToHtml.Writer
                         WriteHtml(fs, element.Members, element, root);
                     }
 
-                    name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
                         CreateClassFile(elem, root, name + "/");
                 }
@@ -124,7 +124,7 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("ClassItems", indexText, true);
             loader.Assign("Menu", menu);
 
-            var name = PathUtils.ResolvePathSeparator(outputDirPath + element.Name + "/index.html");
+            var name = PathUtils.UnifiedPathSeparator(outputDirPath + element.Name + "/index.html");
             using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
                 var data = Encoding.UTF8.GetBytes(loader.ToString());
@@ -274,14 +274,14 @@ namespace XmlDocumentToHtml.Writer
 
         private static void CloneFiles(string outPath)
         {
-            var di = new DirectoryInfo(PathUtils.ResolvePathSeparator("BaseTemplate/Clone"));
+            var di = new DirectoryInfo(PathUtils.UnifiedPathSeparator("BaseTemplate/Clone"));
             if (di.Exists)
             {
                 var dirs = DirectorySearcher.GetAllDirectories(di.FullName);
                 foreach (var dir in dirs)
                 {
-                    var relativeDir = dir.Replace(PathUtils.ResolvePathSeparator(di.FullName + "/"), "");
-                    relativeDir = PathUtils.ResolvePathSeparator("{0}/{1}".FormatString(outPath, relativeDir));
+                    var relativeDir = dir.Replace(PathUtils.UnifiedPathSeparator(di.FullName + "/"), "");
+                    relativeDir = PathUtils.UnifiedPathSeparator("{0}/{1}".FormatString(outPath, relativeDir));
                     if (!Directory.Exists(relativeDir))
                         Directory.CreateDirectory(relativeDir);
                 }
@@ -289,8 +289,8 @@ namespace XmlDocumentToHtml.Writer
                 var files = DirectorySearcher.GetAllFiles(di.FullName);
                 foreach (var file in files)
                 {
-                    var relativeFile = file.Replace(PathUtils.ResolvePathSeparator(di.FullName + "/"), "");
-                    relativeFile = PathUtils.ResolvePathSeparator("{0}/{1}".FormatString(outPath, relativeFile));
+                    var relativeFile = file.Replace(PathUtils.UnifiedPathSeparator(di.FullName + "/"), "");
+                    relativeFile = PathUtils.UnifiedPathSeparator("{0}/{1}".FormatString(outPath, relativeFile));
                     if (!File.Exists(relativeFile))
                         File.Copy(file, relativeFile);
                 }
@@ -303,7 +303,7 @@ namespace XmlDocumentToHtml.Writer
             {
 				if (element.Namespaces != null && element.Namespaces.Count > 0)
                 {
-                    var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    var name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     var di = new DirectoryInfo(name);
                     if (!di.Exists)
                         di.Create();

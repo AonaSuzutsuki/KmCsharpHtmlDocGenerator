@@ -243,7 +243,7 @@ namespace XmlDocumentParser.EasyCs
                 var references = reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Reference");
                 foreach (var hintPath in hintPaths)
                 {
-                    var relativePath = Path.Combine(parent, CommonPath.PathUtils.ResolvePathSeparator(hintPath));
+                    var relativePath = Path.Combine(parent, CommonPath.PathUtils.UnifiedPathSeparator(hintPath));
                     var absolutePath = Path.GetFullPath(relativePath);
                     if (File.Exists(absolutePath))
                     {
@@ -311,7 +311,7 @@ namespace XmlDocumentParser.EasyCs
             var retList = new List<string>(list);
             for (int i = 0; i < retList.Count; i++)
             {
-                retList[i] = CommonPath.PathUtils.ResolvePathSeparator(parent + retList[i]);
+                retList[i] = CommonPath.PathUtils.UnifiedPathSeparator(parent + retList[i]);
             }
             return retList;
         }
