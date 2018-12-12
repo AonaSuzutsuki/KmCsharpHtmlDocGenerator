@@ -410,8 +410,9 @@ namespace XmlDocumentToHtml.Writer
                 var member = CsXmlDocumentParser.ConvertMemberNameToMember(cref);
                 var namespacePath = member.Namespace.ToString().Replace(".", "/");
 
-                var name = "{0}".FormatString(member.Name);
-                var fullpath = "{0}{1}/{2}.html".FormatString(relativePath, namespacePath, member.Name);
+                var (className, convertedClassName) = ResolveSeeTagGenerics(member.Name);
+                var name = "{0}".FormatString(convertedClassName);
+                var fullpath = "{0}{1}/{2}.html".FormatString(relativePath, namespacePath, className);
 
                 var linkUri = new Uri(new Uri(writePath), fullpath);
                 if (File.Exists(linkUri.LocalPath))
@@ -433,6 +434,29 @@ namespace XmlDocumentToHtml.Writer
             }
             
             return text;
+        }
+
+        private static (string className, string convertedClassName) ResolveSeeTagGenerics(string text)
+        {
+            var regex = new Regex("(?<className>[a-zA-Z0-9]+)`(?<count>[0-9]+)");
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                var className = match.Groups["className"].ToString();
+                int.TryParse(match.Groups["count"].ToString(), out var count);
+
+                var sb = new StringBuilder("{0}&lt;".FormatString(className));
+                for (int i = 0; i < count; i++)
+                {
+                    sb.AppendFormat("T{0}, ", i);
+                }
+                sb.Remove(sb.Length - 2, 2);
+                sb.Append("&gt;");
+
+                return (className, sb.ToString());
+            }
+
+            return (text, text);
         }
         
         private static string CreateRelativePath(int link)
