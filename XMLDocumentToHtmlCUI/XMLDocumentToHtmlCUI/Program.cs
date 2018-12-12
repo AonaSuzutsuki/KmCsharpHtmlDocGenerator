@@ -36,11 +36,11 @@ namespace XMLDocumentToHtmlCUI
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
             var sourceFilesDir = envParser.GetOption("-s") ?? "src";
             var inputFiles = envParser.GetValues();
-            var outputPath = envParser.GetOutputFilepath() ?? PathUtils.ResolvePathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
+            var outputPath = envParser.GetOutputFilepath() ?? PathUtils.UnifiedPathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
             var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
 
-            Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
+            var root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
             
             var parser = new CSharpEasyAnalyzer();
             parser.Parse(sourceFilesDir);
