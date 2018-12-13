@@ -46,16 +46,25 @@ h2 {
     margin: 0;
 }
 
+
 /*
-            Method
-        */
+    Inheritanced
+*/
+#inheritanced {
+    margin: 5px 0;
+}
+
+
+/*
+    Method
+*/
 .method-elem {
     margin-left: 30px;
 }
 
 /*
-            Table
-        */
+    Table
+*/
 table {
     width: 100%;
     margin: 5px 0;
@@ -86,16 +95,16 @@ table {
 
 
     /*
-            Functions Table
-        */
+        Functions Table
+    */
     table.functions th, table.functions td {
         font-size: 0.9em;
     }
 
 
     /*
-            Parameter Table
-        */
+        Parameter Table
+    */
     table.parameter {
         margin: 30px 0;
         border: 1px dotted;

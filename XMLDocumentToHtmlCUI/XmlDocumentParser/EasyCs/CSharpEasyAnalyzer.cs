@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentExtensions.Extensions;
 using XmlDocumentParser.CsXmlDocument;
+using XmlDocumentParser.MethodParameter;
 
 namespace XmlDocumentParser.EasyCs
 {
@@ -97,9 +98,20 @@ namespace XmlDocumentParser.EasyCs
                                     elem.Type = ElementType.Enum;
                                 else if (classInfo.ClassType == ClassType.Delegate)
                                     elem.Type = ElementType.Delegate;
+
+                                elem.Name = classInfo.NameWithParameter;
                                 elem.IsAbstract = classInfo.IsAbstract;
                                 elem.IsSealed = classInfo.IsSealed;
                                 elem.IsStatic = classInfo.IsStatic;
+
+                                elem.Inheritance.Add(classInfo.Inheritance, (item) => new Element()
+                                {
+                                    Accessibility = item.Accessibility,
+                                    Id = item.Id,
+                                    Name = item.NameWithParameter,
+                                    Namespace = item.Namespace,
+                                    Type = ElementType.Class
+                                });
                             }
 
                             AddAttributesToElement(elem);
@@ -116,22 +128,32 @@ namespace XmlDocumentParser.EasyCs
                             var item = methodMap.Get(method.Id);
                             if (item != null)
                             {
-                                var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.Name);
+                                var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.NameWithParameter);
 
                                 int cnt = parameterTypes.Length > method.MethodParameters.Count ? method.MethodParameters.Count : parameterTypes.Length;
                                 for (int i = 0; i < cnt; i++)
                                 {
                                     method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
                                 }
+
+                                method.Difinition = ConvertToDefinition(item, method);
                                 method.Name = methodName.Replace("<", "{").Replace(">", "}");
                                 method.Accessibility = item.Accessibility;
                                 method.ReturnType = item.ReturnType;
                                 if (item.IsStatic)
                                     method.Type = MethodType.Function;
                             }
-                            else
+                        }
+
+                        if (method.Type == MethodType.Property)
+                        {
+                            var item = methodMap.Get(method.Id);
+                            if (item != null)
                             {
-                                Console.WriteLine();
+                                method.Difinition = ConvertToDefinition(item, method);
+                                method.Name = item.Name;
+                                method.Accessibility = item.Accessibility;
+                                method.ReturnType = item.ReturnType;
                             }
                         }
 
@@ -139,11 +161,39 @@ namespace XmlDocumentParser.EasyCs
                 }
             }
         }
-
-
-		public static string ConvertToDefinition(ClassInfo classInfo)
+        
+		private static string ConvertToDefinition(ClassInfo classInfo, Member member)
 		{
-			return null;
+            var sb = new StringBuilder();
+
+            if (classInfo.ClassType == ClassType.Method)
+            {
+                sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
+
+                if (classInfo.IsOverride)
+                    sb.Append("override ");
+                if (classInfo.IsVirtual)
+                    sb.Append("virtual ");
+                if (classInfo.IsStatic)
+                    sb.Append("static ");
+                if (classInfo.IsAsync)
+                    sb.Append("async ");
+                if (classInfo.IsExtern)
+                    sb.Append("extern ");
+
+                sb.AppendFormat("{0} ", classInfo.ReturnType);
+                sb.AppendFormat("{0}", classInfo.Name);
+                sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member));
+            }
+            else if (classInfo.ClassType == ClassType.Property)
+            {
+                sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
+                sb.AppendFormat("{0} ", classInfo.ReturnType);
+                sb.AppendFormat("{0} {{", classInfo.Name);
+                sb.AppendFormat("}}", classInfo.Name);
+            }
+            
+            return sb.ToString();
 		}
 
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
@@ -158,47 +208,39 @@ namespace XmlDocumentParser.EasyCs
             var constructorSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>();
             var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
             var fieldSyntaxArray = tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>();
-
+            
             void PutDeclaration(Dictionary<string, ClassInfo> dic, IEnumerable<SyntaxNode> syntaxNodes, ClassType classType)
             {
                 foreach (var syntax in syntaxNodes)
                 {
                     var symbol = semanticModel.GetDeclaredSymbol(syntax);
-                    //if (syntax is ClassDeclarationSyntax)
-                    //{
-                    //    var baseSyntax = (syntax as ClassDeclarationSyntax).BaseList.Types.First();
-                    //    var sym = semanticModel.GetDeclaredSymbol(baseSyntax.Type);
-                    //    var baseId = baseSyntax.Type.ToString();
-                    //}
-                    var id = symbol.GetDocumentationCommentId();
-                    var fullClassName = symbol.ToString();
-                    var namespaceName = symbol.ContainingSymbol.ToString();
+                    var classInfo = CreateClassInfo(symbol, classType);
 
-                    var classInfo = new ClassInfo
+                    if (syntax is ClassDeclarationSyntax)
                     {
-                        Id = id,
-                        FullName = fullClassName,
-                        Name = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
-                        Accessibility = symbol.DeclaredAccessibility,
-                        ClassType = classType,
-                        IsStatic = symbol.IsStatic,
-                        IsSealed = symbol.IsSealed,
-						IsAbstract = symbol.IsAbstract,
-						IsExtern = symbol.IsExtern,
-                        IsVirtual = symbol.IsVirtual,
-						IsOverride = symbol.IsOverride,
-                    };
-
-					Console.WriteLine(symbol);
-
-                    if (symbol is IMethodSymbol)
-                    {
-                        var returnType = ((IMethodSymbol)symbol).ReturnType;                  
-						classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
-                        classInfo.ReturnType = returnType.ToString();
+                        var classSyntax = (syntax as ClassDeclarationSyntax);
+                        if (classSyntax.BaseList != null)
+                        {
+                            var baseTypes = classSyntax.BaseList.Types;
+                            foreach (var baseSyntax in baseTypes)
+                            {
+                                var symbolInfo = semanticModel.GetSymbolInfo(baseSyntax.Type);
+                                var sym = symbolInfo.Symbol;
+                                var info = CreateClassInfo(sym, ClassType.Inheritance);
+                                classInfo.Inheritance.Add(info);
+                            }
+                        }
                     }
 
-                    dic.Put(id, classInfo);
+                    if (syntax is PropertyDeclarationSyntax)
+                    {
+                        var propSyntax = (syntax as PropertyDeclarationSyntax);
+                        var symbolInfo = semanticModel.GetSymbolInfo(propSyntax.Type);
+                        var sym = symbolInfo.Symbol;
+                        classInfo.ReturnType = sym.ToDisplayString();
+                    }
+
+                    dic.Put(classInfo.Id, classInfo);
                 }
             }
 
@@ -210,6 +252,39 @@ namespace XmlDocumentParser.EasyCs
             PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
             PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
             PutDeclaration(methodMap, propertySyntaxArray, ClassType.Property);
+        }
+
+        private static ClassInfo CreateClassInfo(ISymbol symbol, ClassType classType)
+        {
+            var id = symbol.GetDocumentationCommentId();
+            var fullClassName = symbol.ToString();
+            var namespaceName = symbol.ContainingSymbol.ToString();
+
+            var classInfo = new ClassInfo
+            {
+                Id = id,
+                FullName = fullClassName,
+                Namespace = new NamespaceItem(namespaceName),
+                Name = symbol.Name,
+                NameWithParameter = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
+                Accessibility = symbol.DeclaredAccessibility,
+                ClassType = classType,
+                IsStatic = symbol.IsStatic,
+                IsSealed = symbol.IsSealed,
+                IsAbstract = symbol.IsAbstract,
+                IsExtern = symbol.IsExtern,
+                IsVirtual = symbol.IsVirtual,
+                IsOverride = symbol.IsOverride,
+            };
+
+            if (symbol is IMethodSymbol)
+            {
+                var returnType = ((IMethodSymbol)symbol).ReturnType;
+                classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
+                classInfo.ReturnType = returnType.ToString();
+            }
+
+            return classInfo;
         }
 
         private static (string methodName, string[] parameterTypes) SplitMethodNameAndParameter(string text)

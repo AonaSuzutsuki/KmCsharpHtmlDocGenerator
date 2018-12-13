@@ -40,4 +40,24 @@ namespace XmlDocumentExtensions.Extensions
                 dict.Add(key, value);
         }
     }
+
+    /// <summary>
+    /// test
+    /// </summary>
+    /// <typeparam name="K"></typeparam>
+    /// <typeparam name="V"></typeparam>
+    public class Test<K, V> : Dictionary<K, V>
+    {
+
+    }
+
+    /// <summary>
+    /// test2
+    /// </summary>
+    /// <typeparam name="K"></typeparam>
+    /// <typeparam name="V"></typeparam>
+    public class Test2<K, V> : Test<K, V>
+    {
+
+    }
 }

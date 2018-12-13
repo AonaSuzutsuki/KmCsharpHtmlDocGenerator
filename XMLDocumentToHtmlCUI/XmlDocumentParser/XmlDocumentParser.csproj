@@ -192,10 +192,12 @@
     <Compile Include="CsXmlDocument\CsXmlDocumentParser.cs" />
     <Compile Include="CsXmlDocument\Element.cs" />
     <Compile Include="CsXmlDocument\ElementType.cs" />
+    <Compile Include="CsXmlDocument\IElementOfInheritance.cs" />
     <Compile Include="CsXmlDocument\Member.cs" />
     <Compile Include="CsXmlDocument\MethodType.cs" />
     <Compile Include="CsXmlDocument\NamespaceItem.cs" />
     <Compile Include="EasyCs\CSharpEasyAnalyzer.cs" />
+    <Compile Include="MethodParameter\MethodParameterConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlWrapper\Reader.cs" />
     <Compile Include="EasyCs\ArraySplitter.cs" />

@@ -7,6 +7,16 @@ namespace XmlDocumentParser.EasyCs
     public enum ClassType
     {
         /// <summary>
+        /// Unknown type.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// For inheritance
+        /// </summary>
+        Inheritance,
+
+        /// <summary>
         /// The class.
         /// </summary>
         Class,

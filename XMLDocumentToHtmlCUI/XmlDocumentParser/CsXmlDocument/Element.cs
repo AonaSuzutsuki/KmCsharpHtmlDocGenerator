@@ -10,7 +10,7 @@ namespace XmlDocumentParser.CsXmlDocument
     /// <summary>
     /// It expresses tree structure element such as namespace.
     /// </summary>
-    public class Element
+    public class Element : IElementOfInheritance
     {
         public string Id { get; set; }
 
@@ -39,6 +39,8 @@ namespace XmlDocumentParser.CsXmlDocument
         public bool IsStatic { get; set; }
         public bool IsAbstract { get; set; }
         public bool IsSealed { get; set; }
+
+        public List<IElementOfInheritance> Inheritance { get; set; } = new List<IElementOfInheritance>();
 
         /// <summary>
         /// List of namespaces this element holds.

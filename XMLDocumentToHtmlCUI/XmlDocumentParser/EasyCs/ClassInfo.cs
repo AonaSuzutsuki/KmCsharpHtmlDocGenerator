@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using XmlDocumentParser.CsXmlDocument;
 
 namespace XmlDocumentParser.EasyCs
 {
@@ -21,7 +23,9 @@ namespace XmlDocumentParser.EasyCs
 		public bool IsAsync { get; set; }
 		public string ReturnType { get; set; } = Constants.SystemVoid;
         public string FullName { get; set; }
+        public NamespaceItem Namespace { get; set; }
+        public string NameWithParameter { get; set; }
         public string Name { get; set; }
-        public string Inheritance { get; set; }
+        public List<ClassInfo> Inheritance { get; set; } = new List<ClassInfo>();
     }
 }

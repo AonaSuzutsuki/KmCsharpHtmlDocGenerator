@@ -15,6 +15,8 @@ namespace XmlDocumentParser.CsXmlDocument
         public string Id { get; set; }
         public Accessibility Accessibility { get; set; } = Accessibility.Public;
 
+        public string Difinition { get; set; }
+
         /// <summary>
         /// Method type of member.
         /// </summary>
