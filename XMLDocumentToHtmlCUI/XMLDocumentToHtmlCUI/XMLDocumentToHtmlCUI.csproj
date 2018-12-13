@@ -58,6 +58,59 @@
     <None Include="BaseTemplate\BaseTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCore.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreDefault.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreDjango.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreEclipse.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreEmacs.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreFadeToGrey.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreMDUltra.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreMidnight.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shCoreRDark.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeDefault.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeDjango.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeEclipse.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeEmacs.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeFadeToGrey.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeMDUltra.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeMidnight.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\css\shThemeRDark.css" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shAutoloader.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushAS3.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushAppleScript.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushBash.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushCSharp.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushColdFusion.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushCpp.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushCss.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushDelphi.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushDiff.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushErlang.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushGroovy.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushJScript.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushJava.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushJavaFX.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushPerl.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushPhp.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushPlain.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushPowerShell.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushPython.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushRuby.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushSass.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushScala.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushSql.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushVb.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shBrushXml.js" />
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shCore.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="BaseTemplate\Clone\syntaxhighlighter\js\shLegacy.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="BaseTemplate\BaseParameterTemplate.html">

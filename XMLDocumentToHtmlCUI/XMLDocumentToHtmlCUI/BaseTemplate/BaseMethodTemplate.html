@@ -2,6 +2,12 @@
 <div class="method-elem">
     <h3 id="{$MethodHash}">{$MethodName}{$MethodParameters}</h3>
     <div class="method-elem">
+        {if $HasCode == true}
+        <pre class="brush: csharp;">
+void Test();
+        </pre>
+        {/if $HasCode}
+
         {if $HasParameter == true}
         <table class="parameter">
             <caption>Parameters</caption>
