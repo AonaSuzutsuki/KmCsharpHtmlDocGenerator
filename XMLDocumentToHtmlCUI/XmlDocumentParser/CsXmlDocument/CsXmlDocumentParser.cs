@@ -125,8 +125,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     {
                         Type = ElementType.Namespace,
                         Namespace = member.Namespace,
-                        Name = firstName,
-                        Members = null
+                        Name = firstName
                     };
 
                     if (!preElem.HasElement(elem.Name))
@@ -149,17 +148,13 @@ namespace XmlDocumentParser.CsXmlDocument
 
                     var classElem = new Element()
                     {
+                        Id = member.Id,
                         Type = ElementType.Class,
                         Namespace = member.Namespace,
                         Name = name,
                         Value = member.Value,
 						Namespaces = new List<Element>()
                     };
-
-                    if (name.StartsWith("I"))
-                    {
-                        classElem.Type = ElementType.Interface;
-                    }
 
                     classElemMap.Put("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name), classElem);
                     
@@ -168,7 +163,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 }
                 else
                 {
-                    var classElem = classElemMap.Get(member.Namespace.ToString());
+                    var classElem = classElemMap.Get(member.Namespace.ToString(), new Element());
                     if ("{0}.{1}".FormatString(classElem.Namespace.ToString(), classElem.Name).Equals(member.Namespace.ToString()))
                         classElem.Members.Add(member);
                 }
@@ -244,17 +239,15 @@ namespace XmlDocumentParser.CsXmlDocument
             {
                 for (int i = 0; i < ParameterLoopLimit; i++)
                 {
-                    var splitReg = new Regex("\\{(.*)\\}");
+                    var splitReg = new Regex("(?<parameter>\\{(.*)\\}),|(?<parameter>\\{(.*)\\})");
                     var splitMatch = splitReg.Match(parameterText);
-                    if (splitMatch.Success)
+                    while (splitMatch.Success)
                     {
-                        var full = splitMatch.ToString();
+                        var full = splitMatch.Groups["parameter"].ToString();
                         var replacedText = parameterText.Replace(full, "~{0}~".FormatString(Convert.ToBase64String(Encoding.UTF8.GetBytes(full))));
                         parameterText = replacedText;
-                    }
-                    else
-                    {
-                        break;
+
+                        splitMatch = splitMatch.NextMatch();
                     }
                 }
 
@@ -279,14 +272,12 @@ namespace XmlDocumentParser.CsXmlDocument
                 var type = ConvertMethodType(strType);
 
                 member.Type = type;
-                if (type != MethodType.Class)
-                    member.Namespace = nameSpace;
-                else
-                    member.Namespace = nameSpace;
+                member.Namespace = nameSpace;
                 member.Name = methodName;
                 member.MethodParameters.AddRange(parameters);
             }
 
+            member.Id = text;
             return member;
         }
 

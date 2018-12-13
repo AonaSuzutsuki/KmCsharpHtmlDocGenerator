@@ -18,7 +18,20 @@ namespace XmlDocumentParser.CsXmlDocument
         /// Count of namespaces.
         /// </summary>
         public int NamespaceCount { get => items.Count; }
+
+        public bool IsRoot
+        {
+            get
+            {
+                return NamespaceCount == 0;
+            }
+        }
         #endregion
+
+        public NamespaceItem()
+        {
+            items = new List<string>();
+        }
 
         /// <summary>
         /// Initialize NamespaceItem with a namespace text.

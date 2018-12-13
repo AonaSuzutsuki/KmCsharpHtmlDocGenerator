@@ -12,6 +12,8 @@ using CommonCoreLib.Crypto;
 using XmlDocumentExtensions.Extensions;
 using XmlDocumentToHtml.Template;
 using XmlDocumentParser.CommonPath;
+using XmlDocumentParser.MethodParameter;
+using XmlDocumentParser;
 
 namespace XmlDocumentToHtml.Writer
 {
@@ -95,19 +97,19 @@ namespace XmlDocumentToHtml.Writer
             {
 				if ((element.Namespaces != null && element.Namespaces.Count > 0) && (element.Members == null || element.Members.Count <= 0))
                 {
-                    var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    var name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
                         CreateClassFile(elem, root, name + "/");
                 }
                 else
                 {
-                    var name = suffix + element.Name + ".html";
+                    var name = EscapeGenericsType(suffix + element.Name + ".html");
                     using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
                     {
                         WriteHtml(fs, element.Members, element, root);
                     }
 
-                    name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
                         CreateClassFile(elem, root, name + "/");
                 }
@@ -124,7 +126,7 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("ClassItems", indexText, true);
             loader.Assign("Menu", menu);
 
-            var name = PathUtils.ResolvePathSeparator(outputDirPath + element.Name + "/index.html");
+            var name = PathUtils.UnifiedPathSeparator(outputDirPath + element.Name + "/index.html");
             using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
                 var data = Encoding.UTF8.GetBytes(loader.ToString());
@@ -153,7 +155,8 @@ namespace XmlDocumentToHtml.Writer
             void writeMenuElem()
             {
                 var namespacePath = element.Namespace.ToString().Replace(".", "/");
-                var name = "    <li><a href=\"{0}/{1}.html\">{2}.{1}</a></li>".FormatString(namespacePath, element.Name, element.Namespace.ToString()); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
+                var name = "    <li><a href=\"{0}/{1}.html\">{2}.{3}</a></li>".FormatString(namespacePath, EscapeGenericsType(element.Name),
+                    element.Namespace.ToString(), MethodParameterConverter.ResolveType(element.Name)); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
                 sb.AppendLine(name);
             }
 
@@ -178,30 +181,49 @@ namespace XmlDocumentToHtml.Writer
 
         private void WriteHtml(FileStream stream, List<Member> members, Element parent, Element root)
         {
-            var loader = new Template.TemplateLoader(BaseTemplatePath);
+            void AddCodeToTemplate(Member member, TemplateLoader templateLoader)
+            {
+                if (!string.IsNullOrEmpty(member.Difinition))
+                {
+                    templateLoader.Assign("Code", member.Difinition);
+                    templateLoader.Assign("HasCode", true);
+                }
+            }
+
+            var loader = new TemplateLoader(BaseTemplatePath);
+            var linkCount = parent.Namespace.NamespaceCount;
 
             var constructors = new StringBuilder();
+            var functions = new StringBuilder();
             var methods = new StringBuilder();
             var properties = new StringBuilder();
             var enums = new StringBuilder();
             foreach (var member in members)
             {
-                if (member.Type == MethodType.Method || member.Type == MethodType.Constructor)
+                if (member.Type == MethodType.Method || member.Type == MethodType.Function || member.Type == MethodType.Constructor)
                 {
-                    var methodLoader = new Template.TemplateLoader(BaseMethodTemplate);
-                    var parametersStr = ResolveMethodParameter(member);
-                    var paramStr = ResolveParameterTable(member, ParameterTableTemplate);
+                    var methodLoader = new TemplateLoader(BaseMethodTemplate);
+                    var parametersStr = MethodParameterConverter.CreateMethodParameterText(member);
+					var paramStr = ResolveParameterTable(member, ParameterTableTemplate, (text) => ResolveSpecificXmlElement(text, linkCount, stream.Name));
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
-                    methodLoader.Assign("MethodName", name);
+                    methodLoader.Assign("MethodName", "{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), MethodParameterConverter.ResolveType(name)));
                     methodLoader.Assign("MethodParameters", parametersStr);
-					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, parent, stream.Name));
+					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
+
+                    AddCodeToTemplate(member, methodLoader);
 
                     if (!string.IsNullOrEmpty(member.ReturnComment))
                     {
-						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, parent, stream.Name));
-                        methodLoader.Assign("HasReturn", true.ToString());
+						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, linkCount, stream.Name));
+                        methodLoader.Assign("HasReturn", true);
+
+						if (!member.ReturnType.Equals(XmlDocumentParser.Constants.SystemVoid))
+						{
+							methodLoader.Assign("MethodReturnType", member.ReturnType);
+							methodLoader.Assign("HasReturnType", true);
+						}
                     }
                     if (!string.IsNullOrEmpty(paramStr))
                     {
@@ -214,6 +236,11 @@ namespace XmlDocumentToHtml.Writer
                         methods.Append(methodLoader.ToString());
                         loader.Assign("HasMethod", true);
                     }
+                    else if (member.Type == MethodType.Function)
+                    {
+                        functions.Append(methodLoader.ToString());
+                        loader.Assign("HasFunction", true);
+                    }
                     else
                     {
                         constructors.Append(methodLoader.ToString());
@@ -222,11 +249,15 @@ namespace XmlDocumentToHtml.Writer
                 }
 				else if (member.Type == MethodType.Property || member.Type == MethodType.Field)
                 {
-                    var propertyLoader = new Template.TemplateLoader(BasePropertyTemplate);
+                    var propertyLoader = new TemplateLoader(BasePropertyTemplate);
                     var hash = Sha256.GetSha256(member.Name);
+                    var propName = member.ReturnType.Equals(Constants.SystemVoid) ? member.Name : string.Format("{0} {1}", member.ReturnType, member.Name);
                     propertyLoader.Assign("PropertyHash", hash);
-                    propertyLoader.Assign("PropertyName", member.Name);
-					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, parent, stream.Name));
+                    propertyLoader.Assign("PropertyName",
+                        MethodParameterConverter.ResolveType("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName)));
+					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
+                    
+                    AddCodeToTemplate(member, propertyLoader);
 
                     if (member.Type == MethodType.Property)
                     {
@@ -241,15 +272,16 @@ namespace XmlDocumentToHtml.Writer
                 }
             }
 
-            var linkCount = parent.Namespace.NamespaceCount;
             loader.Assign("RelativePath", CreateRelativePath(linkCount));
-            loader.Assign("ClassName", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
-			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, parent, stream.Name)));
+            loader.Assign("ClassName", "{0} {1}".FormatString(MethodParameterConverter.ResolveType(parent.Name), parent.Type.ToString()));
+			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
+            loader.Assign("Inheritance", CreateInheritance(parent.Inheritance, stream.Name, linkCount));
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
             loader.Assign("Toc", CreateToc(members, parent), true);
             loader.Assign("ConstructorItems", constructors, true);
+            loader.Assign("FunctionItems", functions, true);
             loader.Assign("MethodItems", methods, true);
             loader.Assign("PropertyItems", properties, true);
             loader.Assign("FieldItems", enums, true);
@@ -261,14 +293,14 @@ namespace XmlDocumentToHtml.Writer
 
         private static void CloneFiles(string outPath)
         {
-            var di = new DirectoryInfo(PathUtils.ResolvePathSeparator("BaseTemplate/Clone"));
+            var di = new DirectoryInfo(PathUtils.UnifiedPathSeparator("BaseTemplate/Clone"));
             if (di.Exists)
             {
                 var dirs = DirectorySearcher.GetAllDirectories(di.FullName);
                 foreach (var dir in dirs)
                 {
-                    var relativeDir = dir.Replace(PathUtils.ResolvePathSeparator(di.FullName + "/"), "");
-                    relativeDir = PathUtils.ResolvePathSeparator("{0}/{1}".FormatString(outPath, relativeDir));
+                    var relativeDir = dir.Replace(PathUtils.UnifiedPathSeparator(di.FullName + "/"), "");
+                    relativeDir = PathUtils.UnifiedPathSeparator("{0}/{1}".FormatString(outPath, relativeDir));
                     if (!Directory.Exists(relativeDir))
                         Directory.CreateDirectory(relativeDir);
                 }
@@ -276,8 +308,8 @@ namespace XmlDocumentToHtml.Writer
                 var files = DirectorySearcher.GetAllFiles(di.FullName);
                 foreach (var file in files)
                 {
-                    var relativeFile = file.Replace(PathUtils.ResolvePathSeparator(di.FullName + "/"), "");
-                    relativeFile = PathUtils.ResolvePathSeparator("{0}/{1}".FormatString(outPath, relativeFile));
+                    var relativeFile = file.Replace(PathUtils.UnifiedPathSeparator(di.FullName + "/"), "");
+                    relativeFile = PathUtils.UnifiedPathSeparator("{0}/{1}".FormatString(outPath, relativeFile));
                     if (!File.Exists(relativeFile))
                         File.Copy(file, relativeFile);
                 }
@@ -290,7 +322,7 @@ namespace XmlDocumentToHtml.Writer
             {
 				if (element.Namespaces != null && element.Namespaces.Count > 0)
                 {
-                    var name = PathUtils.ResolvePathSeparator(suffix) + element.Name;
+                    var name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     var di = new DirectoryInfo(name);
                     if (!di.Exists)
                         di.Create();
@@ -321,7 +353,8 @@ namespace XmlDocumentToHtml.Writer
             if ((element.Namespaces != null && element.Namespaces.Count > 0) && (element.Members != null && element.Members.Count > 0))
             {
                 var namespacePath = element.Namespace.ToString().Replace(".", "/");
-                var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{3}</a>".FormatString(suffix, CreateRelativePath(link), namespacePath, element.Name);
+                var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{4}</a>".FormatString(suffix, CreateRelativePath(link), namespacePath,
+                    EscapeGenericsType(element.Name), MethodParameterConverter.ResolveType(element.Name));
                 sb.AppendLine(name);
                 sb.AppendLine(suffix + "    <ul>");
                 foreach (var elem in element.Namespaces)
@@ -331,7 +364,7 @@ namespace XmlDocumentToHtml.Writer
             }
             else if (element.Namespaces != null && element.Namespaces.Count > 0)
             {
-                var name = suffix + "<li>" + element.Name;
+                var name = suffix + "<li>" + MethodParameterConverter.ResolveType(element.Name);
                 sb.AppendLine(name);
                 sb.AppendLine(suffix + "    <ul>");
                 foreach (var elem in element.Namespaces)
@@ -342,7 +375,8 @@ namespace XmlDocumentToHtml.Writer
             else
             {
                 var namespacePath = element.Namespace.ToString().Replace(".", "/");
-                var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{3}</a></li>".FormatString(suffix, CreateRelativePath(link), namespacePath, element.Name); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
+                var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{4}</a></li>".FormatString(suffix, CreateRelativePath(link), namespacePath,
+                    EscapeGenericsType(element.Name), MethodParameterConverter.ResolveType(element.Name));
                 sb.AppendLine(name);
             }
             return sb.ToString();
@@ -362,7 +396,7 @@ namespace XmlDocumentToHtml.Writer
                     {
                         var name = func(member);
                         var hash = Sha256.GetSha256(name);
-                        list.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, name));
+                        list.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, MethodParameterConverter.ResolveType(name)));
                     }
                 }
                 if (list.Count > 0)
@@ -375,17 +409,38 @@ namespace XmlDocumentToHtml.Writer
                 return tocElement.ToString();
             }
 
-            toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + ResolveMethodParameter(member), "Constructor"));
-            toc.Append(GetElement(MethodType.Method, (member) => member.Name + ResolveMethodParameter(member), "Methods"));
+            toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + MethodParameterConverter.CreateMethodParameterText(member), "Constructor"));
+            toc.Append(GetElement(MethodType.Function, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Functions"));
+            toc.Append(GetElement(MethodType.Method, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
 			toc.Append(GetElement(MethodType.Field, (member) => member.Name, "Fields"));
 
             return toc.ToString();
         }
 
-		private static string ResolveSpecificXmlElement(string text, Element parent, string writePath)
+        private static string CreateInheritance(List<IElementOfInheritance> list, string writePath, int linkCount)
         {
-            var linkCount = parent.Namespace.NamespaceCount;
+            string format = "<span class=\"specific-element\">{0}</span>";
+            if (list.Count > 0)
+            {
+                var sb = new StringBuilder();
+                foreach (var item in list)
+                {
+                    var namespacePath = item.Namespace.ToString().Replace(".", "/");
+                    var link = CreateLink(format, writePath, linkCount, namespacePath, EscapeGenericsType(item.Name),
+                        MethodParameterConverter.ResolveType(item.Name));
+                    sb.AppendFormat("{0}, ", link);
+                }
+                sb.Remove(sb.Length - 2, 2);
+                return sb.ToString();
+            }
+
+            return format.FormatString("System.Object");
+        }
+
+		private static string ResolveSpecificXmlElement(string text, int linkCount, string writePath)
+        {
+            //var linkCount = parent.Namespace.NamespaceCount;
             var relativePath = CreateRelativePath(linkCount);
             var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.[^\"]*)\"[ ]*\\/>");
             var match2 = regex2.Match(text);
@@ -396,14 +451,10 @@ namespace XmlDocumentToHtml.Writer
                 var member = CsXmlDocumentParser.ConvertMemberNameToMember(cref);
                 var namespacePath = member.Namespace.ToString().Replace(".", "/");
 
-                var name = "{0}".FormatString(member.Name);
-                var fullpath = "{0}{1}/{2}.html".FormatString(relativePath, namespacePath, member.Name);
-
-                var linkUri = new Uri(new Uri(writePath), fullpath);
-                if (File.Exists(linkUri.LocalPath))
-                    text = text.Replace(full, "<c><a href=\"{0}\">{1}</a></c>".FormatString(fullpath, name));
-                else
-                    text = text.Replace(full, "<c>{0}</c>".FormatString(name));
+                var (className, convertedClassName) = ResolveSeeTagGenerics(member.Name);
+                var name = "{0}".FormatString(convertedClassName);
+                text = text.Replace(full, CreateLink("<c>{0}</c>", writePath, linkCount, namespacePath, EscapeGenericsType(className),
+                    MethodParameterConverter.ResolveType(className)));
 
                 match2 = regex2.Match(text);
             }
@@ -420,6 +471,52 @@ namespace XmlDocumentToHtml.Writer
             
             return text;
         }
+
+        private static string CreateLink(string format, string writePath, int linkCount, string namespacePath, string fileName, string className)
+        {
+            var relativePath = CreateRelativePath(linkCount);
+            var fullpath = "{0}{1}/{2}.html".FormatString(relativePath, namespacePath, fileName);
+
+            var linkUri = new Uri(new Uri(writePath), fullpath);
+
+            if (File.Exists(linkUri.LocalPath))
+            {
+                var link = "<a href=\"{0}\">{1}</a>".FormatString(fullpath, className);
+                return format.FormatString(link);
+            }
+            else
+            {
+                return format.FormatString(className);
+            }
+        }
+
+        private static string EscapeGenericsType(string text)
+        {
+            return text.Replace("<", "{").Replace(">", "}");
+        }
+
+        private static (string className, string convertedClassName) ResolveSeeTagGenerics(string text)
+        {
+            var regex = new Regex("(?<className>[a-zA-Z0-9]+)`(?<count>[0-9]+)");
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                var className = match.Groups["className"].ToString();
+                int.TryParse(match.Groups["count"].ToString(), out var count);
+
+                var sb = new StringBuilder("{0}&lt;".FormatString(className));
+                for (int i = 0; i < count; i++)
+                {
+                    sb.AppendFormat("T{0}, ", i);
+                }
+                sb.Remove(sb.Length - 2, 2);
+                sb.Append("&gt;");
+
+                return (className, sb.ToString());
+            }
+
+            return (text, text);
+        }
         
         private static string CreateRelativePath(int link)
         {
@@ -429,22 +526,7 @@ namespace XmlDocumentToHtml.Writer
             return linkStr;
         }
         
-        private static string ResolveMethodParameter(Member member)
-        {
-            var parameters = member.MethodParameters.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
-            var parameterSb = new StringBuilder();
-            foreach (var param in parameters.Select((v, i) => new { Index = i, Value = v }))
-            {
-                if (param.Index < member.Parameters.Count - 1)
-                    parameterSb.AppendFormat("{0} {1}, ", ResolveType(param.Value.Type), param.Value.Name);
-                else
-                    parameterSb.AppendFormat("{0} {1}", ResolveType(param.Value.Type), param.Value.Name);
-            }
-
-            return "({0})".FormatString(parameterSb.ToString());
-        }
-
-        private static string ResolveParameterTable(Member member, string templatePath)
+		private static string ResolveParameterTable(Member member, string templatePath, Func<string, string> func)
         {
             var paramSb = new StringBuilder();
             var parameterLoader = new TemplateLoader(templatePath);
@@ -452,28 +534,15 @@ namespace XmlDocumentToHtml.Writer
             var p2 = member.Parameters.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
             {
-                parameterLoader.Assign("Type", ResolveType(parameter.Parameter.Type));
+                parameterLoader.Assign("Type", MethodParameterConverter.ResolveType(parameter.Parameter.Type));
                 parameterLoader.Assign("TypeName", parameter.Parameter.Name);
-                parameterLoader.Assign("TypeComment", parameter.Comment);
+				parameterLoader.Assign("TypeComment", func(parameter.Comment));
                 paramSb.Append(parameterLoader.ToString());
                 parameterLoader.Reset();
             }
             return paramSb.ToString();
         }
-
-        private static string ResolveType(string text)
-        {
-            text = text.Replace("System.Byte", "byte");
-            text = text.Replace("System.Int32", "int");
-            text = text.Replace("System.Int64", "long");
-            text = text.Replace("System.Boolean", "bool");
-            text = text.Replace("System.String", "string");
-
-            //text = ResolveGenericsType(text);
-
-            return text.Replace("{", "&lt;").Replace("}", "&gt;");
-        }
-
+        
         private static string ResolveGenericsType(string str, bool isMethod = false)
         {
             string format = isMethod ? "&lt;{0}{1}&gt;" : "{0}{1}";

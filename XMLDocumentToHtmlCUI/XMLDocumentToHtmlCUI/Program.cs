@@ -11,6 +11,8 @@ using XmlDocumentParser.CsXmlDocument;
 using CommonCoreLib.Crypto;
 using XmlDocumentExtensions.Extensions;
 using XmlDocumentToHtml.Writer;
+using XmlDocumentParser.EasyCs;
+using XmlDocumentParser.CommonPath;
 
 namespace XMLDocumentToHtmlCUI
 {
@@ -22,6 +24,7 @@ namespace XMLDocumentToHtmlCUI
             envParser.AddOptionCount("-h", 0);
             envParser.AddOptionCount("-b", 1);
             envParser.AddOptionCount("-o", 1);
+            envParser.AddOptionCount("-s", 1);
 
             envParser.Analyze();
             if (envParser.GetOption("-h") != null)
@@ -31,12 +34,18 @@ namespace XMLDocumentToHtmlCUI
             }
 
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
+            var sourceFilesDir = envParser.GetOption("-s") ?? "src";
             var inputFiles = envParser.GetValues();
-            var outputPath = envParser.GetOutputFilepath() ?? PathUtils.ResolvePathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
+            var outputPath = envParser.GetOutputFilepath() ?? PathUtils.UnifiedPathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
-            var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
+            var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
 
-            Element root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
+            var root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
+            
+            var parser = new CSharpEasyAnalyzer();
+            parser.Parse(sourceFilesDir);
+            parser.AddAttributesToElement(root);
+
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk(directoryName);
         }
@@ -49,7 +58,24 @@ namespace XMLDocumentToHtmlCUI
             sb.AppendFormat("\n\t{0}\t{1}\n", "-h", "Show help.");
             sb.AppendFormat("\t{0}\t{1}\n", "-b", "Specify the directory where the template file is stored. If you specify this, you can output with your own template.");
             sb.AppendFormat("\t{0}\t{1}\n", "-o", "Change the directory path of the output destination.");
+            sb.AppendFormat("\t{0}\t{1}\n", "-s", "csproj file and Source codes directory.");
             Console.WriteLine(sb);
+        }
+
+        /// <summary>
+        /// Get the directory name and directory names string.
+        /// </summary>
+        /// <param name="path">Target path.</param>
+        /// <returns>The directory name and directory names string.</returns>
+        static (string singleDirectoryName, string directoryName) GetSingleDirectoryNameAndDirectoryName(string path)
+        {
+            path = path.TrimEnd(Path.DirectorySeparatorChar);
+            var singleDirectoryName = PathUtils.GetSingleDirectoryName(path);
+            var systemDirectoryName = Path.GetDirectoryName(path);
+            string directoryName = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(systemDirectoryName))
+                directoryName = "{0}{1}".FormatString(systemDirectoryName, Path.DirectorySeparatorChar);
+            return (singleDirectoryName, directoryName);
         }
     }
 }

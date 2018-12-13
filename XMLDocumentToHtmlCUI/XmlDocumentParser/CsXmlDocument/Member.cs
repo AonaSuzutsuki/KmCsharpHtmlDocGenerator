@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,11 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
+        public string Id { get; set; }
+        public Accessibility Accessibility { get; set; } = Accessibility.Public;
+
+        public string Difinition { get; set; }
+
         /// <summary>
         /// Method type of member.
         /// </summary>
@@ -30,6 +36,8 @@ namespace XmlDocumentParser.CsXmlDocument
         /// Parameter types of member.
         /// </summary>
         public List<string> MethodParameters { get; set; } = new List<string>();
+
+		public string ReturnType { get; set; } = Constants.SystemVoid;
 
         /// <summary>
         /// Value of member.
