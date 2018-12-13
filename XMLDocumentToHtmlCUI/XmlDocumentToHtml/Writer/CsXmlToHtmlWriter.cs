@@ -253,7 +253,8 @@ namespace XmlDocumentToHtml.Writer
                     var hash = Sha256.GetSha256(member.Name);
                     var propName = member.ReturnType.Equals(Constants.SystemVoid) ? member.Name : string.Format("{0} {1}", member.ReturnType, member.Name);
                     propertyLoader.Assign("PropertyHash", hash);
-                    propertyLoader.Assign("PropertyName", "{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName));
+                    propertyLoader.Assign("PropertyName",
+                        MethodParameterConverter.ResolveType("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName)));
 					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
                     
                     AddCodeToTemplate(member, propertyLoader);

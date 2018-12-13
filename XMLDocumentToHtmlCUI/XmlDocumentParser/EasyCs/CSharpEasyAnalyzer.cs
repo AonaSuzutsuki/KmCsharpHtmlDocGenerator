@@ -188,8 +188,17 @@ namespace XmlDocumentParser.EasyCs
             else if (classInfo.ClassType == ClassType.Property)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
-                sb.AppendFormat("{0} ", classInfo.ReturnType);
-                sb.AppendFormat("{0} {{", classInfo.Name);
+                sb.AppendFormat("{0} ", MethodParameterConverter.ResolveType(classInfo.ReturnType));
+                sb.AppendFormat("{0} {{ ", classInfo.Name);
+
+                foreach (var accessors in classInfo.Accessors)
+                {
+                    if (accessors.Accessibility == Accessibility.Public)
+                        sb.AppendFormat("{0}; ", accessors.Name);
+                    else if (accessors.Accessibility != Accessibility.Private)
+                        sb.AppendFormat("{0} {1}; ", accessors.Accessibility.ToString().ToLower(), accessors.Name);
+                }
+
                 sb.AppendFormat("}}", classInfo.Name);
             }
             
@@ -237,6 +246,23 @@ namespace XmlDocumentParser.EasyCs
                         var propSyntax = (syntax as PropertyDeclarationSyntax);
                         var symbolInfo = semanticModel.GetSymbolInfo(propSyntax.Type);
                         var sym = symbolInfo.Symbol;
+                        var accessors = propSyntax.AccessorList.Accessors;
+                        classInfo.Accessors.Add(accessors, (item) =>
+                        {
+                            var accessibility = Accessibility.Public;
+                            var keyword = item.Keyword.ToString();
+                            if (item.Modifiers.Count > 0)
+                            {
+                                var msym = semanticModel.GetDeclaredSymbol(item);
+                                accessibility = msym.DeclaredAccessibility;
+                            }
+
+                            return new ClassInfo()
+                            {
+                                Accessibility = accessibility,
+                                Name = keyword
+                            };
+                        });
                         classInfo.ReturnType = sym.ToDisplayString();
                     }
 

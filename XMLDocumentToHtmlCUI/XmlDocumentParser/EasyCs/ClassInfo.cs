@@ -8,7 +8,7 @@ namespace XmlDocumentParser.EasyCs
 	/// <summary>
 	/// Class info for <see cref="CSharpEasyAnalyzer"/>.
     /// </summary>
-	public class ClassInfo
+	public class ClassInfo : IAccessorInfo
     {
         public string Id { get; set; }
         public Accessibility Accessibility { get; set; }
@@ -21,7 +21,8 @@ namespace XmlDocumentParser.EasyCs
 		public bool IsOverride { get; set; }
 		public bool IsVirtual { get; set; }
 		public bool IsAsync { get; set; }
-		public string ReturnType { get; set; } = Constants.SystemVoid;
+        public List<IAccessorInfo> Accessors { get; set; } = new List<IAccessorInfo>();
+        public string ReturnType { get; set; } = Constants.SystemVoid;
         public string FullName { get; set; }
         public NamespaceItem Namespace { get; set; }
         public string NameWithParameter { get; set; }
