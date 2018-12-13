@@ -38,7 +38,7 @@ namespace XMLDocumentToHtmlCUI
             var inputFiles = envParser.GetValues();
             var outputPath = envParser.GetOutputFilepath() ?? PathUtils.UnifiedPathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
-            var (singleDirectoryName, directoryName) = PathUtils.GetSingleDirectoryNameAndDirectoryName(outputPath);
+            var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
 
             var root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
             
@@ -60,6 +60,22 @@ namespace XMLDocumentToHtmlCUI
             sb.AppendFormat("\t{0}\t{1}\n", "-o", "Change the directory path of the output destination.");
             sb.AppendFormat("\t{0}\t{1}\n", "-s", "csproj file and Source codes directory.");
             Console.WriteLine(sb);
+        }
+
+        /// <summary>
+        /// Get the directory name and directory names string.
+        /// </summary>
+        /// <param name="path">Target path.</param>
+        /// <returns>The directory name and directory names string.</returns>
+        static (string singleDirectoryName, string directoryName) GetSingleDirectoryNameAndDirectoryName(string path)
+        {
+            path = path.TrimEnd(Path.DirectorySeparatorChar);
+            var singleDirectoryName = PathUtils.GetSingleDirectoryName(path);
+            var systemDirectoryName = Path.GetDirectoryName(path);
+            string directoryName = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(systemDirectoryName))
+                directoryName = "{0}{1}".FormatString(systemDirectoryName, Path.DirectorySeparatorChar);
+            return (singleDirectoryName, directoryName);
         }
     }
 }

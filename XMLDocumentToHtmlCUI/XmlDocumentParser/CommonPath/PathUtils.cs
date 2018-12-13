@@ -36,21 +36,5 @@ namespace XmlDocumentParser.CommonPath
                 return list[list.Count - 1];
             return null;
         }
-
-        /// <summary>
-        /// Get the directory name and directory names string.
-        /// </summary>
-        /// <param name="path">Target path.</param>
-        /// <returns>The directory name and directory names string.</returns>
-        public static (string singleDirectoryName, string directoryName) GetSingleDirectoryNameAndDirectoryName(string path)
-        {
-            path = path.TrimEnd(Path.DirectorySeparatorChar);
-            var singleDirectoryName = GetSingleDirectoryName(path);
-            var systemDirectoryName = Path.GetDirectoryName(path);
-            string directoryName = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(systemDirectoryName))
-                directoryName = "{0}{1}".FormatString(systemDirectoryName, Path.DirectorySeparatorChar);
-            return (singleDirectoryName, directoryName);
-        }
     }
 }
