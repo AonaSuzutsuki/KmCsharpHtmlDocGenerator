@@ -14,6 +14,11 @@ namespace XmlDocumentParser.EasyCs
         public bool IsStatic { get; set; }
         public bool IsAbstract { get; set; }
         public bool IsSealed { get; set; }
+		public bool IsExtern { get; set; }
+		public bool IsPartial { get; set; }
+		public bool IsOverride { get; set; }
+		public bool IsVirtual { get; set; }
+		public bool IsAsync { get; set; }
 		public string ReturnType { get; set; } = Constants.SystemVoid;
         public string FullName { get; set; }
         public string Name { get; set; }

@@ -140,6 +140,12 @@ namespace XmlDocumentParser.EasyCs
             }
         }
 
+
+		public static string ConvertToDefinition(ClassInfo classInfo)
+		{
+			return null;
+		}
+
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
         {
             var semanticModel = compilation.GetSemanticModel(tree);
@@ -177,12 +183,18 @@ namespace XmlDocumentParser.EasyCs
                         ClassType = classType,
                         IsStatic = symbol.IsStatic,
                         IsSealed = symbol.IsSealed,
-                        IsAbstract = symbol.IsAbstract,
+						IsAbstract = symbol.IsAbstract,
+						IsExtern = symbol.IsExtern,
+                        IsVirtual = symbol.IsVirtual,
+						IsOverride = symbol.IsOverride,
                     };
+
+					Console.WriteLine(symbol);
 
                     if (symbol is IMethodSymbol)
                     {
-                        var returnType = ((IMethodSymbol)symbol).ReturnType;
+                        var returnType = ((IMethodSymbol)symbol).ReturnType;                  
+						classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
                         classInfo.ReturnType = returnType.ToString();
                     }
 
