@@ -318,6 +318,7 @@ namespace XmlDocumentParser.EasyCs
                 var returnType = ((IMethodSymbol)symbol).ReturnType;
                 classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
                 classInfo.ReturnType = returnType.ToString();
+				classInfo.IsExtensionMethod = ((IMethodSymbol)symbol).IsExtensionMethod;
             }
 
             return classInfo;

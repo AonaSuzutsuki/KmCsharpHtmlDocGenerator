@@ -21,6 +21,7 @@ namespace XmlDocumentParser.EasyCs
 		public bool IsOverride { get; set; }
 		public bool IsVirtual { get; set; }
 		public bool IsAsync { get; set; }
+		public bool IsExtensionMethod { get; set; }
         public List<IAccessorInfo> Accessors { get; set; } = new List<IAccessorInfo>();
         public string ReturnType { get; set; } = Constants.SystemVoid;
         public string FullName { get; set; }
