@@ -20,17 +20,19 @@ namespace XmlDocumentParser.MethodParameter
         /// </summary>
         /// <param name="member">Target <see cref="Member"/> to convert.</param>
         /// <returns>Converted text.</returns>
-        public static string CreateMethodParameterText(Member member)
+		public static string CreateMethodParameterText(Member member, Func<string, string> converter = null)
         {
+			if (converter == null)
+				converter = ResolveHtmlType;
+
             var parameters = member.MethodParameters.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
             var parameterSb = new StringBuilder();
             foreach (var param in parameters.Select((v, i) => new { Index = i, Value = v }))
-            {
-                if (param.Index < member.Parameters.Count - 1)
-                    parameterSb.AppendFormat("{0} {1}, ", ResolveType(param.Value.Type), param.Value.Name);
-                else
-                    parameterSb.AppendFormat("{0} {1}", ResolveType(param.Value.Type), param.Value.Name);
+			{
+                parameterSb.AppendFormat("{0} {1}, ", converter(param.Value.Type), param.Value.Name);
             }
+			if (parameterSb.Length > 2)
+			    parameterSb.Remove(parameterSb.Length - 2, 2);
 
             return "({0})".FormatString(parameterSb.ToString());
         }
@@ -40,19 +42,31 @@ namespace XmlDocumentParser.MethodParameter
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        public static string ResolveType(string text)
+        public static string ResolveHtmlType(string text)
         {
+			text = ResolveSystemType(text);
+            text = text.Replace("<", "&lt;");
+            text = text.Replace(">", "&gt;");
 
+            return text.Replace("{", "&lt;").Replace("}", "&gt;");
+        }
+
+		public static string ResolveIdGenericsType(string text)
+		{         
+			text = text.Replace("{", "<");
+			text = text.Replace("}", ">");
+			return text;
+		}
+
+		public static string ResolveSystemType(string text)
+		{         
             text = text.Replace("System.Byte", "byte");
             text = text.Replace("System.Int32", "int");
             text = text.Replace("System.Int64", "long");
             text = text.Replace("System.Boolean", "bool");
             text = text.Replace("System.String", "string");
             text = text.Replace("System.Object", "object");
-            text = text.Replace("<", "&lt;");
-            text = text.Replace(">", "&gt;");
-
-            return text.Replace("{", "&lt;").Replace("}", "&gt;");
-        }
+			return text;
+		}
     }
 }

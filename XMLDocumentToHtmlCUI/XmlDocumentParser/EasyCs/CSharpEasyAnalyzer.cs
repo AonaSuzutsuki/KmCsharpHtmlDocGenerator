@@ -123,18 +123,20 @@ namespace XmlDocumentParser.EasyCs
                 {
                     foreach (var method in element.Members)
                     {
-                        if (method.Type == MethodType.Method)
+						if (method.Type == MethodType.Method || method.Type == MethodType.Constructor)
                         {
                             var item = methodMap.Get(method.Id);
                             if (item != null)
                             {
                                 var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.NameWithParameter);
 
-                                int cnt = parameterTypes.Length > method.MethodParameters.Count ? method.MethodParameters.Count : parameterTypes.Length;
-                                for (int i = 0; i < cnt; i++)
-                                {
-                                    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
-                                }
+                                //int cnt = parameterTypes.Length > method.MethodParameters.Count ? method.MethodParameters.Count : parameterTypes.Length;
+                                //for (int i = 0; i < cnt; i++)
+                                //{
+                                //    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
+                                //}
+								method.MethodParameters = new List<string>();
+								method.MethodParameters.Add(parameterTypes, (_item) => _item.Replace("<", "{").Replace(">", "}"));
 
                                 method.Difinition = ConvertToDefinition(item, method);
                                 method.Name = methodName.Replace("<", "{").Replace(">", "}");
@@ -166,7 +168,7 @@ namespace XmlDocumentParser.EasyCs
 		{
             var sb = new StringBuilder();
 
-            if (classInfo.ClassType == ClassType.Method)
+			if (classInfo.ClassType == ClassType.Method)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
 
@@ -183,12 +185,12 @@ namespace XmlDocumentParser.EasyCs
 
                 sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0}", classInfo.Name);
-                sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member));
+				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, MethodParameterConverter.ResolveIdGenericsType));
             }
             else if (classInfo.ClassType == ClassType.Property)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
-                sb.AppendFormat("{0} ", MethodParameterConverter.ResolveType(classInfo.ReturnType));
+                sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0} {{ ", classInfo.Name);
 
                 foreach (var accessors in classInfo.Accessors)
@@ -199,10 +201,18 @@ namespace XmlDocumentParser.EasyCs
                         sb.AppendFormat("{0} {1}; ", accessors.Accessibility.ToString().ToLower(), accessors.Name);
                 }
 
-                sb.AppendFormat("}}", classInfo.Name);
+                sb.AppendFormat("}}");
             }
+
+			var tree = CSharpSyntaxTree.ParseText(sb.ToString());
             
-            return sb.ToString();
+			return MethodParameterConverter.ResolveHtmlType(sb.ToString());
+		}
+
+		private static string ConvertSyntaxHighlightText(string defCode)
+		{
+			//(?<accessibility>[a-z ]+)[\s]+(?<returnType>[a-zA-Z0-9\[\]<>,\(\) ]+)[\s]+(?<methodName>[a-zA-Z0-9]+)\((?<arguments>[a-zA-Z0-9<>,. ]*)\);
+			return null;
 		}
 
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
@@ -323,7 +333,7 @@ namespace XmlDocumentParser.EasyCs
                 var parameterStr = match.Groups["parameterStr"].ToString();
                 var parameters = new List<string>();
 
-                var paramRegex = new Regex("[a-zA-Z.]+<[a-zA-Z,. ]+>[.a-zA-Z]*|[.a-zA-Z]+");
+				var paramRegex = new Regex("[a-zA-Z0-9.]+<[a-zA-Z0-9,. ]+>[.a-zA-Z0-9]*|[.a-zA-Z0-9]+");
                 var paramMatch = paramRegex.Match(parameterStr);
                 while (paramMatch.Success)
                 {
