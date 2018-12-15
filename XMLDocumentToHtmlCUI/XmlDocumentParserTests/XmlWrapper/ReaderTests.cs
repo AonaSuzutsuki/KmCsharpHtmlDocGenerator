@@ -28,13 +28,37 @@ namespace XmlDocumentParser.XmlWrapper.Tests
         [TestMethod()]
         public void GetAttributesTest()
         {
-            Assert.Fail();
+            var exp = new List<string>()
+            {
+                "test",
+                "test2",
+                "test3",
+                "test4"
+            };
+
+            var xmlText = GetXmlText();
+            var reader = new Reader();
+            reader.LoadFromText(xmlText);
+            reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
+
+            var attributes = reader.GetAttributes("name", "/ns:root/ns:members/ns:member");
+
+            CollectionAssert.AreEqual(exp.ToArray(), attributes);
         }
 
         [TestMethod()]
         public void GetAttributeTest()
         {
-            Assert.Fail();
+            var exp = "sub-test1";
+
+            var xmlText = GetXmlText();
+            var reader = new Reader();
+            reader.LoadFromText(xmlText);
+            reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
+
+            var attribute = reader.GetAttribute("name", "/ns:root/ns:members/ns:member[@name='test4']/ns:submember");
+
+            Assert.AreEqual(exp, attribute);
         }
 
         [TestMethod()]
@@ -45,13 +69,15 @@ namespace XmlDocumentParser.XmlWrapper.Tests
                 "",
                 "test2-value",
                 "",
+                "<submember name=\"sub-test1\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\" />"
             };
 
             var xmlText = GetXmlText();
             var reader = new Reader();
             reader.LoadFromText(xmlText);
+            reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
 
-            var values = reader.GetValues("/root/members/member", false);
+            var values = reader.GetValues("/ns:root/ns:members/ns:member", false);
 
             CollectionAssert.AreEqual(exp.ToArray(), values);
         }
@@ -60,14 +86,20 @@ namespace XmlDocumentParser.XmlWrapper.Tests
         public void GetValueTest()
         {
             var exp = "test2-value";
+            var exp3 = "\r\ntest2-value\r\n\r\n";
 
             var xmlText = GetXmlText();
             var reader = new Reader();
             reader.LoadFromText(xmlText);
+            reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
 
-            var value = reader.GetValue("/root/members/member[@name='test2']", false);
+            var value = reader.GetValue("/ns:root/ns:members/ns:member[@name='test2']", false);
+            var value2 = reader.GetValue("/ns:root/ns:members/ns:mmm", false);
+            var value3 = reader.GetValue("/ns:root/ns:members/ns:member[@name='test2']", true);
 
             Assert.AreEqual(exp, value);
+            Assert.AreEqual(default, value2);
+            Assert.AreEqual(exp3, value3);
         }
     }
 }
