@@ -136,7 +136,7 @@ namespace XmlDocumentParser.EasyCs
                                 //    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
                                 //}
 								method.ParameterTypes = new List<string>();
-								method.ParameterTypes.Add(parameterTypes, (_item) => _item.Replace("<", "{").Replace(">", "}"));
+								method.ParameterTypes.Add(parameterTypes, (_item) => _item);
                                 
                                 if (item.IsStatic)
                                     method.Type = MethodType.Function;
@@ -144,7 +144,7 @@ namespace XmlDocumentParser.EasyCs
                                     method.Type = MethodType.ExtensionMethod;
 
                                 method.Difinition = ConvertToDefinition(item, method);
-                                method.Name = methodName.Replace("<", "{").Replace(">", "}");
+                                method.Name = methodName;
                                 method.Accessibility = item.Accessibility;
                                 method.ReturnType = item.ReturnType;
                             }
@@ -188,7 +188,7 @@ namespace XmlDocumentParser.EasyCs
 
                 sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0}", classInfo.Name);
-				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, MethodParameterConverter.ResolveIdGenericsType));
+				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, (item) => item));
             }
             else if (classInfo.ClassType == ClassType.Property)
             {
@@ -209,7 +209,7 @@ namespace XmlDocumentParser.EasyCs
 
 			var tree = CSharpSyntaxTree.ParseText(sb.ToString());
             
-			return MethodParameterConverter.ResolveHtmlType(sb.ToString());
+			return MethodParameterConverter.ResolveGenericsTypeToHtml(sb.ToString());
 		}
 
 		private static string ConvertSyntaxHighlightText(string defCode)

@@ -254,7 +254,8 @@ namespace XmlDocumentParser.CsXmlDocument
                 var splits = parameterText.Split(',');
                 for (int i = 0; i < splits.Length; i++)
                 {
-                    splits[i] = ResolveSplitParameter(splits[i]);
+                    var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));
+                    splits[i] = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
                 }
 
                 return splits;

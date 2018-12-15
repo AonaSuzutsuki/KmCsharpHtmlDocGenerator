@@ -156,7 +156,7 @@ namespace XmlDocumentToHtml.Writer
             {
                 var namespacePath = element.Namespace.ToString().Replace(".", "/");
                 var name = "    <li><a href=\"{0}/{1}.html\">{2}.{3}</a></li>".FormatString(namespacePath, EscapeGenericsType(element.Name),
-                    element.Namespace.ToString(), MethodParameterConverter.ResolveHtmlType(element.Name)); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
+                    element.Namespace.ToString(), MethodParameterConverter.ResolveGenericsTypeToHtml(element.Name)); //suffix + "<li><a href=\"#\">" + element.Name + "</a></li>";
                 sb.AppendLine(name);
             }
 
@@ -209,7 +209,7 @@ namespace XmlDocumentToHtml.Writer
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
-                    methodLoader.Assign("MethodName", "{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), MethodParameterConverter.ResolveHtmlType(name)));
+                    methodLoader.Assign("MethodName", "{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), MethodParameterConverter.ResolveGenericsTypeToHtml(name)));
                     methodLoader.Assign("MethodParameters", parametersStr);
 					methodLoader.Assign("MethodComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
 
@@ -260,7 +260,7 @@ namespace XmlDocumentToHtml.Writer
                     var propName = member.ReturnType.Equals(Constants.SystemVoid) ? member.Name : string.Format("{0} {1}", member.ReturnType, member.Name);
                     propertyLoader.Assign("PropertyHash", hash);
                     propertyLoader.Assign("PropertyName",
-                        MethodParameterConverter.ResolveHtmlType("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName)));
+                        MethodParameterConverter.ResolveGenericsTypeToHtml("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName)));
 					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
                     
                     AddCodeToTemplate(member, propertyLoader);
@@ -279,7 +279,7 @@ namespace XmlDocumentToHtml.Writer
             }
 
             loader.Assign("RelativePath", CreateRelativePath(linkCount));
-            loader.Assign("ClassName", "{0} {1}".FormatString(MethodParameterConverter.ResolveHtmlType(parent.Name), parent.Type.ToString()));
+            loader.Assign("ClassName", "{0} {1}".FormatString(MethodParameterConverter.ResolveGenericsTypeToHtml(parent.Name), parent.Type.ToString()));
 			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
@@ -361,7 +361,7 @@ namespace XmlDocumentToHtml.Writer
             {
                 var namespacePath = element.Namespace.ToString().Replace(".", "/");
                 var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{4}</a>".FormatString(suffix, CreateRelativePath(link), namespacePath,
-                    EscapeGenericsType(element.Name), MethodParameterConverter.ResolveHtmlType(element.Name));
+                    EscapeGenericsType(element.Name), MethodParameterConverter.ResolveGenericsTypeToHtml(element.Name));
                 sb.AppendLine(name);
                 sb.AppendLine(suffix + "    <ul>");
                 foreach (var elem in element.Namespaces)
@@ -371,7 +371,7 @@ namespace XmlDocumentToHtml.Writer
             }
             else if (element.Namespaces != null && element.Namespaces.Count > 0)
             {
-                var name = suffix + "<li>" + MethodParameterConverter.ResolveHtmlType(element.Name);
+                var name = suffix + "<li>" + MethodParameterConverter.ResolveGenericsTypeToHtml(element.Name);
                 sb.AppendLine(name);
                 sb.AppendLine(suffix + "    <ul>");
                 foreach (var elem in element.Namespaces)
@@ -383,7 +383,7 @@ namespace XmlDocumentToHtml.Writer
             {
                 var namespacePath = element.Namespace.ToString().Replace(".", "/");
                 var name = "{0}<li><a href=\"{1}{2}/{3}.html\">{4}</a></li>".FormatString(suffix, CreateRelativePath(link), namespacePath,
-                    EscapeGenericsType(element.Name), MethodParameterConverter.ResolveHtmlType(element.Name));
+                    EscapeGenericsType(element.Name), MethodParameterConverter.ResolveGenericsTypeToHtml(element.Name));
                 sb.AppendLine(name);
             }
             return sb.ToString();
@@ -403,7 +403,7 @@ namespace XmlDocumentToHtml.Writer
                     {
                         var name = func(member);
                         var hash = Sha256.GetSha256(name);
-                        list.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, MethodParameterConverter.ResolveHtmlType(name)));
+                        list.Add("    <li><a href=\"#{0}\">{1}</a></li>".FormatString(hash, MethodParameterConverter.ResolveGenericsTypeToHtml(name)));
                     }
                 }
                 if (list.Count > 0)
@@ -436,7 +436,7 @@ namespace XmlDocumentToHtml.Writer
                 {
                     var namespacePath = item.Namespace.ToString().Replace(".", "/");
                     var link = CreateLink(format, writePath, linkCount, namespacePath, EscapeGenericsType(item.Name),
-					                      MethodParameterConverter.ResolveHtmlType("{0}.{1}".FormatString(item.Namespace, item.Name)));
+					                      MethodParameterConverter.ResolveGenericsTypeToHtml("{0}.{1}".FormatString(item.Namespace, item.Name)));
                     sb.AppendFormat("{0}, ", link);
                 }
                 sb.Remove(sb.Length - 2, 2);
@@ -462,7 +462,7 @@ namespace XmlDocumentToHtml.Writer
                 var (className, convertedClassName) = ResolveSeeTagGenerics(member.Name);
                 var name = "{0}".FormatString(convertedClassName);
                 text = text.Replace(full, CreateLink("<c>{0}</c>", writePath, linkCount, namespacePath, EscapeGenericsType(className),
-                    MethodParameterConverter.ResolveHtmlType(className)));
+                    MethodParameterConverter.ResolveGenericsTypeToHtml(className)));
 
                 match2 = regex2.Match(text);
             }
@@ -542,7 +542,7 @@ namespace XmlDocumentToHtml.Writer
             var p2 = member.Parameters.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
             {
-                parameterLoader.Assign("Type", MethodParameterConverter.ResolveHtmlType(parameter.Parameter.Type));
+                parameterLoader.Assign("Type", MethodParameterConverter.ResolveGenericsTypeToHtml(parameter.Parameter.Type));
                 parameterLoader.Assign("TypeName", parameter.Parameter.Name);
 				parameterLoader.Assign("TypeComment", func(parameter.Comment));
                 paramSb.Append(parameterLoader.ToString());
