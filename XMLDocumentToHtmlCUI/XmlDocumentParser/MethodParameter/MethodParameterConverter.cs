@@ -26,15 +26,19 @@ namespace XmlDocumentParser.MethodParameter
 				converter = ResolveHtmlType;
 
             var parameters = member.ParameterTypes.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
-            var parameterSb = new StringBuilder();
+            var sb = new StringBuilder();
+
+            if (member.Type == MethodType.ExtensionMethod)
+                sb.Append("this ");
+
             foreach (var param in parameters.Select((v, i) => new { Index = i, Value = v }))
 			{
-                parameterSb.AppendFormat("{0} {1}, ", converter(param.Value.Type), param.Value.Name);
+                sb.AppendFormat("{0} {1}, ", converter(param.Value.Type), param.Value.Name);
             }
-			if (parameterSb.Length > 2)
-			    parameterSb.Remove(parameterSb.Length - 2, 2);
+			if (sb.Length > 2)
+			    sb.Remove(sb.Length - 2, 2);
 
-            return "({0})".FormatString(parameterSb.ToString());
+            return "({0})".FormatString(sb.ToString());
         }
 
         /// <summary>

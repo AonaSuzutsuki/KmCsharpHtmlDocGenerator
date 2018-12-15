@@ -196,11 +196,12 @@ namespace XmlDocumentToHtml.Writer
             var constructors = new StringBuilder();
             var functions = new StringBuilder();
             var methods = new StringBuilder();
+            var extensionMethods = new StringBuilder();
             var properties = new StringBuilder();
             var enums = new StringBuilder();
             foreach (var member in members)
             {
-                if (member.Type == MethodType.Method || member.Type == MethodType.Function || member.Type == MethodType.Constructor)
+                if (member.Type == MethodType.Method || member.Type == MethodType.ExtensionMethod || member.Type == MethodType.Function || member.Type == MethodType.Constructor)
                 {
                     var methodLoader = new TemplateLoader(BaseMethodTemplate);
                     var parametersStr = MethodParameterConverter.CreateMethodParameterText(member);
@@ -235,6 +236,11 @@ namespace XmlDocumentToHtml.Writer
                     {
                         methods.Append(methodLoader.ToString());
                         loader.Assign("HasMethod", true);
+                    }
+                    else if (member.Type == MethodType.ExtensionMethod)
+                    {
+                        extensionMethods.Append(methodLoader.ToString());
+                        loader.Assign("HasExtensionMethod", true);
                     }
                     else if (member.Type == MethodType.Function)
                     {
@@ -283,6 +289,7 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("ConstructorItems", constructors, true);
             loader.Assign("FunctionItems", functions, true);
             loader.Assign("MethodItems", methods, true);
+            loader.Assign("ExtensionMethodItems", extensionMethods, true);
             loader.Assign("PropertyItems", properties, true);
             loader.Assign("FieldItems", enums, true);
 
@@ -412,6 +419,7 @@ namespace XmlDocumentToHtml.Writer
             toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + MethodParameterConverter.CreateMethodParameterText(member), "Constructor"));
             toc.Append(GetElement(MethodType.Function, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Functions"));
             toc.Append(GetElement(MethodType.Method, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Methods"));
+            toc.Append(GetElement(MethodType.ExtensionMethod, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Extension Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
 			toc.Append(GetElement(MethodType.Field, (member) => member.Name, "Fields"));
 

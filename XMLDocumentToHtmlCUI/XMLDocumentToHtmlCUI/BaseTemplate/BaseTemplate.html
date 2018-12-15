@@ -38,7 +38,7 @@
             </div>
             {if $HasConstructor == true}
             <br />
-            <div id="methods">
+            <div id="constructors">
                 <h2>Constructors</h2>
                 {$ConstructorItems}
 
@@ -47,12 +47,21 @@
 
             {if $HasFunction == true}
             <br />
-            <div id="methods">
+            <div id="functions">
                 <h2>Functions</h2>
                 {$FunctionItems}
 
             </div>
             {/if $HasFunction}
+
+            {if $HasExtensionMethod == true}
+            <br />
+            <div id="extension-methods">
+                <h2>Extension Methods</h2>
+                {$ExtensionMethodItems}
+
+            </div>
+            {/if $HasExtensionMethod}
 
             {if $HasMethod == true}
             <br />
@@ -74,7 +83,7 @@
 
             {if $HasField == true}
             <br />
-            <div id="enums">
+            <div id="fields">
                 <h2>Fields</h2>
                 {$FieldItems}
 

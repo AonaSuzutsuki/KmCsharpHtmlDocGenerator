@@ -37,7 +37,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         public List<string> ParameterTypes { get; set; } = new List<string>();
 
-		public string ReturnType { get; set; } = Constants.SystemVoid;
+        public string ReturnType { get; set; } = Constants.SystemVoid;
 
         /// <summary>
         /// Value of member.
@@ -54,9 +54,4 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
     }
-
-    public class ParameterTypeInfo
-	{
-		
-	}
 }

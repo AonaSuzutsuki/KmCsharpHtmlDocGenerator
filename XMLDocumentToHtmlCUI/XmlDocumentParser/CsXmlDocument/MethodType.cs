@@ -33,6 +33,8 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         Method,
 
+        ExtensionMethod,
+
         /// <summary>
         /// Field.
         /// </summary>

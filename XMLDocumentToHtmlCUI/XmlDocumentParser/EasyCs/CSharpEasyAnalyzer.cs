@@ -137,13 +137,16 @@ namespace XmlDocumentParser.EasyCs
                                 //}
 								method.ParameterTypes = new List<string>();
 								method.ParameterTypes.Add(parameterTypes, (_item) => _item.Replace("<", "{").Replace(">", "}"));
+                                
+                                if (item.IsStatic)
+                                    method.Type = MethodType.Function;
+                                if (item.IsExtensionMethod)
+                                    method.Type = MethodType.ExtensionMethod;
 
                                 method.Difinition = ConvertToDefinition(item, method);
                                 method.Name = methodName.Replace("<", "{").Replace(">", "}");
                                 method.Accessibility = item.Accessibility;
                                 method.ReturnType = item.ReturnType;
-                                if (item.IsStatic)
-                                    method.Type = MethodType.Function;
                             }
                         }
 
