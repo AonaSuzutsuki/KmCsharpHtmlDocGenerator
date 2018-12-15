@@ -135,8 +135,8 @@ namespace XmlDocumentParser.EasyCs
                                 //{
                                 //    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
                                 //}
-								method.MethodParameters = new List<string>();
-								method.MethodParameters.Add(parameterTypes, (_item) => _item.Replace("<", "{").Replace(">", "}"));
+								method.ParameterTypes = new List<string>();
+								method.ParameterTypes.Add(parameterTypes, (_item) => _item.Replace("<", "{").Replace(">", "}"));
 
                                 method.Difinition = ConvertToDefinition(item, method);
                                 method.Name = methodName.Replace("<", "{").Replace(">", "}");

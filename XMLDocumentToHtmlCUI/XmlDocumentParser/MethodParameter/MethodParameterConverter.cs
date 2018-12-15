@@ -25,7 +25,7 @@ namespace XmlDocumentParser.MethodParameter
 			if (converter == null)
 				converter = ResolveHtmlType;
 
-            var parameters = member.MethodParameters.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
+            var parameters = member.ParameterTypes.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
             var parameterSb = new StringBuilder();
             foreach (var param in parameters.Select((v, i) => new { Index = i, Value = v }))
 			{

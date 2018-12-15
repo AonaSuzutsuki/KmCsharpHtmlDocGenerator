@@ -274,7 +274,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 member.Type = type;
                 member.Namespace = nameSpace;
                 member.Name = methodName;
-                member.MethodParameters.AddRange(parameters);
+                member.ParameterTypes.AddRange(parameters);
             }
 
             member.Id = text;
