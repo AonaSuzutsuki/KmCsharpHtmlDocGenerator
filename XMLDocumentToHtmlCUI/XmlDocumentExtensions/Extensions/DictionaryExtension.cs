@@ -38,6 +38,8 @@ namespace XmlDocumentExtensions.Extensions
         {
             if (!dict.ContainsKey(key))
                 dict.Add(key, value);
+            else
+                dict[key] = value;
         }
     }
 

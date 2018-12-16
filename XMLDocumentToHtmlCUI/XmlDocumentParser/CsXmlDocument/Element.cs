@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using CommonCoreLib.Bool;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Element : IElementOfInheritance
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         public Accessibility Accessibility { get; set; }
 
@@ -65,6 +66,33 @@ namespace XmlDocumentParser.CsXmlDocument
                     return true;
             }
             return false;
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            
+            var element = (Element)obj;
+            var boolcollector = new BoolCollector();
+
+            boolcollector.ChangeBool("Accessibility", Accessibility == element.Accessibility);
+            boolcollector.ChangeBool("Id", Id.Equals(element.Id));
+            boolcollector.ChangeBool("Inheritance", Inheritance.SequenceEqual(element.Inheritance));
+            boolcollector.ChangeBool("IsAbstract", IsAbstract == element.IsAbstract);
+            boolcollector.ChangeBool("IsSealed", IsSealed == element.IsSealed);
+            boolcollector.ChangeBool("IsStatic", IsStatic == element.IsStatic);
+            boolcollector.ChangeBool("Members", Members.SequenceEqual(element.Members));
+            boolcollector.ChangeBool("Name", Name.Equals(element.Name));
+            boolcollector.ChangeBool("Namespace", Namespace.Equals(element.Namespace));
+            boolcollector.ChangeBool("Namespaces", Namespaces.SequenceEqual(element.Namespaces));
+            boolcollector.ChangeBool("Type", Type == element.Type);
+            boolcollector.ChangeBool("Value", Value.Equals(element.Value));
+
+            return boolcollector.Value;
         }
     }
 }

@@ -201,7 +201,6 @@
     <Compile Include="MethodParameter\MethodParameterConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlWrapper\Reader.cs" />
-    <Compile Include="EasyCs\ArraySplitter.cs" />
     <Compile Include="EasyCs\ClassType.cs" />
     <Compile Include="EasyCs\ClassInfo.cs" />
     <Compile Include="Constants.cs" />

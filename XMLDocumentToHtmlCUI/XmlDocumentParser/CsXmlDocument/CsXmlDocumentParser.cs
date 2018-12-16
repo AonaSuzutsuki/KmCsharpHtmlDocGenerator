@@ -251,14 +251,21 @@ namespace XmlDocumentParser.CsXmlDocument
                     }
                 }
 
-                var splits = parameterText.Split(',');
-                for (int i = 0; i < splits.Length; i++)
+                if (string.IsNullOrEmpty(parameterText))
                 {
-                    var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));
-                    splits[i] = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+                    return new string[0];
                 }
+                else
+                {
+                    var splits = parameterText.Split(',');
+                    for (int i = 0; i < splits.Length; i++)
+                    {
+                        var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));
+                        splits[i] = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+                    }
 
-                return splits;
+                    return splits;
+                }
             }
 
             var member = new Member();

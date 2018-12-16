@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using CommonCoreLib.Bool;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,10 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public Accessibility Accessibility { get; set; } = Accessibility.Public;
 
-        public string Difinition { get; set; }
+        public string Difinition { get; set; } = string.Empty;
 
         /// <summary>
         /// Method type of member.
@@ -30,7 +31,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Name of member.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Parameter types of member.
@@ -42,16 +43,41 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Value of member.
         /// </summary>
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
 
         /// <summary>
         /// Return comment of member.
         /// </summary>
-        public string ReturnComment { get; set; }
+        public string ReturnComment { get; set; } = string.Empty;
 
         /// <summary>
         /// Parameter names of member.
         /// </summary>
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var member = (Member)obj;
+            var boolcollector = new BoolCollector();
+
+            boolcollector.ChangeBool("Accessibility", Accessibility == member.Accessibility);
+            boolcollector.ChangeBool("Difinition", Difinition.Equals(member.Difinition));
+            boolcollector.ChangeBool("Id", Id.Equals(member.Id));
+            boolcollector.ChangeBool("Name", Name.Equals(member.Name));
+            boolcollector.ChangeBool("Namespace", Namespace.Equals(member.Namespace));
+            boolcollector.ChangeBool("Parameters", Parameters.SequenceEqual(member.Parameters));
+            boolcollector.ChangeBool("ParameterTypes", ParameterTypes.SequenceEqual(member.ParameterTypes));
+            boolcollector.ChangeBool("ReturnType", ReturnType.Equals(member.ReturnType));
+            boolcollector.ChangeBool("Type", Type == member.Type);
+            boolcollector.ChangeBool("Value", Value.Equals(Value));
+
+            return boolcollector.Value;
+        }
     }
 }

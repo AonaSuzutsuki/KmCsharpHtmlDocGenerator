@@ -116,5 +116,17 @@ namespace XmlDocumentParser.CsXmlDocument
             }
             return sb.ToString();
         }
+
+        
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            
+            var namespaceItem = (NamespaceItem)obj;
+            return items.SequenceEqual(namespaceItem.items);
+        }
     }
 }

@@ -298,14 +298,16 @@ namespace XmlDocumentParser.EasyCs
             var id = symbol.GetDocumentationCommentId();
             var fullClassName = symbol.ToString();
             var namespaceName = symbol.ContainingSymbol.ToString();
+            var nameWithParameter = fullClassName.Replace("{0}.".FormatString(namespaceName), "");
+            (string methodName, string[] parameterTypes) = SplitMethodNameAndParameter(nameWithParameter);
 
             var classInfo = new ClassInfo
             {
                 Id = id,
                 FullName = fullClassName,
                 Namespace = new NamespaceItem(namespaceName),
-                Name = symbol.Name,
-                NameWithParameter = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
+                Name = methodName,
+                NameWithParameter = nameWithParameter,
                 Accessibility = symbol.DeclaredAccessibility,
                 ClassType = classType,
                 IsStatic = symbol.IsStatic,
