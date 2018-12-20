@@ -73,12 +73,12 @@ namespace XmlDocumentParser.CsXmlDocument
                 foreach (var val in vals)
                 {
                     var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(val));
-                    var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(val));
+                    var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(val), false);
                     value = RemoveFirstLastBreakLine(value);
 
                     var member = ConvertMemberNameToMember(val);
                     member.Value = value;
-                    member.ReturnComment = ret;
+                    member.ReturnComment = ret ?? string.Empty;
 
                     var xparams = reader.GetAttributes("name", "/doc/members/member[@name=\"{0}\"]/param".FormatString(val));
                     foreach (var param in xparams)

@@ -1,18 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using XmlDocumentParser.CsXmlDocument;
+using XmlDocumentParser.EasyCs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
+using XmlDocumentParser.CsXmlDocument;
+using Microsoft.CodeAnalysis;
 
-namespace XmlDocumentParser.CsXmlDocument.Tests
+namespace XmlDocumentParser.EasyCs.Tests
 {
     [TestClass()]
-    public class CsXmlDocumentParserTests
+    public class CSharpEasyAnalyzerTests
     {
-        private static Element CreateExceptedElement()
+
+        private Element CreateExceptedElement()
         {
             var members = new List<Member>()
             {
@@ -23,12 +25,15 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                     Name = "Value",
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Value.",
+                    Accessibility = Accessibility.Public,
+                    Difinition = "public int Value { get; }",
+                    ReturnType = "int",
                 },
                 new Member()
                 {
                     Id = "M:Test.TestClass.#ctor(System.Int32,System.String)",
                     Type = MethodType.Constructor,
-                    Name = "#ctor",
+                    Name = "TestClass",
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Test constructor.",
                     ParameterTypes = new List<string> { "int", "string" },
@@ -36,7 +41,9 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                     {
                         { "ivalue", "Int value." },
                         { "svalue", "String value." }
-                    }
+                    },
+                    Accessibility = Accessibility.Public,
+                    Difinition = "public TestClass(int ivalue, string svalue);",
                 },
                 new Member()
                 {
@@ -46,6 +53,9 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Test method.",
                     ReturnComment = "Return int.",
+                    Accessibility = Accessibility.Public,
+                    Difinition = "public int Method();",
+                    ReturnType = "int"
                 }
             };
 
@@ -78,28 +88,14 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
         }
 
         [TestMethod()]
-        public void ConvertMemberNameToMemberTest()
-        {
-            var exp = new Member()
-            {
-                Id = "M:Test.TestClass.#ctor(System.Int32,System.String)",
-                Type = MethodType.Constructor,
-                Name = "#ctor",
-                Namespace = new NamespaceItem("Test.TestClass"),
-                ParameterTypes = new List<string> { "int", "string" },
-            };
-            var value = CsXmlDocumentParser.ConvertMemberNameToMember("M:Test.TestClass.#ctor(System.Int32,System.String)");
-            Assert.AreEqual(exp, value);
-        }
-
-        [TestMethod()]
-        public void ParseMultiFilesTest()
+        public void AddAttributesToElementTest()
         {
             var exp = CreateExceptedElement();
-            var element = CsXmlDocumentParser.ParseMultiFiles(new string[]
-            {
-                string.Format("TestData{0}TestXmlDoc1.xml", Path.DirectorySeparatorChar)
-            });
+
+            var element = CsXmlDocumentParser.ParseMultiFiles(new string[] { "TestData/TestXmlDoc1.xml" });
+            var csParser = new CSharpEasyAnalyzer();
+            csParser.Parse("TestData/Test");
+            csParser.AddAttributesToElement(element);
 
             Assert.AreEqual(exp, element);
         }

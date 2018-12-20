@@ -73,6 +73,7 @@ namespace XmlDocumentParser.CsXmlDocument
             boolcollector.ChangeBool("Namespace", Namespace.Equals(member.Namespace));
             boolcollector.ChangeBool("Parameters", Parameters.SequenceEqual(member.Parameters));
             boolcollector.ChangeBool("ParameterTypes", ParameterTypes.SequenceEqual(member.ParameterTypes));
+            boolcollector.ChangeBool("ReturnComment", ReturnComment.Equals(member.ReturnComment));
             boolcollector.ChangeBool("ReturnType", ReturnType.Equals(member.ReturnType));
             boolcollector.ChangeBool("Type", Type == member.Type);
             boolcollector.ChangeBool("Value", Value.Equals(Value));

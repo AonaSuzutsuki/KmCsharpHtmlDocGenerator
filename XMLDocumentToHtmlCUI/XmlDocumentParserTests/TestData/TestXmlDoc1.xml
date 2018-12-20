@@ -22,10 +22,11 @@
       <param name="ivalue">Int value.</param>
       <param name="svalue">String value.</param>
     </member>
-    <member name="M:Test.TestClass.Method()">
+    <member name="M:Test.TestClass.Method">
       <summary>
         Test method.
       </summary>
+      <returns>Return int.</returns>
     </member>
   </members>
 </doc>

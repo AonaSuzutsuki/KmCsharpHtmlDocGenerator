@@ -103,7 +103,7 @@ namespace XmlDocumentParser.EasyCs
                                 elem.IsAbstract = classInfo.IsAbstract;
                                 elem.IsSealed = classInfo.IsSealed;
                                 elem.IsStatic = classInfo.IsStatic;
-
+                                
                                 elem.Inheritance.Add(classInfo.Inheritance, (item) => new Element()
                                 {
                                     Accessibility = item.Accessibility,
@@ -135,9 +135,11 @@ namespace XmlDocumentParser.EasyCs
                                 //{
                                 //    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
                                 //}
-								method.ParameterTypes = new List<string>();
-								method.ParameterTypes.Add(parameterTypes, (_item) => _item);
-                                
+                                method.ParameterTypes = new List<string>
+                                {
+                                    { parameterTypes, (_item) => _item }
+                                };
+
                                 if (item.IsStatic)
                                     method.Type = MethodType.Function;
                                 if (item.IsExtensionMethod)
@@ -171,7 +173,7 @@ namespace XmlDocumentParser.EasyCs
 		{
             var sb = new StringBuilder();
 
-			if (classInfo.ClassType == ClassType.Method)
+			if (classInfo.ClassType == ClassType.Method || classInfo.ClassType == ClassType.Constructor)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
 
@@ -186,7 +188,8 @@ namespace XmlDocumentParser.EasyCs
                 if (classInfo.IsExtern)
                     sb.Append("extern ");
 
-                sb.AppendFormat("{0} ", classInfo.ReturnType);
+                if (classInfo.ClassType == ClassType.Method)
+                    sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0}", classInfo.Name);
 				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, (item) => item));
             }
@@ -289,7 +292,7 @@ namespace XmlDocumentParser.EasyCs
             PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
             PutDeclaration(classMap, delegateSyntaxArray, ClassType.Delegate);
             PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
-            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
+            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Constructor);
             PutDeclaration(methodMap, propertySyntaxArray, ClassType.Property);
         }
 
@@ -398,6 +401,10 @@ namespace XmlDocumentParser.EasyCs
                     }
                 }
             }
+
+            if (!assemblyNameMap.ContainsKey("mscorlib"))
+                assemblyNameMap.Add("mscorlib", typeof(object).Assembly);
+
             return (csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
         }
 
