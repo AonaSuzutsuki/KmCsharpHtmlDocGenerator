@@ -104,7 +104,7 @@ namespace XmlDocumentParser.EasyCs
                                 elem.IsSealed = classInfo.IsSealed;
                                 elem.IsStatic = classInfo.IsStatic;
                                 
-                                elem.Inheritance.Add(classInfo.Inheritance, (item) => new Element()
+                                elem.InheritanceList.Add(classInfo.Inheritance, (item) => new Element()
                                 {
                                     Accessibility = item.Accessibility,
                                     Id = item.Id,

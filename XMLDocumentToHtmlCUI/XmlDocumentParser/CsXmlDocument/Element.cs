@@ -13,9 +13,10 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Element : IElementOfInheritance
     {
+        /// <summary>
+        /// Identifier of this element.
+        /// </summary>
         public string Id { get; set; } = string.Empty;
-
-        public Accessibility Accessibility { get; set; }
 
         /// <summary>
         /// Tree structure element type.
@@ -37,11 +38,30 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         public string Value { get; set; } = string.Empty;
 
-        public bool IsStatic { get; set; }
-        public bool IsAbstract { get; set; }
-        public bool IsSealed { get; set; }
+        /// <summary>
+        /// Accessibility of this element. Require to analyze source code.
+        /// </summary>
+        public Accessibility Accessibility { get; set; } = Accessibility.Public;
 
-        public List<IElementOfInheritance> Inheritance { get; set; } = new List<IElementOfInheritance>();
+        /// <summary>
+        /// Returns whether it is static or not. Require to analyze source code.
+        /// </summary>
+        public bool IsStatic { get; set; } = false;
+
+        /// <summary>
+        /// Returns whether it is abstract or not. Require to analyze source code.
+        /// </summary>
+        public bool IsAbstract { get; set; } = false;
+
+        /// <summary>
+        /// Returns whether it is abstract or not. Require to analyze source code.
+        /// </summary>
+        public bool IsSealed { get; set; } = false;
+
+        /// <summary>
+        /// List of inheritance. Require to analyze source code.
+        /// </summary>
+        public List<IElementOfInheritance> InheritanceList { get; set; } = new List<IElementOfInheritance>();
 
         /// <summary>
         /// List of namespaces this element holds.
@@ -68,7 +88,20 @@ namespace XmlDocumentParser.CsXmlDocument
             return false;
         }
 
+        /// <summary>
+        /// Object.GetHashCode()
+        /// </summary>
+        /// <returns>The hash value.</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
+        /// <summary>
+        /// Check the equivalence of this object and the argument object.
+        /// </summary>
+        /// <param name="obj">Target object.</param>
+        /// <returns>It returns True if equivalent, False otherwise.</returns>
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
@@ -81,7 +114,7 @@ namespace XmlDocumentParser.CsXmlDocument
 
             boolcollector.ChangeBool("Accessibility", Accessibility == element.Accessibility);
             boolcollector.ChangeBool("Id", Id.Equals(element.Id));
-            boolcollector.ChangeBool("Inheritance", Inheritance.SequenceEqual(element.Inheritance));
+            boolcollector.ChangeBool("Inheritance", InheritanceList.SequenceEqual(element.InheritanceList));
             boolcollector.ChangeBool("IsAbstract", IsAbstract == element.IsAbstract);
             boolcollector.ChangeBool("IsSealed", IsSealed == element.IsSealed);
             boolcollector.ChangeBool("IsStatic", IsStatic == element.IsStatic);

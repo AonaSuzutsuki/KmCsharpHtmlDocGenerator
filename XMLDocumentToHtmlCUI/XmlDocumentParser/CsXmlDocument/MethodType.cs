@@ -26,6 +26,9 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         Constructor,
 
+        /// <summary>
+        /// Static method.
+        /// </summary>
         Function,
 
         /// <summary>
@@ -33,6 +36,9 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         Method,
 
+        /// <summary>
+        /// Extension method.
+        /// </summary>
         ExtensionMethod,
 
         /// <summary>

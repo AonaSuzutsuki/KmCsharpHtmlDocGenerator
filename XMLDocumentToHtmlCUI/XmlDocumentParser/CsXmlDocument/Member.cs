@@ -13,10 +13,10 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
+        /// <summary>
+        /// Identifier of this element.
+        /// </summary>
         public string Id { get; set; } = string.Empty;
-        public Accessibility Accessibility { get; set; } = Accessibility.Public;
-
-        public string Difinition { get; set; } = string.Empty;
 
         /// <summary>
         /// Method type of member.
@@ -37,9 +37,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// Parameter types of member.
         /// </summary>
         public List<string> ParameterTypes { get; set; } = new List<string>();
-
-        public string ReturnType { get; set; } = Constants.SystemVoid;
-
+        
         /// <summary>
         /// Value of member.
         /// </summary>
@@ -55,13 +53,36 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
 
+        /// <summary>
+        /// Accessibility of this element. Require to analyze source code.
+        /// </summary>
+        public Accessibility Accessibility { get; set; } = Accessibility.Public;
+
+        /// <summary>
+        /// Difinition of this element. Require to analyze source code.
+        /// </summary>
+        public string Difinition { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Type of return value. Require to analyze source code.
+        /// </summary>
+        public string ReturnType { get; set; } = Constants.SystemVoid;
 
 
+        /// <summary>
+        /// Object.GetHashCode()
+        /// </summary>
+        /// <returns>The hash value.</returns>
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
 
+        /// <summary>
+        /// Check the equivalence of this object and the argument object.
+        /// </summary>
+        /// <param name="obj">Target object.</param>
+        /// <returns>It returns True if equivalent, False otherwise.</returns>
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())

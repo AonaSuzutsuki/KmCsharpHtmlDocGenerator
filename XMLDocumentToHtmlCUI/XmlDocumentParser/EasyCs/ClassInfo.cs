@@ -10,7 +10,14 @@ namespace XmlDocumentParser.EasyCs
     /// </summary>
 	public class ClassInfo : IAccessorInfo
     {
+        /// <summary>
+        /// Identifier of this element.
+        /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// Accessibility of this element. Require to analyze source code.
+        /// </summary>
         public Accessibility Accessibility { get; set; }
         public ClassType ClassType { get; set; }
         public bool IsStatic { get; set; }
@@ -27,6 +34,10 @@ namespace XmlDocumentParser.EasyCs
         public string FullName { get; set; }
         public NamespaceItem Namespace { get; set; }
         public string NameWithParameter { get; set; }
+
+        /// <summary>
+        /// Name of element.
+        /// </summary>
         public string Name { get; set; }
         public List<ClassInfo> Inheritance { get; set; } = new List<ClassInfo>();
     }
