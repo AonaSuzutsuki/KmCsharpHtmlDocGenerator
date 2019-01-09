@@ -283,7 +283,7 @@ namespace XmlDocumentToHtml.Writer
 			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
-            loader.Assign("Inheritance", CreateInheritance(parent.Inheritance, stream.Name, linkCount));
+            loader.Assign("Inheritance", CreateInheritance(parent.InheritanceList, stream.Name, linkCount));
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
             loader.Assign("Toc", CreateToc(members, parent), true);
             loader.Assign("ConstructorItems", constructors, true);
