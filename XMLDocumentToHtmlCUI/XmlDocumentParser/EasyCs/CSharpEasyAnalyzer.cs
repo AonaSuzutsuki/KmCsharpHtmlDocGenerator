@@ -224,15 +224,16 @@ namespace XmlDocumentParser.EasyCs
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
         {
             var semanticModel = compilation.GetSemanticModel(tree);
-            var classSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
-            var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
-            var enumSyntaxArray = tree.GetRoot().DescendantNodes().OfType<EnumDeclarationSyntax>();
-            var structSyntaxArray = tree.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>();
-            var delegateSyntaxArray = tree.GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>();
-            var methodSyntaxArray = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>();
-            var constructorSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>();
-            var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-            var fieldSyntaxArray = tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>();
+            var nodes = tree.GetRoot().DescendantNodes();
+            var classSyntaxArray = nodes.OfType<ClassDeclarationSyntax>();
+            var inSyntaxArray = nodes.OfType<InterfaceDeclarationSyntax>();
+            var enumSyntaxArray = nodes.OfType<EnumDeclarationSyntax>();
+            var structSyntaxArray = nodes.OfType<StructDeclarationSyntax>();
+            var delegateSyntaxArray = nodes.OfType<DelegateDeclarationSyntax>();
+            var methodSyntaxArray = nodes.OfType<MethodDeclarationSyntax>();
+            var constructorSyntaxArray = nodes.OfType<ConstructorDeclarationSyntax>();
+            var propertySyntaxArray = nodes.OfType<PropertyDeclarationSyntax>();
+            var fieldSyntaxArray = nodes.OfType<FieldDeclarationSyntax>();
             
             void PutDeclaration(Dictionary<string, ClassInfo> dic, IEnumerable<SyntaxNode> syntaxNodes, ClassType classType)
             {

@@ -56,6 +56,12 @@ namespace XmlDocumentParser.CsXmlDocument
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
 
 
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
