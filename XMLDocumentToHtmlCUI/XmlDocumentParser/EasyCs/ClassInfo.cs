@@ -30,10 +30,11 @@ namespace XmlDocumentParser.EasyCs
 		public bool IsAsync { get; set; }
 		public bool IsExtensionMethod { get; set; }
         public List<IAccessorInfo> Accessors { get; set; } = new List<IAccessorInfo>();
+        public List<string> ParameterTypes { get; set; } = new List<string>();
         public string ReturnType { get; set; } = Constants.SystemVoid;
         public string FullName { get; set; }
         public NamespaceItem Namespace { get; set; }
-        public string NameWithParameter { get; set; }
+        //public string NameWithParameter { get; set; }
 
         /// <summary>
         /// Name of element.

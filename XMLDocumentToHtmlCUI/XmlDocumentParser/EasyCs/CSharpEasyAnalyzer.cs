@@ -99,7 +99,7 @@ namespace XmlDocumentParser.EasyCs
                                 else if (classInfo.ClassType == ClassType.Delegate)
                                     elem.Type = ElementType.Delegate;
 
-                                elem.Name = classInfo.NameWithParameter;
+                                elem.Name = classInfo.FullName;
                                 elem.IsAbstract = classInfo.IsAbstract;
                                 elem.IsSealed = classInfo.IsSealed;
                                 elem.IsStatic = classInfo.IsStatic;
@@ -108,7 +108,7 @@ namespace XmlDocumentParser.EasyCs
                                 {
                                     Accessibility = item.Accessibility,
                                     Id = item.Id,
-                                    Name = item.NameWithParameter,
+                                    Name = item.FullName,
                                     Namespace = item.Namespace,
                                     Type = ElementType.Class
                                 });
@@ -128,16 +128,9 @@ namespace XmlDocumentParser.EasyCs
                             var item = methodMap.Get(method.Id);
                             if (item != null)
                             {
-                                var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.NameWithParameter);
-
-                                //int cnt = parameterTypes.Length > method.MethodParameters.Count ? method.MethodParameters.Count : parameterTypes.Length;
-                                //for (int i = 0; i < cnt; i++)
-                                //{
-                                //    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
-                                //}
                                 method.ParameterTypes = new List<string>
                                 {
-                                    { parameterTypes, (_item) => _item }
+                                    { item.ParameterTypes, (_item) => _item }
                                 };
 
                                 if (item.IsStatic)
@@ -146,7 +139,7 @@ namespace XmlDocumentParser.EasyCs
                                     method.Type = MethodType.ExtensionMethod;
 
                                 method.Difinition = ConvertToDefinition(item, method);
-                                method.Name = methodName;
+                                method.Name = item.Name;
                                 method.Accessibility = item.Accessibility;
                                 method.ReturnType = item.ReturnType;
                             }
@@ -308,10 +301,9 @@ namespace XmlDocumentParser.EasyCs
             var classInfo = new ClassInfo
             {
                 Id = id,
-                FullName = fullClassName,
+                FullName = nameWithParameter,
                 Namespace = new NamespaceItem(namespaceName),
                 Name = methodName,
-                NameWithParameter = nameWithParameter,
                 Accessibility = symbol.DeclaredAccessibility,
                 ClassType = classType,
                 IsStatic = symbol.IsStatic,
@@ -324,6 +316,11 @@ namespace XmlDocumentParser.EasyCs
 
             if (symbol is IMethodSymbol)
             {
+                foreach (var type in ((IMethodSymbol)symbol).Parameters)
+                {
+                    classInfo.ParameterTypes.Add(type.ToString());
+                }
+
                 var returnType = ((IMethodSymbol)symbol).ReturnType;
                 classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
                 classInfo.ReturnType = returnType.ToString();

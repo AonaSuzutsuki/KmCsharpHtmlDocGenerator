@@ -38,5 +38,15 @@ namespace XmlDocumentExtensions.Extensions
             foreach (var item in sourceArray)
                 destArray.Add(func(item));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        public static void Test(out string a, ref string b)
+        {
+            a = "";
+        }
     }
 }

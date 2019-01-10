@@ -19,13 +19,14 @@ namespace XmlDocumentParser.MethodParameter
         /// exm: (string arg1, string arg2)
         /// </summary>
         /// <param name="member">Target <see cref="Member"/> to convert.</param>
+        /// <param name="converter">Param type converter.</param>
         /// <returns>Converted text.</returns>
-		public static string CreateMethodParameterText(Member member, Func<string, string> converter = null)
+        public static string CreateMethodParameterText(Member member, Func<string, string> converter = null)
         {
             if (converter == null)
                 converter = ResolveGenericsTypeToHtml;
 
-            var parameters = member.ParameterTypes.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
+            var parameters = member.ParameterTypes.Zip(member.ParameterNames.Keys, (type, name) => new { Type = type, Name = name });
             var sb = new StringBuilder();
 
             if (member.Type == MethodType.ExtensionMethod)
@@ -40,14 +41,12 @@ namespace XmlDocumentParser.MethodParameter
 
             return "({0})".FormatString(sb.ToString());
         }
-        
-        internal static string ResolveIdToGenericsType(string text)
-        {
-            text = text.Replace("{", "<");
-            text = text.Replace("}", ">");
-            return text;
-        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public static string ResolveGenericsTypeToHtml(string text)
         {
             text = text.Replace("<", "&lt;");
@@ -55,6 +54,13 @@ namespace XmlDocumentParser.MethodParameter
             return text;
         }
 
+        internal static string ResolveIdToGenericsType(string text)
+        {
+            text = text.Replace("{", "<");
+            text = text.Replace("}", ">");
+            return text;
+        }
+        
         internal static string ResolveSystemType(string text)
         {
             text = text.Replace("System.Byte", "byte");

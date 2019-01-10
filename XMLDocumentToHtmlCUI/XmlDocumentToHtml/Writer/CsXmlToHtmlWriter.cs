@@ -462,7 +462,7 @@ namespace XmlDocumentToHtml.Writer
                 var (className, convertedClassName) = ResolveSeeTagGenerics(member.Name);
                 var name = "{0}".FormatString(convertedClassName);
                 text = text.Replace(full, CreateLink("<c>{0}</c>", writePath, linkCount, namespacePath, EscapeGenericsType(className),
-                    MethodParameterConverter.ResolveGenericsTypeToHtml(className)));
+                    MethodParameterConverter.ResolveGenericsTypeToHtml(name)));
 
                 match2 = regex2.Match(text);
             }
