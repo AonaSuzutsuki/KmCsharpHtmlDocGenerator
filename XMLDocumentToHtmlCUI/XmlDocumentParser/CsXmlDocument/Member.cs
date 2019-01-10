@@ -51,7 +51,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Parameter names of member.
         /// </summary>
-        public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> ParameterNames { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Accessibility of this element. Require to analyze source code.
@@ -98,7 +98,7 @@ namespace XmlDocumentParser.CsXmlDocument
             boolcollector.ChangeBool("Id", Id.Equals(member.Id));
             boolcollector.ChangeBool("Name", Name.Equals(member.Name));
             boolcollector.ChangeBool("Namespace", Namespace.Equals(member.Namespace));
-            boolcollector.ChangeBool("Parameters", Parameters.SequenceEqual(member.Parameters));
+            boolcollector.ChangeBool("Parameters", ParameterNames.SequenceEqual(member.ParameterNames));
             boolcollector.ChangeBool("ParameterTypes", ParameterTypes.SequenceEqual(member.ParameterTypes));
             boolcollector.ChangeBool("ReturnComment", ReturnComment.Equals(member.ReturnComment));
             boolcollector.ChangeBool("ReturnType", ReturnType.Equals(member.ReturnType));

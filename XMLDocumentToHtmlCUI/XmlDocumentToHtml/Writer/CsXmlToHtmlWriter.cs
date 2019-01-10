@@ -538,8 +538,8 @@ namespace XmlDocumentToHtml.Writer
         {
             var paramSb = new StringBuilder();
             var parameterLoader = new TemplateLoader(templatePath);
-            var p1 = member.ParameterTypes.Zip(member.Parameters.Keys, (type, name) => new { Type = type, Name = name });
-            var p2 = member.Parameters.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
+            var p1 = member.ParameterTypes.Zip(member.ParameterNames.Keys, (type, name) => new { Type = type, Name = name });
+            var p2 = member.ParameterNames.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
             {
                 parameterLoader.Assign("Type", MethodParameterConverter.ResolveGenericsTypeToHtml(parameter.Parameter.Type));
@@ -599,10 +599,10 @@ namespace XmlDocumentToHtml.Writer
                         if (elem.Type == MethodType.Method)
                         {
                             parametersStr += "(";
-                            var parameters = elem.ParameterTypes.Zip(elem.Parameters.Keys, (type, name) => new { Type = type, Name = name });
+                            var parameters = elem.ParameterTypes.Zip(elem.ParameterNames.Keys, (type, name) => new { Type = type, Name = name });
                             foreach (var tuple in parameters.Select((v, i) => new { Index = i, Value = v }))
                             {
-                                if (tuple.Index < elem.Parameters.Count - 1)
+                                if (tuple.Index < elem.ParameterNames.Count - 1)
                                     parametersStr += "{0} {1}, ".FormatString(tuple.Value.Type, tuple.Value.Name);
                                 else
                                     parametersStr += "{0} {1})".FormatString(tuple.Value.Type, tuple.Value.Name);

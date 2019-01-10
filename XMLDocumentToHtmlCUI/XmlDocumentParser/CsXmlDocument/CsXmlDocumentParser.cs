@@ -87,7 +87,7 @@ namespace XmlDocumentParser.CsXmlDocument
                         var value2 = reader.GetValue(path);
                         value2 = RemoveFirstLastBreakLine(value2);
 
-                        member.Parameters.Add(param, value2);
+                        member.ParameterNames.Add(param, value2);
                     }
                     members.Add(member);
                 }

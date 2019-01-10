@@ -32,7 +32,7 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Test constructor.",
                     ParameterTypes = new List<string> { "int", "string" },
-                    Parameters = new Dictionary<string, string>
+                    ParameterNames = new Dictionary<string, string>
                     {
                         { "ivalue", "Int value." },
                         { "svalue", "String value." }

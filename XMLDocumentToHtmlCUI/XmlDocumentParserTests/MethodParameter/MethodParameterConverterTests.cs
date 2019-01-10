@@ -20,7 +20,7 @@ namespace XmlDocumentParser.MethodParameter.Tests
             {
                 Type = MethodType.ExtensionMethod,
                 ParameterTypes = new List<string> { "System.Collections.Generic.Dictionary<K, V>", "K", "V" },
-                Parameters = new Dictionary<string, string>
+                ParameterNames = new Dictionary<string, string>
                 {
                      { "dict", "" },
                      { "key", "" },
