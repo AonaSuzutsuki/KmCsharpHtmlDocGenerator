@@ -325,6 +325,13 @@ namespace XmlDocumentToHtml.Writer
 
 		private static void CreateDirectoryAndDummyFile(Element element, string suffix = "")
         {
+
+            void createDummyFile()
+			{
+				var name = EscapeGenericsType(suffix + element.Name + ".html");
+                new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None).Dispose();
+			}
+
             if (element != null)
             {
 				if (element.Namespaces != null && element.Namespaces.Count > 0)
@@ -338,14 +345,12 @@ namespace XmlDocumentToHtml.Writer
 				}
                 else
                 {
-                    var name = EscapeGenericsType(suffix + element.Name + ".html");
-                    new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None).Dispose();
+					createDummyFile();
                 }
 
 				if ((element.Members != null && element.Members.Count > 0))
 				{
-                    var name = EscapeGenericsType(suffix + element.Name + ".html");
-                    new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None).Dispose();
+                    createDummyFile();
 				}
             }
         }
