@@ -10,6 +10,7 @@
     #body-container::after {
         content: '';
         clear: both;
+        display: block;
     }
 
 #menu {
@@ -26,9 +27,15 @@
     margin-left: 400px;
 }
 
+#footer {
+    text-align: right;
+    padding: 10px 20px;
+}
+
 .specific-element {
     border: 1px solid #999;
     background-color: #eee;
+    line-height: 25px;
     padding: 2px;
 }
 
