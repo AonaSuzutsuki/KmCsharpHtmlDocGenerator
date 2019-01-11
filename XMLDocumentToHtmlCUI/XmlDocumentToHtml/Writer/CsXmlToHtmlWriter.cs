@@ -84,7 +84,7 @@ namespace XmlDocumentToHtml.Writer
         public void WriteToDisk(string outputDirPath = "")
         {
             //var menu = CreateMenu(root);
-			CreateDirectory(rootElement, outputDirPath);
+			CreateDirectoryAndDummyFile(rootElement, outputDirPath);
             WriteIndex(outputDirPath, rootElement);
             CreateClassFile(rootElement, rootElement, outputDirPath);
             CloneFiles(rootElement.Name);
@@ -104,7 +104,7 @@ namespace XmlDocumentToHtml.Writer
                 else
                 {
                     var name = EscapeGenericsType(suffix + element.Name + ".html");
-                    using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
+					using (var fs = new FileStream(name, FileMode.Open, FileAccess.Write, FileShare.Read))
                     {
                         WriteHtml(fs, element.Members, element, root);
                     }
@@ -323,7 +323,7 @@ namespace XmlDocumentToHtml.Writer
             }
         }
 
-        private static void CreateDirectory(Element element, string suffix = "")
+		private static void CreateDirectoryAndDummyFile(Element element, string suffix = "")
         {
             if (element != null)
             {
@@ -334,8 +334,19 @@ namespace XmlDocumentToHtml.Writer
                     if (!di.Exists)
                         di.Create();
                     foreach (var elem in element.Namespaces)
-                        CreateDirectory(elem, name + "/");
+                        CreateDirectoryAndDummyFile(elem, name + "/");
+				}
+                else
+                {
+                    var name = EscapeGenericsType(suffix + element.Name + ".html");
+                    new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None).Dispose();
                 }
+
+				if ((element.Members != null && element.Members.Count > 0))
+				{
+                    var name = EscapeGenericsType(suffix + element.Name + ".html");
+                    new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None).Dispose();
+				}
             }
         }
         
