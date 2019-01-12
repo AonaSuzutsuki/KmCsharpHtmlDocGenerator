@@ -46,7 +46,3 @@ Specifies one or more XML Docment outputted by C# XML Document.
 # Build
 1. Open XMLDocumentToHtmlCUI.sln
 2. Click the Build button on the menu
-
-
-# Special Thanks
-1. **SyntaxHighlighter** (SyntaxHighlighter was originally created in 2004 and is still maintained by Alex Gorbatchev. Copyright 2004-2014 Alex Gorbatchev).
