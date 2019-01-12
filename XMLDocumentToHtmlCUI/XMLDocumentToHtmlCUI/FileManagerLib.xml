@@ -18,6 +18,7 @@
         <member name="P:FileManagerLib.Dat.DatFileManager.SplitSize">
             <summary>
             Threshold for split reading when reading or writing files.
+            Consume large memory if this value is large.
             </summary>
         </member>
         <member name="P:FileManagerLib.Dat.DatFileManager.IsCheckHash">
@@ -142,7 +143,7 @@
         </member>
         <member name="T:FileManagerLib.Extensions.Collections.DictionaryExtension">
             <summary>
-            Provides <c>Dictionary</c> related extension methods.
+            Extension functions of <see cref="T:System.Collections.IDictionary"/>.
             </summary>
         </member>
         <member name="M:FileManagerLib.Extensions.Collections.DictionaryExtension.ToArray``2(System.Collections.Generic.SortedDictionary{``0,``1}.ValueCollection)">
@@ -153,6 +154,18 @@
             <typeparam name="TValue">Type of <c>SortedDictionary</c> value</typeparam>
             <param name="values">Target SortedDictionary.Value</param>
             <returns>Converted array.</returns>
+        </member>
+        <member name="M:FileManagerLib.Extensions.Collections.DictionaryExtension.Get``2(System.Collections.Generic.Dictionary{``0,``1},``0,``1)">
+            <summary>
+            It checks for the existence of the element and returns the element of the key if it exists.
+            If it does not exist, it returns the default value.
+            </summary>
+            <typeparam name="K">Key type.</typeparam>
+            <typeparam name="V">Value type.</typeparam>
+            <param name="dict">Target dictionary.</param>
+            <param name="key">The key you want to search</param>
+            <param name="defaultValue">Default value/</param>
+            <returns></returns>
         </member>
         <member name="T:FileManagerLib.Extensions.Collections.ArrayExtension">
             <summary>
@@ -244,9 +257,9 @@
             <param name="dirPath">Dir path.</param>
             <param name="action">Action.</param>
         </member>
-        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateFilesOnDirectories(System.String,System.String[])">
+        <member name="M:FileManagerLib.File.Json.JsonFileManager.CreateMultipleFilesAndDirectories(System.String,System.String[])">
             <summary>
-            Creates the files on directories.
+            Creates multiple files and directories.
             </summary>
             <param name="fullPath">Full path.</param>
             <param name="inDirPaths">In dir paths.</param>
@@ -785,7 +798,7 @@
             <param name="dirName">Dir name.</param>
             <param name="rootId">Root identifier.</param>
         </member>
-        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectoryId(FileManagerLib.Path.PathItem)">
+        <member name="M:FileManagerLib.File.Json.JsonResourceManager.GetDirectoryId(FileManagerLib.CommonPath.PathItem)">
             <summary>
             Gets the directory identifier.
             </summary>
@@ -990,75 +1003,75 @@
             <param name="mimeType">String of mime-type</param>
             <returns>Whether it is an image or not</returns>
         </member>
-        <member name="T:FileManagerLib.Path.PathItem">
+        <member name="T:FileManagerLib.CommonPath.PathItem">
             <summary>
             Provide the function to manage the path.
             </summary>
         </member>
-        <member name="P:FileManagerLib.Path.PathItem.IsRoot">
+        <member name="P:FileManagerLib.CommonPath.PathItem.IsRoot">
             <summary>
             Gets a value indicating whether this <see cref="T:FileManagerLib.Path.PathItem"/> is root.
             </summary>
             <value><c>true</c> if is root; otherwise, <c>false</c>.</value>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.#ctor">
+        <member name="M:FileManagerLib.CommonPath.PathItem.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:FileManagerLib.Path.PathItem"/> class.
             </summary>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.#ctor(System.String[])">
+        <member name="M:FileManagerLib.CommonPath.PathItem.#ctor(System.String[])">
             <summary>
             Initializes a new instance of the <see cref="T:FileManagerLib.Path.PathItem"/> class with path array.
             </summary>
             <param name="array">Array of string.</param>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.AddPath(System.String)">
+        <member name="M:FileManagerLib.CommonPath.PathItem.AddPath(System.String)">
             <summary>
             Adds the path.
             </summary>
             <param name="path">Added the path.</param>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.GetPath(System.Int32)">
+        <member name="M:FileManagerLib.CommonPath.PathItem.GetPath(System.Int32)">
             <summary>
             Gets the path.
             </summary>
             <returns>The path.</returns>
             <param name="index">Index.</param>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.Pop">
+        <member name="M:FileManagerLib.CommonPath.PathItem.Pop">
             <summary>
             Pop a path from this instance.
             </summary>
             <returns>Path.</returns>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.GetLast">
+        <member name="M:FileManagerLib.CommonPath.PathItem.GetLast">
             <summary>
             Gets the last path.
             </summary>
             <returns>The last path.</returns>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.GetPathItemFrom(System.Int32)">
+        <member name="M:FileManagerLib.CommonPath.PathItem.GetPathItemFrom(System.Int32)">
             <summary>
             Returns the path from the specified index as a <c>PathItem</c>.
             </summary>
             <returns>The <c>PathItem</c>.</returns>
             <param name="start">Start index.</param>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.GetPathItemFrom(System.String)">
+        <member name="M:FileManagerLib.CommonPath.PathItem.GetPathItemFrom(System.String)">
             <summary>
             Returns the path from the specified path as a <c>PathItem</c>.
             </summary>
             <returns>The <c>PathItem</c>.</returns>
             <param name="basePath">The specified path.</param>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.GetHashCode">
+        <member name="M:FileManagerLib.CommonPath.PathItem.GetHashCode">
             <summary>
             Serves as a hash function for a <see cref="T:FileManagerLib.Path.PathItem"/> object.
             </summary>
             <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a
             hash table.</returns>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.Equals(System.Object)">
+        <member name="M:FileManagerLib.CommonPath.PathItem.Equals(System.Object)">
             <summary>
             Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:FileManagerLib.Path.PathItem"/>.
             </summary>
@@ -1066,36 +1079,48 @@
             <returns><c>true</c> if the specified <see cref="T:System.Object"/> is equal to the current
             <see cref="T:FileManagerLib.Path.PathItem"/>; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.ToArray">
+        <member name="M:FileManagerLib.CommonPath.PathItem.ToArray">
             <summary>
             To the array.
             </summary>
             <returns>The array.</returns>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.ToArray(System.Int32)">
+        <member name="M:FileManagerLib.CommonPath.PathItem.ToArray(System.Int32)">
             <summary>
             To the array exclude specific count from end.
             </summary>
             <returns>The array.</returns>
             <param name="end">End.</param>
         </member>
-        <member name="M:FileManagerLib.Path.PathItem.ToString">
+        <member name="M:FileManagerLib.CommonPath.PathItem.ToString">
             <summary>
             Returns a <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.Path.PathItem"/>.
             </summary>
             <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:FileManagerLib.Path.PathItem"/>.</returns>
         </member>
-        <member name="T:FileManagerLib.Path.PathSplitter">
+        <member name="T:FileManagerLib.CommonPath.PathSplitter">
             <summary>
             It provides path division system function.
             </summary>
         </member>
-        <member name="M:FileManagerLib.Path.PathSplitter.SplitPath(System.String)">
+        <member name="M:FileManagerLib.CommonPath.PathSplitter.SplitPath(System.String)">
             <summary>
             Split path string and return it as <c>PathItem</c>.
             </summary>
             <param name="pathArg">対象のパス文字列</param>
             <returns>変換されたPathItem</returns>
+        </member>
+        <member name="T:FileManagerLib.CommonPath.PathUtils">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:FileManagerLib.CommonPath.PathUtils.ResolvePathSeparator(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

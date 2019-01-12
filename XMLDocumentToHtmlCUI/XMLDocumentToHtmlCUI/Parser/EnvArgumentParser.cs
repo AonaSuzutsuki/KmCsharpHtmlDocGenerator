@@ -10,13 +10,13 @@ namespace XMLDocumentToHtmlCUI.Parser
     public class EnvArgumentParser
     {
 
-        private readonly string[] arguments;
+        protected readonly string[] arguments;
 
         protected readonly Dictionary<string, string> parameters = new Dictionary<string, string>();
 
         protected readonly List<string> values = new List<string>();
 
-        public Dictionary<string, int> optionCountMap = new Dictionary<string, int>();
+        protected Dictionary<string, int> optionCountMap = new Dictionary<string, int>();
 
         public EnvArgumentParser(string[] args)
         {
@@ -25,7 +25,7 @@ namespace XMLDocumentToHtmlCUI.Parser
 
         public void AddOptionCount(string key, int count)
         {
-            optionCountMap.CheckAndAdd(key, count);
+            optionCountMap.Put(key, count);
         }
 
         public void Analyze()

@@ -76,7 +76,7 @@ namespace XmlDocumentToHtml.Template
 			foreach (var line in lines)
 			{
                 preLine = line;
-                var reg = new Regex("\\{\\$(?<key>.*?)\\}+");
+                var reg = new Regex("\\{\\$(?<key>.*?)\\}");
                 var indent = GetIndent(preLine);
                 while (true)
                 {

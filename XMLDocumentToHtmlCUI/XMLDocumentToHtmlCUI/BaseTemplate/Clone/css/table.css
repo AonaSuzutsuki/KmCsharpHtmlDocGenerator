@@ -1,0 +1,119 @@
+﻿/*
+    Parameter Table
+*/
+table.parameter {
+    border-collapse: collapse;
+    vertical-align: middle;
+    width: 100%;
+}
+
+    table.parameter th,
+    table.parameter td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        word-break: break-all;
+    }
+
+    table.parameter div {
+        word-break: break-all;
+        display: inline;
+    }
+
+    table.parameter label {
+        line-height: 34px;
+        margin: 0;
+    }
+
+
+@media only screen and (max-width:750px) {
+    table.parameter thead {
+        display: none;
+    }
+
+    table.parameter tr,
+    table.parameter td {
+        display: block;
+        width: auto;
+    }
+
+    table.parameter tr {
+        border: 1px solid #dbe1e8;
+        border-radius: 5px;
+        box-shadow: 3px 3px rgba(0, 0, 0, .1);
+        margin-bottom: 20px;
+        padding: 8px 8px 0;
+    }
+
+    table.parameter td {
+        border: none;
+        border-bottom: 1px solid #dbe1e8;
+        display: flex;
+        justify-content: unset;
+    }
+
+        table.parameter td:last-child {
+            border-bottom: none;
+        }
+
+        table.parameter td::before {
+            content: attr(aria-label);
+            display: inline-block;
+            font-weight: bold;
+            text-align: left;
+            padding-right: 20px;
+            white-space: nowrap;
+            width: 30%;
+        }
+
+        table.parameter td.bt-area::before {
+            display: none;
+        }
+
+        table.parameter td.bt-area a {
+            background: #007aff;
+            border-radius: 5px;
+            color: #fff;
+            display: inline-block;
+            flex: 1;
+            height: 40px;
+            margin: 0 2px;
+            overflow: hidden;
+            width: auto;
+        }
+
+            table.parameter td.bt-area a::before {
+                align-items: center;
+                content: attr(aria-label);
+                display: flex;
+                font-size: 14px;
+                height: 100%;
+                justify-content: center;
+                line-height: 40px;
+                width: 100%;
+            }
+
+    table.parameter.header-check tr {
+        padding-left: 40px;
+        position: relative;
+    }
+
+    table.parameter.header-check td:first-child {
+        align-items: center;
+        background: #fff;
+        border-right: 1px solid #dbe1e8;
+        border-bottom: none;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        left: 0;
+        padding: 0;
+        position: absolute;
+        text-align: center;
+        top: 0;
+        width: 40px;
+    }
+
+        table.parameter.header-check td:first-child::before {
+            display: none;
+        }
+}
