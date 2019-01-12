@@ -30,6 +30,7 @@
 
 
 #body-content {
+    position: relative;
     width: 900px;
     margin-left: 400px;
 }
@@ -73,14 +74,6 @@ h3 {
     margin: 5px 0;
 }
 
-
-/*
-    Method
-*/
-.method-elem {
-    margin-left: 30px;
-}
-
 /*
     Table
 */
@@ -121,52 +114,33 @@ table {
     }
 
 
-    /*
-        Parameter Table
-    */
-    table.parameter {
-        margin: 30px 0;
-        border: 1px dotted;
-        padding: 5px 10px;
-        border-collapse: separate;
-        font-size: 0.9em;
+@media only screen and (max-width:750px) {
+    #body-container {
+        overflow-x: hidden;
     }
 
-        table.parameter caption {
-            text-align: left;
-            border-left: 0;
-            border-bottom: 0;
-            margin: 0;
-            padding: 0;
-        }
-
-        table.parameter td.omission {
-            width: 60px;
-        }
-
-        table.parameter th, table.parameter td.name {
-            width: 120px;
-        }
-
-        table.parameter td, table.parameter th {
-            border: 0;
-            padding: 5px 10px;
-            text-align: left;
-        }
-
-
-@media only screen and (max-width:750px) {
-    #top-menu-bt-cover {
+    #menu-container {
         z-index: 999;
-        display: block;
-        z-index: 2;
-        position: absolute;
+        position: fixed;
         top: 25px;
         right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: .5s;
+    }
+
+    #top-menu-bt-cover {
+        display: block;
+        z-index: 2;
         width: 30px;
         height: 25px;
         background-color: #fff;
-        transition: .5s;
+        margin: 0 auto;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
         #top-menu-bt-cover a {
@@ -177,16 +151,19 @@ table {
 
     #menu {
         z-index: 999;
-        width: 400px;
+        width: 300px;
         float: unset;
-        position: absolute;
-        right: -400px;
+        position: fixed;
+        right: -300px;
         background-color: #fff;
-        transition: 0.5s;
+        transition: .5s;
     }
 
     #body-content {
-        width: 100%;
+        width: auto;
         margin-left: 0;
+        margin: 20px;
+        right: 0;
+        transition: .5s;
     }
 }

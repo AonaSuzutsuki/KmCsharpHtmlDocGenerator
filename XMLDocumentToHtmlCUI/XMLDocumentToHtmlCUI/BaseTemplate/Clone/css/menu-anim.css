@@ -1,7 +1,11 @@
 ﻿.top-menu-bt-cover-click {
-    margin-right: 400px !important;
+    margin-right: 300px !important;
 }
 
 .menu-cover-click {
-    margin-right: 400px !important;
+    margin-right: 300px !important;
+}
+
+.body-content-click {
+    right: 300px !important;
 }

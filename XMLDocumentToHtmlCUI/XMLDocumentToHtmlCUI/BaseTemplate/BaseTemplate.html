@@ -2,10 +2,12 @@
 <html lang="ja">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
     <title>{$Title}</title>
     <link rel="stylesheet" type="text/css" href="{$RelativePath}css/main.css" />
     <link rel="stylesheet" type="text/css" href="{$RelativePath}css/menu-icon.css" />
     <link rel="stylesheet" type="text/css" href="{$RelativePath}css/menu-anim.css" />
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/table.css" />
     <link rel="stylesheet" href="{$RelativePath}syntaxhighlighter/css/shCore.css" type="text/css" />
     <link rel="stylesheet" href="{$RelativePath}syntaxhighlighter/css/shThemeDefault.css" type="text/css" />
     <script type="text/javascript" src="{$RelativePath}syntaxhighlighter/js/shCore.js"></script>
@@ -27,12 +29,14 @@
 
     <div id="body-container">
 
-        <div id="top-menu-bt-cover">
-            <a class="menu-trigger" href="javascript:void(0);">
-                <span></span>
-                <span></span>
-                <span></span>
-            </a>
+        <div id="menu-container">
+            <div id="top-menu-bt-cover">
+                <a class="menu-trigger" href="javascript:void(0);">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </a>
+            </div>
         </div>
 
         <div id="menu">

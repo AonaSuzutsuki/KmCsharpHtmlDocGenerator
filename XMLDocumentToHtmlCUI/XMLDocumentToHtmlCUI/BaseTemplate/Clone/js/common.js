@@ -4,6 +4,7 @@
 
 function menuBtClick() {
     $(this).toggleClass("active");
-    $("#top-menu-bt-cover").toggleClass("top-menu-bt-cover-click");
+    $("#menu-container").toggleClass("top-menu-bt-cover-click");
     $("#menu").toggleClass("menu-cover-click");
+    $("#body-content").toggleClass("body-content-click");
 }
