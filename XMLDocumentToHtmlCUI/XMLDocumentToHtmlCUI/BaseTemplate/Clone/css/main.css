@@ -1,17 +1,23 @@
 ﻿body {
     font-family: "Consolas", "Meiryo", Helvetica, "Bitstream Vera Sans Mono", "Courier New", Courier, monospace, sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
 }
 
 #body-container {
     position: relative;
-    margin-bottom: 50px;
 }
 
-    #body-container::after {
-        content: '';
-        clear: both;
-        display: block;
-    }
+.clearfix::after {
+    content: '';
+    clear: both;
+    display: block;
+}
+
+#top-menu-bt-cover {
+    display: none;
+}
 
 #menu {
     float: left;
@@ -21,6 +27,7 @@
         margin: 0 0 0 20px;
         padding: 0;
     }
+
 
 #body-content {
     width: 900px;
@@ -51,6 +58,11 @@ h1 {
 h2 {
     border-bottom: 1px solid;
     margin: 0;
+}
+
+h3 {
+    margin: 0;
+    padding: 10px 0 0 0;
 }
 
 
@@ -141,3 +153,40 @@ table {
             padding: 5px 10px;
             text-align: left;
         }
+
+
+@media only screen and (max-width:750px) {
+    #top-menu-bt-cover {
+        z-index: 999;
+        display: block;
+        z-index: 2;
+        position: absolute;
+        top: 25px;
+        right: 20px;
+        width: 30px;
+        height: 25px;
+        background-color: #fff;
+        transition: .5s;
+    }
+
+        #top-menu-bt-cover a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+    #menu {
+        z-index: 999;
+        width: 400px;
+        float: unset;
+        position: absolute;
+        right: -400px;
+        background-color: #fff;
+        transition: 0.5s;
+    }
+
+    #body-content {
+        width: 100%;
+        margin-left: 0;
+    }
+}

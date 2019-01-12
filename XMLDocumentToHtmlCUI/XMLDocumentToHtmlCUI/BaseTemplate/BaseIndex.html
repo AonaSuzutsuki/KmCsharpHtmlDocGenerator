@@ -4,13 +4,15 @@
     <meta charset="utf-8" />
     <title>{$Title}</title>
     <link rel="stylesheet" type="text/css" href="{$RelativePath}css/main.css" />
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/menu-icon.css" />
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/menu-anim.css" />
     <script src="{$RelativePath}js/jquery-1.7.1.min.js"></script>
+    <script src="{$RelativePath}js/common.js"></script>
     <style type="text/css">
-        
     </style>
     <script>
         $(function () {
-
+            registMenu();
         });
     </script>
 </head>
@@ -18,19 +20,19 @@
 
     <div id="body-container">
 
+        <div id="top-menu-bt-cover">
+            <a class="menu-trigger" href="javascript:void(0);">
+                <span></span>
+                <span></span>
+                <span></span>
+            </a>
+        </div>
+
         <div id="menu">
             {$Menu}
         </div>
 
-        <div id="body-content">
-
-            <div>
-                <h1>{$ClassName}</h1>
-            </div>
-
-            <br />
-            {$ClassComment}
-            <br />
+        <div id="body-content" class="clearfix">
 
             <div>
                 {if $HasClass == true}
