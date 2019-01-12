@@ -74,90 +74,90 @@ namespace XmlDocumentParser.EasyCs
         /// <param name="element">Added <see cref="Element"/>.</param>
         public void AddAttributesToElement(Element element)
         {
-            if (element != null)
+            if (element == null)
+                return;
+
+            if (element.Namespaces.Count > 0)
             {
-                if (element.Namespaces.Count > 0)
+                foreach (var elem in element.Namespaces)
                 {
-                    foreach (var elem in element.Namespaces)
+                    if (elem.Type == ElementType.Namespace)
                     {
-                        if (elem.Type == ElementType.Namespace)
+                        AddAttributesToElement(elem);
+                    }
+                    else
+                    {
+                        var fullname = elem.Namespace.IsRoot ? elem.Name : "{0}.{1}".FormatString(elem.Namespace, elem.Name);
+                        var classInfo = classMap.Get(elem.Id);
+                        if (classInfo != null)
                         {
-                            AddAttributesToElement(elem);
-                        }
-                        else
-                        {
-                            var fullname = elem.Namespace.IsRoot ? elem.Name : "{0}.{1}".FormatString(elem.Namespace, elem.Name);
-                            var classInfo = classMap.Get(elem.Id);
-                            if (classInfo != null)
+                            if (classInfo.ClassType == ClassType.Interface)
+                                elem.Type = ElementType.Interface;
+                            if (classInfo.ClassType == ClassType.Struct)
+                                elem.Type = ElementType.Struct;
+                            if (classInfo.ClassType == ClassType.Enum)
+                                elem.Type = ElementType.Enum;
+                            else if (classInfo.ClassType == ClassType.Delegate)
+                                elem.Type = ElementType.Delegate;
+
+                            elem.Name = classInfo.FullName;
+                            elem.IsAbstract = classInfo.IsAbstract;
+                            elem.IsSealed = classInfo.IsSealed;
+                            elem.IsStatic = classInfo.IsStatic;
+
+                            elem.InheritanceList.Add(classInfo.Inheritance, (item) => new Element()
                             {
-                                if (classInfo.ClassType == ClassType.Interface)
-                                    elem.Type = ElementType.Interface;
-                                if (classInfo.ClassType == ClassType.Struct)
-                                    elem.Type = ElementType.Struct;
-                                if (classInfo.ClassType == ClassType.Enum)
-                                    elem.Type = ElementType.Enum;
-                                else if (classInfo.ClassType == ClassType.Delegate)
-                                    elem.Type = ElementType.Delegate;
-
-                                elem.Name = classInfo.FullName;
-                                elem.IsAbstract = classInfo.IsAbstract;
-                                elem.IsSealed = classInfo.IsSealed;
-                                elem.IsStatic = classInfo.IsStatic;
-                                
-                                elem.InheritanceList.Add(classInfo.Inheritance, (item) => new Element()
-                                {
-                                    Accessibility = item.Accessibility,
-                                    Id = item.Id,
-                                    Name = item.FullName,
-                                    Namespace = item.Namespace,
-                                    Type = ElementType.Class
-                                });
-                            }
-
-                            AddAttributesToElement(elem);
+                                Accessibility = item.Accessibility,
+                                Id = item.Id,
+                                Name = item.FullName,
+                                Namespace = item.Namespace,
+                                Type = ElementType.Class
+                            });
                         }
+
+                        AddAttributesToElement(elem);
                     }
                 }
+            }
 
-                if (element.Members.Count > 0)
+            if (element.Members.Count > 0)
+            {
+                foreach (var method in element.Members)
                 {
-                    foreach (var method in element.Members)
+                    if (method.Type == MethodType.Method || method.Type == MethodType.Constructor)
                     {
-						if (method.Type == MethodType.Method || method.Type == MethodType.Constructor)
+                        var item = methodMap.Get(method.Id);
+                        if (item != null)
                         {
-                            var item = methodMap.Get(method.Id);
-                            if (item != null)
-                            {
-                                method.ParameterTypes = new List<string>
+                            method.ParameterTypes = new List<string>
                                 {
                                     { item.ParameterTypes, (_item) => _item }
                                 };
 
-                                if (item.IsStatic)
-                                    method.Type = MethodType.Function;
-                                if (item.IsExtensionMethod)
-                                    method.Type = MethodType.ExtensionMethod;
+                            if (item.IsStatic)
+                                method.Type = MethodType.Function;
+                            if (item.IsExtensionMethod)
+                                method.Type = MethodType.ExtensionMethod;
 
-                                method.Difinition = ConvertToDefinition(item, method);
-                                method.Name = item.Name;
-                                method.Accessibility = item.Accessibility;
-                                method.ReturnType = item.ReturnType;
-                            }
+                            method.Difinition = ConvertToDefinition(item, method);
+                            method.Name = item.Name;
+                            method.Accessibility = item.Accessibility;
+                            method.ReturnType = item.ReturnType;
                         }
-
-                        if (method.Type == MethodType.Property)
-                        {
-                            var item = methodMap.Get(method.Id);
-                            if (item != null)
-                            {
-                                method.Difinition = ConvertToDefinition(item, method);
-                                method.Name = item.Name;
-                                method.Accessibility = item.Accessibility;
-                                method.ReturnType = item.ReturnType;
-                            }
-                        }
-
                     }
+
+                    if (method.Type == MethodType.Property)
+                    {
+                        var item = methodMap.Get(method.Id);
+                        if (item != null)
+                        {
+                            method.Difinition = ConvertToDefinition(item, method);
+                            method.Name = item.Name;
+                            method.Accessibility = item.Accessibility;
+                            method.ReturnType = item.ReturnType;
+                        }
+                    }
+
                 }
             }
         }
