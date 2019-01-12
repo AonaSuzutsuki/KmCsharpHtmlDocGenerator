@@ -27,9 +27,19 @@ namespace XmlDocumentParser.CsXmlDocument
         Constructor,
 
         /// <summary>
+        /// Static method.
+        /// </summary>
+        Function,
+
+        /// <summary>
         /// Method.
         /// </summary>
         Method,
+
+        /// <summary>
+        /// Extension method.
+        /// </summary>
+        ExtensionMethod,
 
         /// <summary>
         /// Field.

@@ -13,6 +13,7 @@ namespace XmlDocumentParser.XmlWrapper
     {
 
         private readonly XmlDocument document = new XmlDocument();
+        private XmlNamespaceManager xmlNamespaceManager;
 
         /// <summary>
         /// Initialize xml document from xml text
@@ -21,6 +22,7 @@ namespace XmlDocumentParser.XmlWrapper
         public void LoadFromText(string xmlText)
         {
             document.LoadXml(xmlText);
+            xmlNamespaceManager = new XmlNamespaceManager(document.NameTable);
         }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace XmlDocumentParser.XmlWrapper
         public void LoadFromStream(Stream stream)
         {
             document.Load(stream);
+            xmlNamespaceManager = new XmlNamespaceManager(document.NameTable);
         }
 
         /// <summary>
@@ -39,6 +42,12 @@ namespace XmlDocumentParser.XmlWrapper
         public void LoadFromFile(string filepath)
         {
             document.Load(filepath);
+            xmlNamespaceManager = new XmlNamespaceManager(document.NameTable);
+        }
+
+        public void AddNamespace(string prefix, string uri)
+        {
+            xmlNamespaceManager.AddNamespace(prefix, uri);
         }
 
         /// <summary>
@@ -52,7 +61,7 @@ namespace XmlDocumentParser.XmlWrapper
             var values = new List<string>();
 
             // /items/item/property/property[@name='DegradationMax']
-            var nodeList = document.SelectNodes(xpath);
+            var nodeList = document.SelectNodes(xpath, xmlNamespaceManager);
             foreach (var xmlNode in nodeList)
             {
                 var attr = (xmlNode as XmlElement).GetAttribute(attributeName);
@@ -86,7 +95,7 @@ namespace XmlDocumentParser.XmlWrapper
         {
             var values = new List<string>();
 
-            var nodeList = document.SelectNodes(xpath);
+            var nodeList = document.SelectNodes(xpath, xmlNamespaceManager);
             foreach (var xmlNode in nodeList)
             {
                 string value = (xmlNode as XmlElement).InnerXml;

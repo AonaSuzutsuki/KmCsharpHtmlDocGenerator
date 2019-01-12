@@ -1,22 +1,43 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+﻿<!DOCTYPE html>
+<html lang="ja">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
     <title>{$Title}</title>
     <link rel="stylesheet" type="text/css" href="{$RelativePath}css/main.css" />
-    <script type="text/javascript" src="{$RelativePath}js/jquery-1.7.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/menu-icon.css" />
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/menu-anim.css" />
+    <link rel="stylesheet" type="text/css" href="{$RelativePath}css/table.css" />
+    <link rel="stylesheet" href="{$RelativePath}syntaxhighlighter/css/shCore.css" type="text/css" />
+    <link rel="stylesheet" href="{$RelativePath}syntaxhighlighter/css/shThemeDefault.css" type="text/css" />
+    <script type="text/javascript" src="{$RelativePath}syntaxhighlighter/js/shCore.js"></script>
+    <script type="text/javascript" src="{$RelativePath}syntaxhighlighter/js/shBrushCSharp.js"></script>
+    <script src="{$RelativePath}js/jquery-1.7.1.min.js"></script>
+    <script src="{$RelativePath}js/common.js"></script>
     <style type="text/css">
-        
     </style>
-    <script type="text/javascript">
+    <script>
         $(function () {
+            SyntaxHighlighter.defaults.toolbar = false;
+            SyntaxHighlighter.all();
 
+            registMenu();
         });
     </script>
 </head>
 <body>
 
     <div id="body-container">
+
+        <div id="menu-container">
+            <div id="top-menu-bt-cover">
+                <a class="menu-trigger" href="javascript:void(0);">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </a>
+            </div>
+        </div>
 
         <div id="menu">
             {$Menu}
@@ -25,7 +46,8 @@
         <div id="body-content">
             <div>
                 <h1>{$ClassName}</h1>
-                <span>Namespace: {$Namespace}</span>
+                <div>Namespace: {$Namespace}</div>
+                <div id="inherited">Inherited: {$Inheritance}</div>
             </div>
             <br />
             {$ClassComment}
@@ -35,12 +57,30 @@
             </div>
             {if $HasConstructor == true}
             <br />
-            <div id="methods">
+            <div id="constructors">
                 <h2>Constructors</h2>
                 {$ConstructorItems}
 
             </div>
             {/if $HasConstructor}
+
+            {if $HasFunction == true}
+            <br />
+            <div id="functions">
+                <h2>Functions</h2>
+                {$FunctionItems}
+
+            </div>
+            {/if $HasFunction}
+
+            {if $HasExtensionMethod == true}
+            <br />
+            <div id="extension-methods">
+                <h2>Extension Methods</h2>
+                {$ExtensionMethodItems}
+
+            </div>
+            {/if $HasExtensionMethod}
 
             {if $HasMethod == true}
             <br />
@@ -62,7 +102,7 @@
 
             {if $HasField == true}
             <br />
-            <div id="enums">
+            <div id="fields">
                 <h2>Fields</h2>
                 {$FieldItems}
 
@@ -71,5 +111,10 @@
         </div>
 
     </div>
+
+    <div id="footer">
+        XMLDocumentToHtml: Copyright (C) 2018 - 2019 Aona Suzutsuki.
+    </div>
+
 </body>
 </html>
