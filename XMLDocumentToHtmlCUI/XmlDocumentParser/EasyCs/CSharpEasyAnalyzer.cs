@@ -99,16 +99,16 @@ namespace XmlDocumentParser.EasyCs
                                 else if (classInfo.ClassType == ClassType.Delegate)
                                     elem.Type = ElementType.Delegate;
 
-                                elem.Name = classInfo.NameWithParameter;
+                                elem.Name = classInfo.FullName;
                                 elem.IsAbstract = classInfo.IsAbstract;
                                 elem.IsSealed = classInfo.IsSealed;
                                 elem.IsStatic = classInfo.IsStatic;
-
-                                elem.Inheritance.Add(classInfo.Inheritance, (item) => new Element()
+                                
+                                elem.InheritanceList.Add(classInfo.Inheritance, (item) => new Element()
                                 {
                                     Accessibility = item.Accessibility,
                                     Id = item.Id,
-                                    Name = item.NameWithParameter,
+                                    Name = item.FullName,
                                     Namespace = item.Namespace,
                                     Type = ElementType.Class
                                 });
@@ -123,25 +123,25 @@ namespace XmlDocumentParser.EasyCs
                 {
                     foreach (var method in element.Members)
                     {
-                        if (method.Type == MethodType.Method)
+						if (method.Type == MethodType.Method || method.Type == MethodType.Constructor)
                         {
                             var item = methodMap.Get(method.Id);
                             if (item != null)
                             {
-                                var (methodName, parameterTypes) = SplitMethodNameAndParameter(item.NameWithParameter);
-
-                                int cnt = parameterTypes.Length > method.MethodParameters.Count ? method.MethodParameters.Count : parameterTypes.Length;
-                                for (int i = 0; i < cnt; i++)
+                                method.ParameterTypes = new List<string>
                                 {
-                                    method.MethodParameters[i] = parameterTypes[i].Replace("<", "{").Replace(">", "}");
-                                }
+                                    { item.ParameterTypes, (_item) => _item }
+                                };
 
-                                method.Difinition = ConvertToDefinition(item, method);
-                                method.Name = methodName.Replace("<", "{").Replace(">", "}");
-                                method.Accessibility = item.Accessibility;
-                                method.ReturnType = item.ReturnType;
                                 if (item.IsStatic)
                                     method.Type = MethodType.Function;
+                                if (item.IsExtensionMethod)
+                                    method.Type = MethodType.ExtensionMethod;
+
+                                method.Difinition = ConvertToDefinition(item, method);
+                                method.Name = item.Name;
+                                method.Accessibility = item.Accessibility;
+                                method.ReturnType = item.ReturnType;
                             }
                         }
 
@@ -166,7 +166,7 @@ namespace XmlDocumentParser.EasyCs
 		{
             var sb = new StringBuilder();
 
-            if (classInfo.ClassType == ClassType.Method)
+			if (classInfo.ClassType == ClassType.Method || classInfo.ClassType == ClassType.Constructor)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
 
@@ -181,14 +181,15 @@ namespace XmlDocumentParser.EasyCs
                 if (classInfo.IsExtern)
                     sb.Append("extern ");
 
-                sb.AppendFormat("{0} ", classInfo.ReturnType);
+                if (classInfo.ClassType == ClassType.Method)
+                    sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0}", classInfo.Name);
-                sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member));
+				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, (item) => item));
             }
             else if (classInfo.ClassType == ClassType.Property)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
-                sb.AppendFormat("{0} ", MethodParameterConverter.ResolveType(classInfo.ReturnType));
+                sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0} {{ ", classInfo.Name);
 
                 foreach (var accessors in classInfo.Accessors)
@@ -199,24 +200,33 @@ namespace XmlDocumentParser.EasyCs
                         sb.AppendFormat("{0} {1}; ", accessors.Accessibility.ToString().ToLower(), accessors.Name);
                 }
 
-                sb.AppendFormat("}}", classInfo.Name);
+                sb.AppendFormat("}}");
             }
+
+			var tree = CSharpSyntaxTree.ParseText(sb.ToString());
             
-            return sb.ToString();
+			return MethodParameterConverter.ResolveGenericsTypeToHtml(sb.ToString());
+		}
+
+		private static string ConvertSyntaxHighlightText(string defCode)
+		{
+			//(?<accessibility>[a-z ]+)[\s]+(?<returnType>[a-zA-Z0-9\[\]<>,\(\) ]+)[\s]+(?<methodName>[a-zA-Z0-9]+)\((?<arguments>[a-zA-Z0-9<>,. ]*)\);
+			return null;
 		}
 
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
         {
             var semanticModel = compilation.GetSemanticModel(tree);
-            var classSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
-            var inSyntaxArray = tree.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>();
-            var enumSyntaxArray = tree.GetRoot().DescendantNodes().OfType<EnumDeclarationSyntax>();
-            var structSyntaxArray = tree.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>();
-            var delegateSyntaxArray = tree.GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>();
-            var methodSyntaxArray = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>();
-            var constructorSyntaxArray = tree.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>();
-            var propertySyntaxArray = tree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-            var fieldSyntaxArray = tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>();
+            var nodes = tree.GetRoot().DescendantNodes();
+            var classSyntaxArray = nodes.OfType<ClassDeclarationSyntax>();
+            var inSyntaxArray = nodes.OfType<InterfaceDeclarationSyntax>();
+            var enumSyntaxArray = nodes.OfType<EnumDeclarationSyntax>();
+            var structSyntaxArray = nodes.OfType<StructDeclarationSyntax>();
+            var delegateSyntaxArray = nodes.OfType<DelegateDeclarationSyntax>();
+            var methodSyntaxArray = nodes.OfType<MethodDeclarationSyntax>();
+            var constructorSyntaxArray = nodes.OfType<ConstructorDeclarationSyntax>();
+            var propertySyntaxArray = nodes.OfType<PropertyDeclarationSyntax>();
+            var fieldSyntaxArray = nodes.OfType<FieldDeclarationSyntax>();
             
             void PutDeclaration(Dictionary<string, ClassInfo> dic, IEnumerable<SyntaxNode> syntaxNodes, ClassType classType)
             {
@@ -276,7 +286,7 @@ namespace XmlDocumentParser.EasyCs
             PutDeclaration(classMap, structSyntaxArray, ClassType.Struct);
             PutDeclaration(classMap, delegateSyntaxArray, ClassType.Delegate);
             PutDeclaration(methodMap, methodSyntaxArray, ClassType.Method);
-            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Method);
+            PutDeclaration(methodMap, constructorSyntaxArray, ClassType.Constructor);
             PutDeclaration(methodMap, propertySyntaxArray, ClassType.Property);
         }
 
@@ -285,14 +295,15 @@ namespace XmlDocumentParser.EasyCs
             var id = symbol.GetDocumentationCommentId();
             var fullClassName = symbol.ToString();
             var namespaceName = symbol.ContainingSymbol.ToString();
+            var nameWithParameter = fullClassName.Replace("{0}.".FormatString(namespaceName), "");
+            (string methodName, string[] parameterTypes) = SplitMethodNameAndParameter(nameWithParameter);
 
             var classInfo = new ClassInfo
             {
                 Id = id,
-                FullName = fullClassName,
+                FullName = nameWithParameter,
                 Namespace = new NamespaceItem(namespaceName),
-                Name = symbol.Name,
-                NameWithParameter = fullClassName.Replace("{0}.".FormatString(namespaceName), ""),
+                Name = methodName,
                 Accessibility = symbol.DeclaredAccessibility,
                 ClassType = classType,
                 IsStatic = symbol.IsStatic,
@@ -305,9 +316,15 @@ namespace XmlDocumentParser.EasyCs
 
             if (symbol is IMethodSymbol)
             {
+                foreach (var type in ((IMethodSymbol)symbol).Parameters)
+                {
+                    classInfo.ParameterTypes.Add(type.ToString());
+                }
+
                 var returnType = ((IMethodSymbol)symbol).ReturnType;
                 classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
                 classInfo.ReturnType = returnType.ToString();
+				classInfo.IsExtensionMethod = ((IMethodSymbol)symbol).IsExtensionMethod;
             }
 
             return classInfo;
@@ -323,7 +340,7 @@ namespace XmlDocumentParser.EasyCs
                 var parameterStr = match.Groups["parameterStr"].ToString();
                 var parameters = new List<string>();
 
-                var paramRegex = new Regex("[a-zA-Z.]+<[a-zA-Z,. ]+>[.a-zA-Z]*|[.a-zA-Z]+");
+				var paramRegex = new Regex("[a-zA-Z0-9.]+<[a-zA-Z0-9,. ]+>[.a-zA-Z0-9]*|[.a-zA-Z0-9]+");
                 var paramMatch = paramRegex.Match(parameterStr);
                 while (paramMatch.Success)
                 {
@@ -382,6 +399,10 @@ namespace XmlDocumentParser.EasyCs
                     }
                 }
             }
+
+            if (!assemblyNameMap.ContainsKey("mscorlib"))
+                assemblyNameMap.Add("mscorlib", typeof(object).Assembly);
+
             return (csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
         }
 

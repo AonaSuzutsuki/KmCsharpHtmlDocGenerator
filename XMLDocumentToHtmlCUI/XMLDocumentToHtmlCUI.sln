@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlDocumentExtensions", "Xm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlDocumentParserTests", "XmlDocumentParserTests\XmlDocumentParserTests.csproj", "{F9C430D3-F866-4677-9CE8-8993D7D1AC6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlDocumentExtensionsTests", "XmlDocumentExtensionsTests\XmlDocumentExtensionsTests.csproj", "{D0EC980E-E584-429C-BBFB-4840EB79112A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F9C430D3-F866-4677-9CE8-8993D7D1AC6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9C430D3-F866-4677-9CE8-8993D7D1AC6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9C430D3-F866-4677-9CE8-8993D7D1AC6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0EC980E-E584-429C-BBFB-4840EB79112A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0EC980E-E584-429C-BBFB-4840EB79112A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0EC980E-E584-429C-BBFB-4840EB79112A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0EC980E-E584-429C-BBFB-4840EB79112A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

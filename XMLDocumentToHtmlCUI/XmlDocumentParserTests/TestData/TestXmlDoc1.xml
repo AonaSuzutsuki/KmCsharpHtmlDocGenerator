@@ -1,0 +1,32 @@
+﻿<?xml version="1.0"?>
+<doc>
+  <assembly>
+    <name>TestClass</name>
+  </assembly>
+  <members>
+    <member name="T:Test.TestClass">
+      <summary>
+        Test class.
+      </summary>
+    </member>
+    <member name="P:Test.TestClass.Value">
+      <summary>
+        Test value.
+      </summary>
+      <value>Value.</value>
+    </member>
+    <member name="M:Test.TestClass.#ctor(System.Int32,System.String)">
+      <summary>
+        Test constructor.
+      </summary>
+      <param name="ivalue">Int value.</param>
+      <param name="svalue">String value.</param>
+    </member>
+    <member name="M:Test.TestClass.Method">
+      <summary>
+        Test method.
+      </summary>
+      <returns>Return int.</returns>
+    </member>
+  </members>
+</doc>

@@ -53,12 +53,12 @@ namespace XMLDocumentToHtmlCUI
         static void ShowHelp()
         {
             var sb = new StringBuilder();
-            sb.AppendLine(" Convert C# XML Document to HTML.");
-            sb.AppendLine(" Copyright (C) 2018 Aona Suzutsuki.");
-            sb.AppendFormat("\n\t{0}\t{1}\n", "-h", "Show help.");
-            sb.AppendFormat("\t{0}\t{1}\n", "-b", "Specify the directory where the template file is stored. If you specify this, you can output with your own template.");
-            sb.AppendFormat("\t{0}\t{1}\n", "-o", "Change the directory path of the output destination.");
-            sb.AppendFormat("\t{0}\t{1}\n", "-s", "csproj file and Source codes directory.");
+            sb.AppendLine("Convert C# XML Document to HTML.");
+            sb.AppendLine("Copyright (C) 2018 - 2019 Aona Suzutsuki.");
+            sb.AppendFormat("\n{0}\t{1}\n", "-h", "Show help.");
+            sb.AppendFormat("{0}\t{1}\n", "-b", "Specify the directory where the template file is stored. If you specify this, you can output with your own template.");
+            sb.AppendFormat("{0}\t{1}\n", "-o", "Change the directory path of the output destination.");
+            sb.AppendFormat("{0}\t{1}\n", "-s", "csproj file and Source codes directory.");
             Console.WriteLine(sb);
         }
 

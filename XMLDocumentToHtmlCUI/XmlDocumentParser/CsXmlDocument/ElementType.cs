@@ -31,10 +31,19 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         Interface,
 
+        /// <summary>
+        /// Enum.
+        /// </summary>
         Enum,
-
+        
+        /// <summary>
+        /// Struct.
+        /// </summary>
         Struct,
 
+        /// <summary>
+        /// Delegate.
+        /// </summary>
         Delegate,
     }
 }

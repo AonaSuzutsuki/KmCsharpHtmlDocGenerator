@@ -73,12 +73,12 @@ namespace XmlDocumentParser.CsXmlDocument
                 foreach (var val in vals)
                 {
                     var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(val));
-                    var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(val));
+                    var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(val), false);
                     value = RemoveFirstLastBreakLine(value);
 
                     var member = ConvertMemberNameToMember(val);
                     member.Value = value;
-                    member.ReturnComment = ret;
+                    member.ReturnComment = ret ?? string.Empty;
 
                     var xparams = reader.GetAttributes("name", "/doc/members/member[@name=\"{0}\"]/param".FormatString(val));
                     foreach (var param in xparams)
@@ -87,7 +87,7 @@ namespace XmlDocumentParser.CsXmlDocument
                         var value2 = reader.GetValue(path);
                         value2 = RemoveFirstLastBreakLine(value2);
 
-                        member.Parameters.Add(param, value2);
+                        member.ParameterNames.Add(param, value2);
                     }
                     members.Add(member);
                 }
@@ -251,13 +251,21 @@ namespace XmlDocumentParser.CsXmlDocument
                     }
                 }
 
-                var splits = parameterText.Split(',');
-                for (int i = 0; i < splits.Length; i++)
+                if (string.IsNullOrEmpty(parameterText))
                 {
-                    splits[i] = ResolveSplitParameter(splits[i]);
+                    return new string[0];
                 }
+                else
+                {
+                    var splits = parameterText.Split(',');
+                    for (int i = 0; i < splits.Length; i++)
+                    {
+                        var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));
+                        splits[i] = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+                    }
 
-                return splits;
+                    return splits;
+                }
             }
 
             var member = new Member();
@@ -274,7 +282,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 member.Type = type;
                 member.Namespace = nameSpace;
                 member.Name = methodName;
-                member.MethodParameters.AddRange(parameters);
+                member.ParameterTypes.AddRange(parameters);
             }
 
             member.Id = text;

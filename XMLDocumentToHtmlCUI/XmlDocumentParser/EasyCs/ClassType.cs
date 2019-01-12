@@ -47,6 +47,11 @@ namespace XmlDocumentParser.EasyCs
         Method,
 
         /// <summary>
+        /// The constructor.
+        /// </summary>
+        Constructor,
+
+        /// <summary>
         /// The property.
         /// </summary>
         Property

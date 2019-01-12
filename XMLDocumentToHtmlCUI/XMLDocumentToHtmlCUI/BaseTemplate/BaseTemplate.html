@@ -28,7 +28,7 @@
             <div>
                 <h1>{$ClassName}</h1>
                 <div>Namespace: {$Namespace}</div>
-                <div id="inheritanced">Inherited: {$Inheritance}</div>
+                <div id="inherited">Inherited: {$Inheritance}</div>
             </div>
             <br />
             {$ClassComment}
@@ -38,7 +38,7 @@
             </div>
             {if $HasConstructor == true}
             <br />
-            <div id="methods">
+            <div id="constructors">
                 <h2>Constructors</h2>
                 {$ConstructorItems}
 
@@ -47,12 +47,21 @@
 
             {if $HasFunction == true}
             <br />
-            <div id="methods">
+            <div id="functions">
                 <h2>Functions</h2>
                 {$FunctionItems}
 
             </div>
             {/if $HasFunction}
+
+            {if $HasExtensionMethod == true}
+            <br />
+            <div id="extension-methods">
+                <h2>Extension Methods</h2>
+                {$ExtensionMethodItems}
+
+            </div>
+            {/if $HasExtensionMethod}
 
             {if $HasMethod == true}
             <br />
@@ -74,7 +83,7 @@
 
             {if $HasField == true}
             <br />
-            <div id="enums">
+            <div id="fields">
                 <h2>Fields</h2>
                 {$FieldItems}
 
@@ -83,5 +92,10 @@
         </div>
 
     </div>
+
+    <div id="footer">
+        XMLDocumentToHtml: Copyright (C) 2018 - 2019 Aona Suzutsuki.
+    </div>
+
 </body>
 </html>

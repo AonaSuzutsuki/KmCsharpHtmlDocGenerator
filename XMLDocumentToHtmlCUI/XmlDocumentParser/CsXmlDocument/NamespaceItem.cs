@@ -19,6 +19,9 @@ namespace XmlDocumentParser.CsXmlDocument
         /// </summary>
         public int NamespaceCount { get => items.Count; }
 
+        /// <summary>
+        /// Returns whether it is Root or not.
+        /// </summary>
         public bool IsRoot
         {
             get
@@ -28,6 +31,9 @@ namespace XmlDocumentParser.CsXmlDocument
         }
         #endregion
 
+        /// <summary>
+        /// Initialize NamespaceItem without default namespace.
+        /// </summary>
         public NamespaceItem()
         {
             items = new List<string>();
@@ -115,6 +121,32 @@ namespace XmlDocumentParser.CsXmlDocument
                     sb.AppendFormat("{0}", item);
             }
             return sb.ToString();
+        }
+
+
+        /// <summary>
+        /// Object.GetHashCode()
+        /// </summary>
+        /// <returns>The hash value.</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Check the equivalence of this object and the argument object.
+        /// </summary>
+        /// <param name="obj">Target object.</param>
+        /// <returns>It returns True if equivalent, False otherwise.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            
+            var namespaceItem = (NamespaceItem)obj;
+            return items.SequenceEqual(namespaceItem.items);
         }
     }
 }
