@@ -45,11 +45,24 @@ namespace XMLDocumentToHtmlCUI
             var root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
             
             var parser = new CSharpEasyAnalyzer();
+            parser.SyntacticAnalysisProgress += Parser_SyntacticAnalysisProgress;
+            parser.CodeAnalysisProgress += Parser_CodeAnalysisProgress;
+
             parser.Parse(sourceFilesDir);
             parser.AddAttributesToElement(root);
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk(directoryName);
+        }
+
+        private static void Parser_CodeAnalysisProgress(object sender, CSharpEasyAnalyzer.ParseProgressEventArgs eventArgs)
+        {
+            Console.WriteLine("Code Analysis {0}%\t{1}", eventArgs.Percentage, eventArgs.Filename);
+        }
+
+        private static void Parser_SyntacticAnalysisProgress(object sender, CSharpEasyAnalyzer.ParseProgressEventArgs eventArgs)
+        {
+            Console.WriteLine("Syntactic Analysis {0}%\t{1}", eventArgs.Percentage, eventArgs.Filename);
         }
 
         static string[] GetXmlFiles(string sourceDir)

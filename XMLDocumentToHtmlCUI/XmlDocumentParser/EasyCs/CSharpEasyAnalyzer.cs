@@ -23,6 +23,32 @@ namespace XmlDocumentParser.EasyCs
     public class CSharpEasyAnalyzer
     {
 
+        #region Events
+        public class ParseProgressEventArgs : EventArgs
+        {
+            public int Max { get; }
+
+            public int Current { get; }
+
+            public int Percentage { get; }
+
+            public string Filename { get; }
+
+			public ParseProgressEventArgs(int max, int current, string filename)
+            {
+                Max = max;
+                Current = current;
+                Percentage = (int)((double)Current / Max * 100);
+                Filename = filename;
+            }
+        }
+
+		public delegate void ParseProgressEventHandler(object sender, ParseProgressEventArgs eventArgs);
+
+        public event ParseProgressEventHandler SyntacticAnalysisProgress;
+        public event ParseProgressEventHandler CodeAnalysisProgress;
+        #endregion
+
         private readonly Dictionary<string, ClassInfo> classMap = new Dictionary<string, ClassInfo>();
         private readonly Dictionary<string, ClassInfo> methodMap = new Dictionary<string, ClassInfo>();
 
@@ -37,14 +63,16 @@ namespace XmlDocumentParser.EasyCs
 
             var (csFilePathArray, referenceArray) = GetCsFiles(csProjDirPath);
             var syntaxTrees = new List<SyntaxTree>();
-            foreach (var filename in csFilePathArray)
+            foreach (var tuple in csFilePathArray.Select((v, i) => new { Value = v, Index = i }))
             {
-                var text = File.ReadAllText(filename).Replace("\r\n", "\r").Replace("\r", "\n");
+                var text = File.ReadAllText(tuple.Value).Replace("\r\n", "\r").Replace("\r", "\n");
                 text = RemoveComments(text);
 
                 var namespaceItem = GetNamespace(text);
 
                 syntaxTrees.Add(CSharpSyntaxTree.ParseText(text));
+
+                SyntacticAnalysisProgress?.Invoke(this, new ParseProgressEventArgs(csFilePathArray.Length, tuple.Index + 1, tuple.Value));
             }
 
             var metadataReferences = new List<MetadataReference>
@@ -62,9 +90,11 @@ namespace XmlDocumentParser.EasyCs
             //};
             var compilation = CSharpCompilation.Create("sample", syntaxTrees, metadataReferences);
 
-            foreach (var tree in syntaxTrees)
+            foreach (var tuple in syntaxTrees.Select((v, i) => new { Value = v, Index = i }))
             {
-                RoslynAnalyze(tree, compilation);
+                RoslynAnalyze(tuple.Value, compilation);
+
+                CodeAnalysisProgress?.Invoke(this, new ParseProgressEventArgs(csFilePathArray.Length, tuple.Index + 1, tuple.Value.FilePath));
             }
         }
 
@@ -391,7 +421,6 @@ namespace XmlDocumentParser.EasyCs
                             var assemblyPath = GetSystemAssemblyPath(targetFramework, reference);
                             var assembly = Assembly.LoadFrom(assemblyPath);
                             assemblyNameMap.Add(reference, assembly);
-                            Console.WriteLine("found \"{0}\" assembly.", reference);
                         }
                         catch
                         {
