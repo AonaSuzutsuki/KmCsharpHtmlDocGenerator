@@ -391,10 +391,11 @@ namespace XmlDocumentParser.EasyCs
                             var assemblyPath = GetSystemAssemblyPath(targetFramework, reference);
                             var assembly = Assembly.LoadFrom(assemblyPath);
                             assemblyNameMap.Add(reference, assembly);
+                            Console.WriteLine("found \"{0}\" assembly.", reference);
                         }
                         catch
                         {
-                            Console.WriteLine();
+                            Console.WriteLine("not found \"{0}\" assembly.", reference);
                         }
                     }
                 }
@@ -414,6 +415,8 @@ namespace XmlDocumentParser.EasyCs
                 @"C:\Windows\assembly\GAC_MSIL",
                 "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/gac",
                 "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/Current/lib/mono", targetFramework),
+                "/usr/lib/mono/gac",
+                "{0}/{1}-api".FormatString("/usr/lib/mono", targetFramework),
             };
 
             foreach (var systemAssemblyDir in systemAssemblyDirList)
