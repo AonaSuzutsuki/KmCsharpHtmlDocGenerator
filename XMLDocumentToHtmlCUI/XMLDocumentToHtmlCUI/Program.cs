@@ -34,8 +34,10 @@ namespace XMLDocumentToHtmlCUI
             }
 
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
-            var sourceFilesDir = envParser.GetOption("-s") ?? "src";
-            var inputFiles = envParser.GetValues();
+            var sourceFilesDir = envParser.GetOption("-s") ?? "src"; // XmlDocumentExtensions.xml  XmlDocumentParser.xml XmlDocumentToHtml.xml
+            var inputFiles = envParser.GetValues(); // GetXmlFiles(sourceFilesDir); // envParser.GetValues();
+            if (inputFiles.Length < 1)
+                inputFiles = GetXmlFiles(sourceFilesDir);
             var outputPath = envParser.GetOutputFilepath() ?? PathUtils.UnifiedPathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
             var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
@@ -48,6 +50,12 @@ namespace XMLDocumentToHtmlCUI
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk(directoryName);
+        }
+
+        static string[] GetXmlFiles(string sourceDir)
+        {
+            var files = Directory.GetFiles(sourceDir, "*.xml");
+            return files;
         }
 
         static void ShowHelp()
