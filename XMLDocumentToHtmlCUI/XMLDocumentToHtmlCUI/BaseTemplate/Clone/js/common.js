@@ -1,4 +1,11 @@
-﻿function registMenu() {
+﻿
+/*
+ *
+ * Copyright (C) 2018 - 2019 Aona Suzutsuki.
+ * 
+ */
+
+function registMenu() {
     $('.menu-trigger').on('click', menuBtClick);
 }
 
