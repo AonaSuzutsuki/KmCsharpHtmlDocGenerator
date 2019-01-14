@@ -18,6 +18,10 @@ table.parameter {
         word-break: break-all;
     }
 
+    table.parameter .elem-name {
+        width: 100px;
+    }
+
     table.parameter div {
         word-break: break-all;
         display: inline;
@@ -37,6 +41,10 @@ table.parameter {
     table.parameter tr,
     table.parameter td {
         display: block;
+        width: auto;
+    }
+
+    table.parameter .elem-name {
         width: auto;
     }
 
