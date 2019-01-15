@@ -24,7 +24,7 @@ namespace XmlDocumentParser.EasyCs
     {
 
         #region Events
-        public class ParseProgressEventArgs : EventArgs
+        public class CSharpParseProgressEventArgs : EventArgs
         {
             public int Max { get; }
 
@@ -34,7 +34,7 @@ namespace XmlDocumentParser.EasyCs
 
             public string Filename { get; }
 
-			public ParseProgressEventArgs(int max, int current, string filename)
+			public CSharpParseProgressEventArgs(int max, int current, string filename)
             {
                 Max = max;
                 Current = current;
@@ -43,10 +43,11 @@ namespace XmlDocumentParser.EasyCs
             }
         }
 
-		public delegate void ParseProgressEventHandler(object sender, ParseProgressEventArgs eventArgs);
+		public delegate void CSharpParseProgressEventHandler(object sender, CSharpParseProgressEventArgs eventArgs);
 
-        public event ParseProgressEventHandler SyntacticAnalysisProgress;
-        public event ParseProgressEventHandler CodeAnalysisProgress;
+		public event CSharpParseProgressEventHandler SyntacticAnalysisProgress;
+		public event CSharpParseProgressEventHandler CodeAnalysisProgress;
+		public event EventHandler CodeAnalysisCompleted;
         #endregion
 
         private readonly Dictionary<string, ClassInfo> classMap = new Dictionary<string, ClassInfo>();
@@ -70,9 +71,9 @@ namespace XmlDocumentParser.EasyCs
 
                 var namespaceItem = GetNamespace(text);
 
-                syntaxTrees.Add(CSharpSyntaxTree.ParseText(text));
+				syntaxTrees.Add(CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, tuple.Value));
 
-                SyntacticAnalysisProgress?.Invoke(this, new ParseProgressEventArgs(csFilePathArray.Length, tuple.Index + 1, tuple.Value));
+                SyntacticAnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(csFilePathArray.Length, tuple.Index + 1, tuple.Value));
             }
 
             var metadataReferences = new List<MetadataReference>
@@ -94,8 +95,10 @@ namespace XmlDocumentParser.EasyCs
             {
                 RoslynAnalyze(tuple.Value, compilation);
 
-                CodeAnalysisProgress?.Invoke(this, new ParseProgressEventArgs(csFilePathArray.Length, tuple.Index + 1, tuple.Value.FilePath));
+                CodeAnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(csFilePathArray.Length, tuple.Index + 1, tuple.Value.FilePath));
             }
+
+			CodeAnalysisCompleted?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

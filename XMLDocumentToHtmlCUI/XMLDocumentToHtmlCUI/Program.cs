@@ -17,7 +17,7 @@ using XmlDocumentParser.CommonPath;
 namespace XMLDocumentToHtmlCUI
 {
     class Program
-    {
+    {      
         static void Main(string[] args)
         {
             var envParser = new Parser.EnvArgumentParser(args);
@@ -47,7 +47,9 @@ namespace XMLDocumentToHtmlCUI
             var parser = new CSharpEasyAnalyzer();
             parser.SyntacticAnalysisProgress += Parser_SyntacticAnalysisProgress;
             parser.CodeAnalysisProgress += Parser_CodeAnalysisProgress;
+			parser.CodeAnalysisCompleted += Parser_CodeAnalysisCompleted;
 
+			Console.WriteLine("Start C# code analysis.");
             parser.Parse(sourceFilesDir);
             parser.AddAttributesToElement(root);
 
@@ -55,14 +57,19 @@ namespace XMLDocumentToHtmlCUI
             converter.WriteToDisk(directoryName);
         }
 
-        private static void Parser_CodeAnalysisProgress(object sender, CSharpEasyAnalyzer.ParseProgressEventArgs eventArgs)
-        {
-            Console.WriteLine("Code Analysis {0}%\t{1}", eventArgs.Percentage, eventArgs.Filename);
+		private static void Parser_CodeAnalysisCompleted(object sender, EventArgs e)
+		{
+			Console.WriteLine("Completed C# code analysis.");
         }
 
-        private static void Parser_SyntacticAnalysisProgress(object sender, CSharpEasyAnalyzer.ParseProgressEventArgs eventArgs)
+        private static void Parser_CodeAnalysisProgress(object sender, CSharpEasyAnalyzer.CSharpParseProgressEventArgs eventArgs)
         {
-            Console.WriteLine("Syntactic Analysis {0}%\t{1}", eventArgs.Percentage, eventArgs.Filename);
+			Console.WriteLine(" Code Analysis {0,3:d}%\t{1}", eventArgs.Percentage, eventArgs.Filename);
+        }
+
+        private static void Parser_SyntacticAnalysisProgress(object sender, CSharpEasyAnalyzer.CSharpParseProgressEventArgs eventArgs)
+        {
+			Console.WriteLine(" Syntactic Analysis {0,3:d}%\t{1}", eventArgs.Percentage, eventArgs.Filename);
         }
 
         static string[] GetXmlFiles(string sourceDir)
