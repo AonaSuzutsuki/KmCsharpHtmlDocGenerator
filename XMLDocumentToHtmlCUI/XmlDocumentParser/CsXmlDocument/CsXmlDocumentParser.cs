@@ -45,6 +45,14 @@ namespace XmlDocumentParser.CsXmlDocument
 		#region Events
 		public class XmlDocumentParseProgressEventArgs : EventArgs
 		{
+            public enum ParseType
+            {
+                First,
+                Second
+            }
+
+            public ParseType Type { get; }
+
 			public int Max { get; }
 
 			public int Current { get; }
@@ -53,8 +61,9 @@ namespace XmlDocumentParser.CsXmlDocument
 
 			public string Filename { get; }
 
-			public XmlDocumentParseProgressEventArgs(int max, int current, string filename)
+			public XmlDocumentParseProgressEventArgs(ParseType type, int max, int current, string filename)
 			{
+                Type = type;
 				Max = max;
 				Current = current;
 				Percentage = (int)((double)Current / Max * 100);
@@ -64,8 +73,9 @@ namespace XmlDocumentParser.CsXmlDocument
 
 		public delegate void XmlDocumentParseProgressEventHandler(object sender, XmlDocumentParseProgressEventArgs eventArgs);
 
-		public event XmlDocumentParseProgressEventHandler FirstParseProgress;
-		public event XmlDocumentParseProgressEventHandler SecondParseProgress;
+        private int eventIndex = 0;
+
+		public event XmlDocumentParseProgressEventHandler ParseProgress;
 		public event EventHandler ParseCompleted;
 		#endregion
 
@@ -84,7 +94,8 @@ namespace XmlDocumentParser.CsXmlDocument
 		/// <returns type="Element">Parsed tree structure elements.</returns>
 		public Element Parse()
 		{
-			var members = FirstParse(XmlPath);
+            eventIndex = 0;
+            var members = FirstParse(XmlPath);
 			TreeElement = SecondParse(members);
 
 			ParseCompleted?.Invoke(this, new EventArgs());
@@ -121,7 +132,8 @@ namespace XmlDocumentParser.CsXmlDocument
 					}
 					members.Add(member);
 
-					FirstParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(vals.Count, tuple.Index, tuple.Value));
+                    ParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(
+                        XmlDocumentParseProgressEventArgs.ParseType.First, vals.Count * 2, ++eventIndex, tuple.Value));
 				}
 			}
 			return members;
@@ -203,7 +215,8 @@ namespace XmlDocumentParser.CsXmlDocument
 
 				preElem = root;
 
-				SecondParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(members.Count, tuple.Index, tuple.Value.Id));
+                ParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(
+                    XmlDocumentParseProgressEventArgs.ParseType.Second, members.Count * 2, ++eventIndex, tuple.Value.Id));
 			}
 			return root;
 		}
@@ -324,13 +337,17 @@ namespace XmlDocumentParser.CsXmlDocument
 			return member;
 		}
 
-		/// <summary>
-		/// Parse multiple Files.
-		/// </summary>
-		/// <param name="files">Array of filepath</param>
-		/// <param name="rootName">Root name.</param>
-		/// <returns>Parsed element.</returns>
-		public static Element ParseMultiFiles(string[] files, string rootName = "Root")
+        /// <summary>
+        /// Parse multiple Files.
+        /// </summary>
+        /// <param name="files">Array of filepath</param>
+        /// <param name="rootName">Root name.</param>
+        /// <param name="parseProgressEventHandler"></param>
+        /// <param name="completed"></param>
+        /// <param name="startAct"></param>
+        /// <returns>Parsed element.</returns>
+        public static Element ParseMultiFiles(string[] files, string rootName = "Root",
+            XmlDocumentParseProgressEventHandler parseProgressEventHandler = null, EventHandler completed = null, Action<string> startAct = null)
 		{
 			Element root = new Element
 			{
@@ -339,8 +356,13 @@ namespace XmlDocumentParser.CsXmlDocument
 			};
 			foreach (var input in files)
 			{
-				var parser = new CsXmlDocumentParser(input);
-				root.Namespaces.AddRange(parser.Parse().Namespaces);
+                startAct?.Invoke(input);
+                var parser = new CsXmlDocumentParser(input);
+                if (parseProgressEventHandler != null)
+                    parser.ParseProgress += parseProgressEventHandler;
+                if (completed != null)
+                    parser.ParseCompleted = completed;
+                root.Namespaces.AddRange(parser.Parse().Namespaces);
 			}
 			return root;
 		}
