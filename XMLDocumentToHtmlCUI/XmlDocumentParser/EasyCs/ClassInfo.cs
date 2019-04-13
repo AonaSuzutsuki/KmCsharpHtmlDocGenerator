@@ -19,20 +19,95 @@ namespace XmlDocumentParser.EasyCs
         /// Accessibility of this element. Require to analyze source code.
         /// </summary>
         public Accessibility Accessibility { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the class.
+        /// </summary>
+        /// <value>The type of the class.</value>
         public ClassType ClassType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is static.
+        /// </summary>
+        /// <value><c>true</c> if is static; otherwise, <c>false</c>.</value>
         public bool IsStatic { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is abstract.
+        /// </summary>
+        /// <value><c>true</c> if is abstract; otherwise, <c>false</c>.</value>
         public bool IsAbstract { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is sealed.
+        /// </summary>
+        /// <value><c>true</c> if is sealed; otherwise, <c>false</c>.</value>
         public bool IsSealed { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is extern.
+        /// </summary>
+        /// <value><c>true</c> if is extern; otherwise, <c>false</c>.</value>
 		public bool IsExtern { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is partial.
+        /// </summary>
+        /// <value><c>true</c> if is partial; otherwise, <c>false</c>.</value>
 		public bool IsPartial { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is override.
+        /// </summary>
+        /// <value><c>true</c> if is override; otherwise, <c>false</c>.</value>
 		public bool IsOverride { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is virtual.
+        /// </summary>
+        /// <value><c>true</c> if is virtual; otherwise, <c>false</c>.</value>
 		public bool IsVirtual { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is async.
+        /// </summary>
+        /// <value><c>true</c> if is async; otherwise, <c>false</c>.</value>
 		public bool IsAsync { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:XmlDocumentParser.EasyCs.ClassInfo"/> is extension method.
+        /// </summary>
+        /// <value><c>true</c> if is extension method; otherwise, <c>false</c>.</value>
 		public bool IsExtensionMethod { get; set; }
+
+        /// <summary>
+        /// Gets or sets the accessors.
+        /// </summary>
+        /// <value>The accessors.</value>
         public List<IAccessorInfo> Accessors { get; set; } = new List<IAccessorInfo>();
+
+        /// <summary>
+        /// Gets or sets the parameter types.
+        /// </summary>
+        /// <value>The parameter types.</value>
         public List<string> ParameterTypes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Gets or sets the type of the return.
+        /// </summary>
+        /// <value>The type of the return.</value>
         public string ReturnType { get; set; } = Constants.SystemVoid;
+
+        /// <summary>
+        /// Gets or sets the full name.
+        /// </summary>
+        /// <value>The full name.</value>
         public string FullName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the namespace.
+        /// </summary>
+        /// <value>The namespace.</value>
         public NamespaceItem Namespace { get; set; }
         //public string NameWithParameter { get; set; }
 
@@ -40,6 +115,11 @@ namespace XmlDocumentParser.EasyCs
         /// Name of element.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the inheritance.
+        /// </summary>
+        /// <value>The inheritance.</value>
         public List<ClassInfo> Inheritance { get; set; } = new List<ClassInfo>();
     }
 }

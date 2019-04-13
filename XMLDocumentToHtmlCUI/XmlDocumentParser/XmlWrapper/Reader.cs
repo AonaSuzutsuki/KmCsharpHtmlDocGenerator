@@ -45,6 +45,11 @@ namespace XmlDocumentParser.XmlWrapper
             xmlNamespaceManager = new XmlNamespaceManager(document.NameTable);
         }
 
+        /// <summary>
+        /// Adds the namespace.
+        /// </summary>
+        /// <param name="prefix">Prefix.</param>
+        /// <param name="uri">URI.</param>
         public void AddNamespace(string prefix, string uri)
         {
             xmlNamespaceManager.AddNamespace(prefix, uri);

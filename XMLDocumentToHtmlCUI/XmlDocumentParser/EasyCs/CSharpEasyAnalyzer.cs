@@ -24,24 +24,64 @@ namespace XmlDocumentParser.EasyCs
     {
 
         #region Events
+        /// <summary>
+        /// CSharp parse progress event arguments.
+        /// </summary>
         public class CSharpParseProgressEventArgs : EventArgs
         {
+            /// <summary>
+            /// Parse type.
+            /// </summary>
             public enum ParseType
             {
+                /// <summary>
+                /// The syntactic analysis.
+                /// </summary>
                 SyntacticAnalysis,
+                /// <summary>
+                /// The code analysis.
+                /// </summary>
                 CodeAnalysis
             }
 
+            /// <summary>
+            /// Gets the type.
+            /// </summary>
+            /// <value>The type.</value>
             public ParseType Type { get; }
 
+            /// <summary>
+            /// Gets the max.
+            /// </summary>
+            /// <value>The max.</value>
             public int Max { get; }
 
+            /// <summary>
+            /// Gets the current.
+            /// </summary>
+            /// <value>The current.</value>
             public int Current { get; }
 
+            /// <summary>
+            /// Gets the percentage.
+            /// </summary>
+            /// <value>The percentage.</value>
             public int Percentage { get; }
 
+            /// <summary>
+            /// Gets the filename.
+            /// </summary>
+            /// <value>The filename.</value>
             public string Filename { get; }
 
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="T:XmlDocumentParser.EasyCs.CSharpEasyAnalyzer.CSharpParseProgressEventArgs"/> class.
+            /// </summary>
+            /// <param name="type">Type.</param>
+            /// <param name="max">Max.</param>
+            /// <param name="current">Current.</param>
+            /// <param name="filename">Filename.</param>
 			public CSharpParseProgressEventArgs(ParseType type, int max, int current, string filename)
             {
                 Type = type;
@@ -52,9 +92,18 @@ namespace XmlDocumentParser.EasyCs
             }
         }
 
+        /// <summary>
+        /// CSharp parse progress event handler.
+        /// </summary>
 		public delegate void CSharpParseProgressEventHandler(object sender, CSharpParseProgressEventArgs eventArgs);
 
+        /// <summary>
+        /// Occurs when analysis progress.
+        /// </summary>
         public event CSharpParseProgressEventHandler AnalysisProgress;
+        /// <summary>
+        /// Occurs when code analysis completed.
+        /// </summary>
 		public event EventHandler CodeAnalysisCompleted;
         #endregion
 

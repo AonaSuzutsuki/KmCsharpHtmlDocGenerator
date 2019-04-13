@@ -43,24 +43,64 @@ namespace XmlDocumentParser.CsXmlDocument
 		#endregion
 
 		#region Events
+        /// <summary>
+        /// Xml document parse progress event arguments.
+        /// </summary>
 		public class XmlDocumentParseProgressEventArgs : EventArgs
 		{
+            /// <summary>
+            /// Parse type.
+            /// </summary>
             public enum ParseType
             {
+                /// <summary>
+                /// The first.
+                /// </summary>
                 First,
+                /// <summary>
+                /// The second.
+                /// </summary>
                 Second
             }
 
+            /// <summary>
+            /// Gets the type.
+            /// </summary>
+            /// <value>The type.</value>
             public ParseType Type { get; }
 
+            /// <summary>
+            /// Gets the max.
+            /// </summary>
+            /// <value>The max.</value>
 			public int Max { get; }
 
+            /// <summary>
+            /// Gets the current.
+            /// </summary>
+            /// <value>The current.</value>
 			public int Current { get; }
 
+            /// <summary>
+            /// Gets the percentage.
+            /// </summary>
+            /// <value>The percentage.</value>
 			public int Percentage { get; }
 
+            /// <summary>
+            /// Gets the filename.
+            /// </summary>
+            /// <value>The filename.</value>
 			public string Filename { get; }
 
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="T:XmlDocumentParser.CsXmlDocument.CsXmlDocumentParser.XmlDocumentParseProgressEventArgs"/> class.
+            /// </summary>
+            /// <param name="type">Type.</param>
+            /// <param name="max">Max.</param>
+            /// <param name="current">Current.</param>
+            /// <param name="filename">Filename.</param>
 			public XmlDocumentParseProgressEventArgs(ParseType type, int max, int current, string filename)
 			{
                 Type = type;
@@ -71,11 +111,20 @@ namespace XmlDocumentParser.CsXmlDocument
 			}
 		}
 
+        /// <summary>
+        /// Xml document parse progress event handler.
+        /// </summary>
 		public delegate void XmlDocumentParseProgressEventHandler(object sender, XmlDocumentParseProgressEventArgs eventArgs);
 
         private int eventIndex = 0;
 
+        /// <summary>
+        /// Occurs when parse progress.
+        /// </summary>
 		public event XmlDocumentParseProgressEventHandler ParseProgress;
+        /// <summary>
+        /// Occurs when parse completed.
+        /// </summary>
 		public event EventHandler ParseCompleted;
 		#endregion
 
