@@ -23,6 +23,41 @@ namespace XmlDocumentParser.EasyCs
     public class CSharpEasyAnalyzer
     {
 
+        #region Events
+        public class CSharpParseProgressEventArgs : EventArgs
+        {
+            public enum ParseType
+            {
+                SyntacticAnalysis,
+                CodeAnalysis
+            }
+
+            public ParseType Type { get; }
+
+            public int Max { get; }
+
+            public int Current { get; }
+
+            public int Percentage { get; }
+
+            public string Filename { get; }
+
+			public CSharpParseProgressEventArgs(ParseType type, int max, int current, string filename)
+            {
+                Type = type;
+                Max = max;
+                Current = current;
+                Percentage = (int)((double)Current / Max * 100);
+                Filename = filename;
+            }
+        }
+
+		public delegate void CSharpParseProgressEventHandler(object sender, CSharpParseProgressEventArgs eventArgs);
+
+        public event CSharpParseProgressEventHandler AnalysisProgress;
+		public event EventHandler CodeAnalysisCompleted;
+        #endregion
+
         private readonly Dictionary<string, ClassInfo> classMap = new Dictionary<string, ClassInfo>();
         private readonly Dictionary<string, ClassInfo> methodMap = new Dictionary<string, ClassInfo>();
 
@@ -37,14 +72,18 @@ namespace XmlDocumentParser.EasyCs
 
             var (csFilePathArray, referenceArray) = GetCsFiles(csProjDirPath);
             var syntaxTrees = new List<SyntaxTree>();
-            foreach (var filename in csFilePathArray)
+            int index = 0;
+            foreach (var tuple in csFilePathArray.Select((v, i) => new { Value = v, Index = i }))
             {
-                var text = File.ReadAllText(filename).Replace("\r\n", "\r").Replace("\r", "\n");
-                text = RemoveComments(text);
+                var text = File.ReadAllText(tuple.Value).Replace("\r\n", "\r").Replace("\r", "\n");
+                //text = RemoveComments(text);
 
                 var namespaceItem = GetNamespace(text);
 
-                syntaxTrees.Add(CSharpSyntaxTree.ParseText(text));
+				syntaxTrees.Add(CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, tuple.Value));
+
+                AnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(
+                    CSharpParseProgressEventArgs.ParseType.SyntacticAnalysis, csFilePathArray.Length * 2, ++index, tuple.Value));
             }
 
             var metadataReferences = new List<MetadataReference>
@@ -62,10 +101,15 @@ namespace XmlDocumentParser.EasyCs
             //};
             var compilation = CSharpCompilation.Create("sample", syntaxTrees, metadataReferences);
 
-            foreach (var tree in syntaxTrees)
+            foreach (var tuple in syntaxTrees.Select((v, i) => new { Value = v, Index = i }))
             {
-                RoslynAnalyze(tree, compilation);
+                RoslynAnalyze(tuple.Value, compilation);
+
+                AnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(
+                    CSharpParseProgressEventArgs.ParseType.CodeAnalysis, csFilePathArray.Length * 2, ++index, tuple.Value.FilePath));
             }
+
+			CodeAnalysisCompleted?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -273,7 +317,7 @@ namespace XmlDocumentParser.EasyCs
                                 Name = keyword
                             };
                         });
-                        classInfo.ReturnType = sym.ToDisplayString();
+                        classInfo.ReturnType = sym == null ? propSyntax.ToFullString() : sym.ToDisplayString();
                     }
 
                     dic.Put(classInfo.Id, classInfo);
@@ -391,7 +435,6 @@ namespace XmlDocumentParser.EasyCs
                             var assemblyPath = GetSystemAssemblyPath(targetFramework, reference);
                             var assembly = Assembly.LoadFrom(assemblyPath);
                             assemblyNameMap.Add(reference, assembly);
-                            Console.WriteLine("found \"{0}\" assembly.", reference);
                         }
                         catch
                         {
