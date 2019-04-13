@@ -362,7 +362,8 @@ namespace XmlDocumentParser.CsXmlDocument
                     parser.ParseProgress += parseProgressEventHandler;
                 if (completed != null)
                     parser.ParseCompleted = completed;
-                root.Namespaces.AddRange(parser.Parse().Namespaces);
+                var parseResult = parser.Parse();
+                root.Namespaces.AddRange(parseResult.Namespaces);
 			}
 			return root;
 		}
