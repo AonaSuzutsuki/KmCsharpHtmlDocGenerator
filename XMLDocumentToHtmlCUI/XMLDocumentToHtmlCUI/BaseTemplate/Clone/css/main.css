@@ -1,4 +1,11 @@
-﻿body {
+﻿
+/*
+ *
+ * Copyright (C) 2018 - 2019 Aona Suzutsuki.
+ * 
+ */
+
+body {
     font-family: "Consolas", "Meiryo", Helvetica, "Bitstream Vera Sans Mono", "Courier New", Courier, monospace, sans-serif;
     min-height: 100vh;
     padding: 0;

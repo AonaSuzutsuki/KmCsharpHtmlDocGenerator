@@ -1,6 +1,10 @@
-﻿/*
-    Parameter Table
-*/
+﻿
+/*
+ *
+ * Copyright (C) 2018 - 2019 Aona Suzutsuki.
+ * 
+ */
+
 table.parameter {
     border-collapse: collapse;
     vertical-align: middle;
@@ -12,6 +16,10 @@ table.parameter {
         border: 1px solid #ddd;
         padding: 8px;
         word-break: break-all;
+    }
+
+    table.parameter .elem-name {
+        width: 100px;
     }
 
     table.parameter div {
@@ -33,6 +41,10 @@ table.parameter {
     table.parameter tr,
     table.parameter td {
         display: block;
+        width: auto;
+    }
+
+    table.parameter .elem-name {
         width: auto;
     }
 
