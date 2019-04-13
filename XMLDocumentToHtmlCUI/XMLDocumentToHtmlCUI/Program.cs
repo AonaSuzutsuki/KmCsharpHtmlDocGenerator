@@ -17,7 +17,7 @@ using XmlDocumentParser.CommonPath;
 namespace XMLDocumentToHtmlCUI
 {
     class Program
-    {
+    {      
         static void Main(string[] args)
         {
             var envParser = new Parser.EnvArgumentParser(args);
@@ -34,20 +34,66 @@ namespace XMLDocumentToHtmlCUI
             }
 
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
-            var sourceFilesDir = envParser.GetOption("-s") ?? "src";
-            var inputFiles = envParser.GetValues();
+            var sourceFilesDir = envParser.GetOption("-s") ?? "src"; // XmlDocumentExtensions.xml  XmlDocumentParser.xml XmlDocumentToHtml.xml
+            var inputFiles = envParser.GetValues(); // GetXmlFiles(sourceFilesDir); // envParser.GetValues();
+            if (inputFiles.Length < 1)
+                inputFiles = GetXmlFiles(sourceFilesDir);
             var outputPath = envParser.GetOutputFilepath() ?? PathUtils.UnifiedPathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
             var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
 
-            var root = CsXmlDocumentParser.ParseMultiFiles(inputFiles, singleDirectoryName);
+            var root = CsXmlDocumentParser.ParseMultiFiles(
+                files: inputFiles,
+                rootName: singleDirectoryName,
+                parseProgressEventHandler: XmlParser_ParserProgress,
+                completed: XmlParser_CodeAnalysisCompleted,
+                startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
+                );
             
             var parser = new CSharpEasyAnalyzer();
+			parser.CodeAnalysisCompleted += Parser_CodeAnalysisCompleted;
+            parser.AnalysisProgress += Parser_AnalysisProgress;
+
+			Console.WriteLine("Start C# code analysis.");
             parser.Parse(sourceFilesDir);
             parser.AddAttributesToElement(root);
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk(directoryName);
+
+            Console.ReadLine();
+        }
+
+        private static void XmlParser_ParserProgress(object sender, CsXmlDocumentParser.XmlDocumentParseProgressEventArgs eventArgs)
+        {
+            if (eventArgs.Type == CsXmlDocumentParser.XmlDocumentParseProgressEventArgs.ParseType.First)
+                Console.WriteLine(" {0,3:d}% Xml First Parse\t{1}", eventArgs.Percentage, eventArgs.Filename);
+            else
+                Console.WriteLine(" {0,3:d}% Xml Second Parse\t{1}", eventArgs.Percentage, eventArgs.Filename);
+        }
+
+        private static void Parser_AnalysisProgress(object sender, CSharpEasyAnalyzer.CSharpParseProgressEventArgs eventArgs)
+        {
+            if (eventArgs.Type == CSharpEasyAnalyzer.CSharpParseProgressEventArgs.ParseType.SyntacticAnalysis)
+                Console.WriteLine(" {0,3:d}% Code Analysis\t{1}", eventArgs.Percentage, eventArgs.Filename);
+            else
+                Console.WriteLine(" {0,3:d}% Syntactic Analysis\t{1}", eventArgs.Percentage, eventArgs.Filename);
+        }
+
+        private static void XmlParser_CodeAnalysisCompleted(object sender, EventArgs e)
+        {
+            Console.WriteLine("Completed Xml Parse.\n");
+        }
+
+        private static void Parser_CodeAnalysisCompleted(object sender, EventArgs e)
+		{
+			Console.WriteLine("Completed C# code analysis.");
+        }
+
+        static string[] GetXmlFiles(string sourceDir)
+        {
+            var files = Directory.GetFiles(sourceDir, "*.xml");
+            return files;
         }
 
         static void ShowHelp()

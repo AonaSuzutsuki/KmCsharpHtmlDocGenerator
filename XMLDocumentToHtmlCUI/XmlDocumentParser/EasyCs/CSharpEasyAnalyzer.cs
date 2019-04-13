@@ -23,6 +23,90 @@ namespace XmlDocumentParser.EasyCs
     public class CSharpEasyAnalyzer
     {
 
+        #region Events
+        /// <summary>
+        /// CSharp parse progress event arguments.
+        /// </summary>
+        public class CSharpParseProgressEventArgs : EventArgs
+        {
+            /// <summary>
+            /// Parse type.
+            /// </summary>
+            public enum ParseType
+            {
+                /// <summary>
+                /// The syntactic analysis.
+                /// </summary>
+                SyntacticAnalysis,
+                /// <summary>
+                /// The code analysis.
+                /// </summary>
+                CodeAnalysis
+            }
+
+            /// <summary>
+            /// Gets the type.
+            /// </summary>
+            /// <value>The type.</value>
+            public ParseType Type { get; }
+
+            /// <summary>
+            /// Gets the max.
+            /// </summary>
+            /// <value>The max.</value>
+            public int Max { get; }
+
+            /// <summary>
+            /// Gets the current.
+            /// </summary>
+            /// <value>The current.</value>
+            public int Current { get; }
+
+            /// <summary>
+            /// Gets the percentage.
+            /// </summary>
+            /// <value>The percentage.</value>
+            public int Percentage { get; }
+
+            /// <summary>
+            /// Gets the filename.
+            /// </summary>
+            /// <value>The filename.</value>
+            public string Filename { get; }
+
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="T:XmlDocumentParser.EasyCs.CSharpEasyAnalyzer.CSharpParseProgressEventArgs"/> class.
+            /// </summary>
+            /// <param name="type">Type.</param>
+            /// <param name="max">Max.</param>
+            /// <param name="current">Current.</param>
+            /// <param name="filename">Filename.</param>
+			public CSharpParseProgressEventArgs(ParseType type, int max, int current, string filename)
+            {
+                Type = type;
+                Max = max;
+                Current = current;
+                Percentage = (int)((double)Current / Max * 100);
+                Filename = filename;
+            }
+        }
+
+        /// <summary>
+        /// CSharp parse progress event handler.
+        /// </summary>
+		public delegate void CSharpParseProgressEventHandler(object sender, CSharpParseProgressEventArgs eventArgs);
+
+        /// <summary>
+        /// Occurs when analysis progress.
+        /// </summary>
+        public event CSharpParseProgressEventHandler AnalysisProgress;
+        /// <summary>
+        /// Occurs when code analysis completed.
+        /// </summary>
+		public event EventHandler CodeAnalysisCompleted;
+        #endregion
+
         private readonly Dictionary<string, ClassInfo> classMap = new Dictionary<string, ClassInfo>();
         private readonly Dictionary<string, ClassInfo> methodMap = new Dictionary<string, ClassInfo>();
 
@@ -37,14 +121,18 @@ namespace XmlDocumentParser.EasyCs
 
             var (csFilePathArray, referenceArray) = GetCsFiles(csProjDirPath);
             var syntaxTrees = new List<SyntaxTree>();
-            foreach (var filename in csFilePathArray)
+            int index = 0;
+            foreach (var tuple in csFilePathArray.Select((v, i) => new { Value = v, Index = i }))
             {
-                var text = File.ReadAllText(filename).Replace("\r\n", "\r").Replace("\r", "\n");
-                text = RemoveComments(text);
+                var text = File.ReadAllText(tuple.Value).Replace("\r\n", "\r").Replace("\r", "\n");
+                //text = RemoveComments(text);
 
                 var namespaceItem = GetNamespace(text);
 
-                syntaxTrees.Add(CSharpSyntaxTree.ParseText(text));
+				syntaxTrees.Add(CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, tuple.Value));
+
+                AnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(
+                    CSharpParseProgressEventArgs.ParseType.SyntacticAnalysis, csFilePathArray.Length * 2, ++index, tuple.Value));
             }
 
             var metadataReferences = new List<MetadataReference>
@@ -62,10 +150,15 @@ namespace XmlDocumentParser.EasyCs
             //};
             var compilation = CSharpCompilation.Create("sample", syntaxTrees, metadataReferences);
 
-            foreach (var tree in syntaxTrees)
+            foreach (var tuple in syntaxTrees.Select((v, i) => new { Value = v, Index = i }))
             {
-                RoslynAnalyze(tree, compilation);
+                RoslynAnalyze(tuple.Value, compilation);
+
+                AnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(
+                    CSharpParseProgressEventArgs.ParseType.CodeAnalysis, csFilePathArray.Length * 2, ++index, tuple.Value.FilePath));
             }
+
+			CodeAnalysisCompleted?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -273,7 +366,7 @@ namespace XmlDocumentParser.EasyCs
                                 Name = keyword
                             };
                         });
-                        classInfo.ReturnType = sym.ToDisplayString();
+                        classInfo.ReturnType = sym == null ? propSyntax.ToFullString() : sym.ToDisplayString();
                     }
 
                     dic.Put(classInfo.Id, classInfo);
@@ -394,7 +487,7 @@ namespace XmlDocumentParser.EasyCs
                         }
                         catch
                         {
-                            Console.WriteLine();
+                            Console.WriteLine("not found \"{0}\" assembly.", reference);
                         }
                     }
                 }
@@ -414,6 +507,8 @@ namespace XmlDocumentParser.EasyCs
                 @"C:\Windows\assembly\GAC_MSIL",
                 "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/gac",
                 "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/Current/lib/mono", targetFramework),
+                "/usr/lib/mono/gac",
+                "{0}/{1}-api".FormatString("/usr/lib/mono", targetFramework),
             };
 
             foreach (var systemAssemblyDir in systemAssemblyDirList)
