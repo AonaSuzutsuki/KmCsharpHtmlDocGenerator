@@ -60,13 +60,11 @@ namespace XMLDocumentToHtmlCUI
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk(directoryName);
-
-            Console.ReadLine();
         }
 
         private static void XmlParser_ParserProgress(object sender, CsXmlDocumentParser.XmlDocumentParseProgressEventArgs eventArgs)
         {
-            if (eventArgs.Type == CsXmlDocumentParser.XmlDocumentParseProgressEventArgs.ParseType.First)
+            if (eventArgs.Type == CsXmlDocumentParser.ParseType.First)
                 Console.WriteLine(" {0,3:d}% Xml First Parse\t{1}", eventArgs.Percentage, eventArgs.Filename);
             else
                 Console.WriteLine(" {0,3:d}% Xml Second Parse\t{1}", eventArgs.Percentage, eventArgs.Filename);
@@ -80,9 +78,12 @@ namespace XMLDocumentToHtmlCUI
                 Console.WriteLine(" {0,3:d}% Syntactic Analysis\t{1}", eventArgs.Percentage, eventArgs.Filename);
         }
 
-        private static void XmlParser_CodeAnalysisCompleted(object sender, EventArgs e)
+        private static void XmlParser_CodeAnalysisCompleted(object sender, CsXmlDocumentParser.IXmlDocumentParseProgress e)
         {
-            Console.WriteLine("Completed Xml Parse.\n");
+            if (e.Type == CsXmlDocumentParser.ParseType.First)
+                Console.WriteLine("Completed Xml First Parse.\n");
+            else
+                Console.WriteLine("Completed Xml Second Parse.\n");
         }
 
         private static void Parser_CodeAnalysisCompleted(object sender, EventArgs e)
