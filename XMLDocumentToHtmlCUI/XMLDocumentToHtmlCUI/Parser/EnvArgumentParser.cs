@@ -33,7 +33,7 @@ namespace XMLDocumentToHtmlCUI.Parser
             for (int i = 0; i < arguments.Length; i++)
             {
                 var arg = arguments[i];
-                if (arg.StartsWith("-"))
+                if (arg.StartsWith("-", StringComparison.Ordinal))
                 {
                     var count = optionCountMap.Get(arg, 1);
                     if (count > 0)
