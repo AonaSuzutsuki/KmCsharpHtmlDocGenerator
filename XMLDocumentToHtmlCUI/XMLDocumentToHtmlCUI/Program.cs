@@ -20,13 +20,13 @@ namespace XMLDocumentToHtmlCUI
     {      
         static void Main(string[] args)
         {
-            var envParser = new Parser.EnvArgumentParser(args);
+            var envParser = new Parser.EnvArgumentParser();
             envParser.AddOptionCount("-h", 0);
             envParser.AddOptionCount("-b", 1);
             envParser.AddOptionCount("-o", 1);
             envParser.AddOptionCount("-s", 1);
 
-            envParser.Analyze();
+            envParser.Analyze(args);
             if (envParser.GetOption("-h") != null)
             {
                 ShowHelp();
