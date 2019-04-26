@@ -316,8 +316,7 @@ namespace XmlDocumentParser.CsXmlDocument
 
 		private static string RemoveFirstLastBreakLine(string text)
 		{
-			text = text.Replace("\r\n", "\r");
-			text = text.Replace("\r", "\n");
+            text = text.UnifiedNewLine();
 			text = text.TrimStart('\n').TrimEnd('\n');
 			return text;
 		}
