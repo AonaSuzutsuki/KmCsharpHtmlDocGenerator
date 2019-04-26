@@ -124,7 +124,7 @@ namespace XmlDocumentParser.EasyCs
             int index = 0;
             foreach (var tuple in csFilePathArray.Select((v, i) => new { Value = v, Index = i }))
             {
-                var text = File.ReadAllText(tuple.Value).Replace("\r\n", "\r").Replace("\r", "\n");
+                var text = File.ReadAllText(tuple.Value).UnifiedNewLine();
                 //text = RemoveComments(text);
 
                 var namespaceItem = GetNamespace(text);
@@ -446,7 +446,7 @@ namespace XmlDocumentParser.EasyCs
             return (text.Replace("(", "").Replace(")", ""), new string[0]);
         }
 
-        private (string[] csFilePathArray, Assembly[] referenceArray) GetCsFiles(string csprojParentPath)
+        internal static (string[] csFilePathArray, Assembly[] referenceArray) GetCsFiles(string csprojParentPath)
         {
             var csFilePathList = new List<string>();
             var assemblyNameMap = new Dictionary<string, Assembly>();
@@ -499,7 +499,7 @@ namespace XmlDocumentParser.EasyCs
             return (csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
         }
 
-        private string GetSystemAssemblyPath(string targetFramework, string reference)
+        private static string GetSystemAssemblyPath(string targetFramework, string reference)
         {
             var systemAssemblyDirList = new List<string>
             {
@@ -523,7 +523,7 @@ namespace XmlDocumentParser.EasyCs
             return null;
         }
 
-        private string GetTargetFramework(XmlWrapper.Reader reader)
+        private static string GetTargetFramework(XmlWrapper.Reader reader)
         {
             var version = reader.GetValue("/ns:Project/ns:PropertyGroup/ns:TargetFrameworkVersion", false);
             var regex = new Regex("[0-9.]+");
@@ -535,7 +535,7 @@ namespace XmlDocumentParser.EasyCs
             return null;
         }
 
-        private List<string> MergeParentPath(List<string> list, string parent)
+        private static List<string> MergeParentPath(List<string> list, string parent)
         {
             var retList = new List<string>(list);
             for (int i = 0; i < retList.Count; i++)

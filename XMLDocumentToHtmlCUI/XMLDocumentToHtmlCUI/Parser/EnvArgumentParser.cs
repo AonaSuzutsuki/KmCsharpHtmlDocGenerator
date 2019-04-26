@@ -10,37 +10,30 @@ namespace XMLDocumentToHtmlCUI.Parser
     public class EnvArgumentParser
     {
 
-        protected readonly string[] arguments;
-
         protected readonly Dictionary<string, string> parameters = new Dictionary<string, string>();
 
         protected readonly List<string> values = new List<string>();
 
         protected Dictionary<string, int> optionCountMap = new Dictionary<string, int>();
 
-        public EnvArgumentParser(string[] args)
-        {
-            arguments = args;
-        }
-
         public void AddOptionCount(string key, int count)
         {
             optionCountMap.Put(key, count);
         }
 
-        public void Analyze()
+        public void Analyze(string[] args)
         {
-            for (int i = 0; i < arguments.Length; i++)
+            for (int i = 0; i < args.Length; i++)
             {
-                var arg = arguments[i];
-                if (arg.StartsWith("-"))
+                var arg = args[i];
+                if (arg.StartsWith("-", StringComparison.Ordinal))
                 {
                     var count = optionCountMap.Get(arg, 1);
                     if (count > 0)
                     {
-                        if (arguments.Length > i + 1)
+                        if (args.Length > i + 1)
                         {
-                            var value = arguments[++i];
+                            var value = args[++i];
                             parameters.Add(arg, value);
                         }
                     }
