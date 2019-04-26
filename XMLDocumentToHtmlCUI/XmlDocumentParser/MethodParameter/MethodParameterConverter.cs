@@ -32,12 +32,7 @@ namespace XmlDocumentParser.MethodParameter
             if (member.Type == MethodType.ExtensionMethod)
                 sb.Append("this ");
 
-            foreach (var param in parameters.Select((v, i) => new { Index = i, Value = v }))
-            {
-                sb.AppendFormat("{0} {1}, ", converter(param.Value.Type), param.Value.Name);
-            }
-            if (sb.Length > 2)
-                sb.Remove(sb.Length - 2, 2);
+            sb.Append(string.Join(", ", parameters.Select(param => "{0} {1}".FormatString(param.Type, param.Name))));
 
             return "({0})".FormatString(sb.ToString());
         }

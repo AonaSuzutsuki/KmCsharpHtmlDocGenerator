@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace XmlDocumentParser.CsXmlDocument
 {
     /// <summary>
-    /// Namespace Item for <c>Element</c>.
+    /// Namespace Item for <see cref="Element"/>.
     /// </summary>
     public class NamespaceItem
     {

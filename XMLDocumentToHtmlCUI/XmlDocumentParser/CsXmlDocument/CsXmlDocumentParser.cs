@@ -7,24 +7,21 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentExtensions.Extensions;
+using XmlDocumentParser.EasyCs;
 using XmlDocumentParser.XmlWrapper;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
-	/// <summary>
-	/// Parse C# XML Document.
-	/// </summary>
-	public class CsXmlDocumentParser
+    /// <summary>
+    /// Parse C# XML Document.
+    /// </summary>
+    public class CsXmlDocumentParser
 	{
 		#region Constants
 		private const int ParameterLoopLimit = 10;
 		#endregion
 
 		#region Properties
-		/// <summary>
-		/// Parsed tree structure elements.
-		/// </summary>
-		public Element TreeElement { get; private set; }
 
 		/// <summary>
 		/// Count of namespaces.
@@ -40,29 +37,41 @@ namespace XmlDocumentParser.CsXmlDocument
 		/// Path of the configured XML file.
 		/// </summary>
 		public string XmlPath { get; }
-		#endregion
+        #endregion
 
-		#region Events
+        #region Events
+        /// <summary>
+        /// Parse type.
+        /// </summary>
+        public enum ParseType
+        {
+            /// <summary>
+            /// The first.
+            /// </summary>
+            First,
+            /// <summary>
+            /// The second.
+            /// </summary>
+            Second
+        }
+
+        /// <summary>
+        /// Xml document parse progress.
+        /// </summary>
+        public interface IXmlDocumentParseProgress
+        {
+            /// <summary>
+            /// Gets the type.
+            /// </summary>
+            /// <value>The type.</value>
+            ParseType Type { get; }
+        }
+
         /// <summary>
         /// Xml document parse progress event arguments.
         /// </summary>
-		public class XmlDocumentParseProgressEventArgs : EventArgs
-		{
-            /// <summary>
-            /// Parse type.
-            /// </summary>
-            public enum ParseType
-            {
-                /// <summary>
-                /// The first.
-                /// </summary>
-                First,
-                /// <summary>
-                /// The second.
-                /// </summary>
-                Second
-            }
-
+		public class XmlDocumentParseProgressEventArgs : EventArgs, IXmlDocumentParseProgress
+        {
             /// <summary>
             /// Gets the type.
             /// </summary>
@@ -114,18 +123,22 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Xml document parse progress event handler.
         /// </summary>
-		public delegate void XmlDocumentParseProgressEventHandler(object sender, XmlDocumentParseProgressEventArgs eventArgs);
+        public delegate void XmlDocumentParseProgressEventHandler(object sender, XmlDocumentParseProgressEventArgs eventArgs);
 
-        private int eventIndex = 0;
+        /// <summary>
+        /// Xml document parse completed event handler.
+        /// </summary>
+        public delegate void XmlDocumentParseCompletedEventHandler(object sender, IXmlDocumentParseProgress eventArgs);
 
         /// <summary>
         /// Occurs when parse progress.
         /// </summary>
 		public event XmlDocumentParseProgressEventHandler ParseProgress;
+
         /// <summary>
         /// Occurs when parse completed.
         /// </summary>
-		public event EventHandler ParseCompleted;
+		public event XmlDocumentParseCompletedEventHandler ParseCompleted;
 		#endregion
 
 		/// <summary>
@@ -143,52 +156,71 @@ namespace XmlDocumentParser.CsXmlDocument
 		/// <returns type="Element">Parsed tree structure elements.</returns>
 		public Element Parse()
 		{
-            eventIndex = 0;
             var members = FirstParse(XmlPath);
-			TreeElement = SecondParse(members);
+            ParseCompleted?.Invoke(this, new XmlDocumentParseProgressEventArgs(ParseType.First, 0, 0, null));
+            var treeElement = SecondParse(members);
+            ParseCompleted?.Invoke(this, new XmlDocumentParseProgressEventArgs(ParseType.Second, 0, 0, null));
 
-			ParseCompleted?.Invoke(this, new EventArgs());
-
-			return TreeElement;
+            return treeElement;
 		}
 
-		private List<Member> FirstParse(string xmlPath)
-		{
-			var members = new List<Member>();
-			using (var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-			{
-				var reader = new Reader();
-				reader.LoadFromStream(fs);
-				var vals = reader.GetAttributes("name", "/doc/members/member");
-				foreach (var tuple in vals.Select((v, i) => new { Value = v, Index = i }))
-				{
-					var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
-					var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
-					value = RemoveFirstLastBreakLine(value);
+        public Element ParseFromText()
+        {
+            var reader = new Reader();
+            reader.LoadFromText(XmlPath);
+            var members = FirstParse(reader);
 
-					var member = ConvertMemberNameToMember(tuple.Value);
-					member.Value = value;
-					member.ReturnComment = ret ?? string.Empty;
+            ParseCompleted?.Invoke(this, new XmlDocumentParseProgressEventArgs(ParseType.First, 0, 0, null));
+            var treeElement = SecondParse(members);
+            ParseCompleted?.Invoke(this, new XmlDocumentParseProgressEventArgs(ParseType.Second, 0, 0, null));
 
-					var xparams = reader.GetAttributes("name", "/doc/members/member[@name=\"{0}\"]/param".FormatString(tuple.Value));
-					foreach (var param in xparams)
-					{
-						var path = "/doc/members/member[@name=\"{0}\"]/param[@name=\"{1}\"]".FormatString(tuple.Value, param);
-						var value2 = reader.GetValue(path);
-						value2 = RemoveFirstLastBreakLine(value2);
+            return treeElement;
+        }
 
-						member.ParameterNames.Add(param, value2);
-					}
-					members.Add(member);
+        private List<Member> FirstParse(string xmlPath)
+        {
+            using (var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var reader = new Reader();
+                reader.LoadFromStream(fs);
+                return FirstParse(reader);
+            }
+        }
 
-                    ParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(
-                        XmlDocumentParseProgressEventArgs.ParseType.First, vals.Count * 2, ++eventIndex, tuple.Value));
-				}
-			}
-			return members;
-		}
+        private List<Member> FirstParse(Reader reader)
+        {
+            int eventIndex = 0;
+            var members = new List<Member>();
 
-		private Element SecondParse(List<Member> members)
+            var vals = reader.GetAttributes("name", "/doc/members/member");
+            foreach (var tuple in vals.Select((v, i) => new { Value = v, Index = i }))
+            {
+                var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
+                var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
+                value = RemoveFirstLastBreakLine(value);
+
+                var member = ConvertMemberNameToMember(tuple.Value);
+                member.Value = value;
+                member.ReturnComment = ret ?? string.Empty;
+
+                var xparams = reader.GetAttributes("name", "/doc/members/member[@name=\"{0}\"]/param".FormatString(tuple.Value));
+                foreach (var param in xparams)
+                {
+                    var path = "/doc/members/member[@name=\"{0}\"]/param[@name=\"{1}\"]".FormatString(tuple.Value, param);
+                    var value2 = reader.GetValue(path);
+                    value2 = RemoveFirstLastBreakLine(value2);
+
+                    member.ParameterNames.Add(param, value2);
+                }
+                members.Add(member);
+
+                ParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(
+                    ParseType.First, vals.Count, ++eventIndex, tuple.Value));
+            }
+            return members;
+        }
+
+        private Element SecondParse(List<Member> members)
 		{
 			var root = new Element()
 			{
@@ -197,6 +229,7 @@ namespace XmlDocumentParser.CsXmlDocument
 				Members = null
 			};
 
+            int eventIndex = 0;
 			Element preElem = root;
 			//Element classElem = root;
 
@@ -265,7 +298,7 @@ namespace XmlDocumentParser.CsXmlDocument
 				preElem = root;
 
                 ParseProgress?.Invoke(this, new XmlDocumentParseProgressEventArgs(
-                    XmlDocumentParseProgressEventArgs.ParseType.Second, members.Count * 2, ++eventIndex, tuple.Value.Id));
+                    ParseType.Second, members.Count, ++eventIndex, tuple.Value.Id));
 			}
 			return root;
 		}
@@ -299,8 +332,7 @@ namespace XmlDocumentParser.CsXmlDocument
 
 		private static string RemoveFirstLastBreakLine(string text)
 		{
-			text = text.Replace("\r\n", "\r");
-			text = text.Replace("\r", "\n");
+            text = text.UnifiedNewLine();
 			text = text.TrimStart('\n').TrimEnd('\n');
 			return text;
 		}
@@ -396,15 +428,15 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <param name="startAct"></param>
         /// <returns>Parsed element.</returns>
         public static Element ParseMultiFiles(string[] files, string rootName = "Root",
-            XmlDocumentParseProgressEventHandler parseProgressEventHandler = null, EventHandler completed = null, Action<string> startAct = null)
-		{
-			Element root = new Element
-			{
-				Name = rootName,
-				Type = ElementType.Root
-			};
-			foreach (var input in files)
-			{
+            XmlDocumentParseProgressEventHandler parseProgressEventHandler = null, XmlDocumentParseCompletedEventHandler completed = null, Action<string> startAct = null)
+        {
+            Element root = new Element
+            {
+                Name = rootName,
+                Type = ElementType.Root
+            };
+            foreach (var input in files)
+            {
                 startAct?.Invoke(input);
                 var parser = new CsXmlDocumentParser(input);
                 if (parseProgressEventHandler != null)
@@ -413,8 +445,29 @@ namespace XmlDocumentParser.CsXmlDocument
                     parser.ParseCompleted = completed;
                 var parseResult = parser.Parse();
                 root.Namespaces.AddRange(parseResult.Namespaces);
-			}
-			return root;
-		}
-	}
+            }
+            return root;
+        }
+
+        public static Element ParseFromText(string xmlDocument, string rootName = "Root",
+            XmlDocumentParseProgressEventHandler parseProgressEventHandler = null, XmlDocumentParseCompletedEventHandler completed = null, Action<string> startAct = null)
+        {
+            Element root = new Element
+            {
+                Name = rootName,
+                Type = ElementType.Root
+            };
+
+            startAct?.Invoke("");
+            var parser = new CsXmlDocumentParser(xmlDocument);
+            if (parseProgressEventHandler != null)
+                parser.ParseProgress += parseProgressEventHandler;
+            if (completed != null)
+                parser.ParseCompleted = completed;
+            var parseResult = parser.ParseFromText();
+            root.Namespaces.AddRange(parseResult.Namespaces);
+
+            return root;
+        }
+    }
 }

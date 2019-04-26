@@ -20,13 +20,13 @@ namespace XMLDocumentToHtmlCUI
     {      
         static void Main(string[] args)
         {
-            var envParser = new Parser.EnvArgumentParser(args);
+            var envParser = new Parser.EnvArgumentParser();
             envParser.AddOptionCount("-h", 0);
             envParser.AddOptionCount("-b", 1);
             envParser.AddOptionCount("-o", 1);
             envParser.AddOptionCount("-s", 1);
 
-            envParser.Analyze();
+            envParser.Analyze(args);
             if (envParser.GetOption("-h") != null)
             {
                 ShowHelp();
@@ -42,13 +42,30 @@ namespace XMLDocumentToHtmlCUI
 
             var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
 
-            var root = CsXmlDocumentParser.ParseMultiFiles(
-                files: inputFiles,
-                rootName: singleDirectoryName,
-                parseProgressEventHandler: XmlParser_ParserProgress,
-                completed: XmlParser_CodeAnalysisCompleted,
-                startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
-                );
+            Element root;
+            if (inputFiles.Length < 1)
+            {
+                var generator = new CSharpDocumentGenerator(sourceFilesDir);
+                var xmlDocument = generator.ToString();
+
+                root = CsXmlDocumentParser.ParseFromText(
+                   xmlDocument: xmlDocument,
+                   rootName: singleDirectoryName,
+                   parseProgressEventHandler: XmlParser_ParserProgress,
+                   completed: XmlParser_CodeAnalysisCompleted,
+                   startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
+                   );
+            }
+            else
+            {
+                root = CsXmlDocumentParser.ParseMultiFiles(
+                   files: inputFiles,
+                   rootName: singleDirectoryName,
+                   parseProgressEventHandler: XmlParser_ParserProgress,
+                   completed: XmlParser_CodeAnalysisCompleted,
+                   startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
+                   );
+            }
             
             var parser = new CSharpEasyAnalyzer();
 			parser.CodeAnalysisCompleted += Parser_CodeAnalysisCompleted;
@@ -60,13 +77,11 @@ namespace XMLDocumentToHtmlCUI
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
             converter.WriteToDisk(directoryName);
-
-            Console.ReadLine();
         }
 
         private static void XmlParser_ParserProgress(object sender, CsXmlDocumentParser.XmlDocumentParseProgressEventArgs eventArgs)
         {
-            if (eventArgs.Type == CsXmlDocumentParser.XmlDocumentParseProgressEventArgs.ParseType.First)
+            if (eventArgs.Type == CsXmlDocumentParser.ParseType.First)
                 Console.WriteLine(" {0,3:d}% Xml First Parse\t{1}", eventArgs.Percentage, eventArgs.Filename);
             else
                 Console.WriteLine(" {0,3:d}% Xml Second Parse\t{1}", eventArgs.Percentage, eventArgs.Filename);
@@ -80,9 +95,12 @@ namespace XMLDocumentToHtmlCUI
                 Console.WriteLine(" {0,3:d}% Syntactic Analysis\t{1}", eventArgs.Percentage, eventArgs.Filename);
         }
 
-        private static void XmlParser_CodeAnalysisCompleted(object sender, EventArgs e)
+        private static void XmlParser_CodeAnalysisCompleted(object sender, CsXmlDocumentParser.IXmlDocumentParseProgress e)
         {
-            Console.WriteLine("Completed Xml Parse.\n");
+            if (e.Type == CsXmlDocumentParser.ParseType.First)
+                Console.WriteLine("Completed Xml First Parse.\n");
+            else
+                Console.WriteLine("Completed Xml Second Parse.\n");
         }
 
         private static void Parser_CodeAnalysisCompleted(object sender, EventArgs e)
