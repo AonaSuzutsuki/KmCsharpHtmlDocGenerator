@@ -42,13 +42,30 @@ namespace XMLDocumentToHtmlCUI
 
             var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
 
-            var root = CsXmlDocumentParser.ParseMultiFiles(
-                files: inputFiles,
-                rootName: singleDirectoryName,
-                parseProgressEventHandler: XmlParser_ParserProgress,
-                completed: XmlParser_CodeAnalysisCompleted,
-                startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
-                );
+            Element root;
+            if (inputFiles.Length < 1)
+            {
+                var generator = new CSharpDocumentGenerator(sourceFilesDir);
+                var xmlDocument = generator.ToString();
+
+                root = CsXmlDocumentParser.ParseFromText(
+                   xmlDocument: xmlDocument,
+                   rootName: singleDirectoryName,
+                   parseProgressEventHandler: XmlParser_ParserProgress,
+                   completed: XmlParser_CodeAnalysisCompleted,
+                   startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
+                   );
+            }
+            else
+            {
+                root = CsXmlDocumentParser.ParseMultiFiles(
+                   files: inputFiles,
+                   rootName: singleDirectoryName,
+                   parseProgressEventHandler: XmlParser_ParserProgress,
+                   completed: XmlParser_CodeAnalysisCompleted,
+                   startAct: (name) => Console.WriteLine("Start XmlParse {0}", name)
+                   );
+            }
             
             var parser = new CSharpEasyAnalyzer();
 			parser.CodeAnalysisCompleted += Parser_CodeAnalysisCompleted;

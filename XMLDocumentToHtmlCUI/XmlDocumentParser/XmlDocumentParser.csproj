@@ -204,6 +204,9 @@
     <Compile Include="EasyCs\ClassType.cs" />
     <Compile Include="EasyCs\ClassInfo.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="EasyCs\CSharpDocumentGenerator.cs" />
+    <Compile Include="XmlWrapper\Writer.cs" />
+    <Compile Include="XmlWrapper\AttributeInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

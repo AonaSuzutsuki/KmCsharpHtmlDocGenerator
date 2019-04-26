@@ -107,5 +107,10 @@ namespace XmlDocumentParser.CsXmlDocument
 
             return boolcollector.Value;
         }
+
+        public override string ToString()
+        {
+            return Namespace + "." + Name;
+        }
     }
 }
