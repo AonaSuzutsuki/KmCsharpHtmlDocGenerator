@@ -23,11 +23,26 @@ So it is the goal of this program and the project to analyze the XML outputted b
 The .Net Core project will not work properly because system assembly can not be resolved.
 
 # Usage
-**CUI**
+1. Copy source codes into a suitable directory (Default: src).  
+*The standard directory is src in the execution path.
+![1.png](Images/1.png)  
+
+2. (Option) XmlDocument exists  
+Copy XmlDocuments into source codes directory.  
+![2.png](Images/2.png)  
+
+3. Run HtmlGenerator.exe
+```sh
+HtmlGenerator.exe -b BaseTemplate -o Out -s src
+# macOS: mono HtmlGenerator.exe -b BaseTemplate -o Out -s src
 ```
-XMLDocumentToHtmlCUI.exe -b {TemplateBaseDir} -o {OutputDir} {XmlDocuments}
-example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
+
+When using default options, it is as follows.
+```sh
+HtmlGenerator.exe
+# macOS: mono HtmlGenerator.exe
 ```
+
 
 **Options**  
 
@@ -36,9 +51,11 @@ example: XMLDocumentToHtmlCUI.exe -o Out XmlDocument1.xml XmlDocument2.xml
 |-b   |Specify the directory where the template file is stored. If you specify this, you can output with your own template.|BaseTemplate|
 |-o   |Change the directory path of the output destination.|{Directory of executable file}/Root|
 |-s   |csproj file and Source codes directory.|{Directory of executable file}/src|
+|-h   |Show help.||
 
 **Argument**  
 Specifies one or more XML Docment outputted by C# XML Document.  
+
 
 # Sample
 [https://aonsztk.xyz/XMLDocumentToHtml/](https://aonsztk.xyz/XMLDocumentToHtml/)  
