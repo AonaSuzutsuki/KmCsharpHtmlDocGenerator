@@ -164,6 +164,10 @@ namespace XmlDocumentParser.CsXmlDocument
             return treeElement;
 		}
 
+        /// <summary>
+        /// Parses from text.
+        /// </summary>
+        /// <returns>The from text.</returns>
         public Element ParseFromText()
         {
             var reader = new Reader();
@@ -449,6 +453,15 @@ namespace XmlDocumentParser.CsXmlDocument
             return root;
         }
 
+        /// <summary>
+        /// Parses from text.
+        /// </summary>
+        /// <returns>The from text.</returns>
+        /// <param name="xmlDocument">Xml document.</param>
+        /// <param name="rootName">Root name.</param>
+        /// <param name="parseProgressEventHandler">Parse progress event handler.</param>
+        /// <param name="completed">Completed.</param>
+        /// <param name="startAct">Start act.</param>
         public static Element ParseFromText(string xmlDocument, string rootName = "Root",
             XmlDocumentParseProgressEventHandler parseProgressEventHandler = null, XmlDocumentParseCompletedEventHandler completed = null, Action<string> startAct = null)
         {
