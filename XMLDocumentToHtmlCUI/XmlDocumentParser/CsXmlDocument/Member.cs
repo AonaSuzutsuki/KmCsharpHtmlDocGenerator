@@ -103,11 +103,15 @@ namespace XmlDocumentParser.CsXmlDocument
             boolcollector.ChangeBool("ReturnComment", ReturnComment.Equals(member.ReturnComment));
             boolcollector.ChangeBool("ReturnType", ReturnType.Equals(member.ReturnType));
             boolcollector.ChangeBool("Type", Type == member.Type);
-            boolcollector.ChangeBool("Value", Value.Equals(Value));
+            boolcollector.ChangeBool("Value", Value.Equals(member.Value));
 
             return boolcollector.Value;
         }
 
+        /// <summary>
+        /// Returns a <see cref="T:System.String"/> that represents the current <see cref="T:XmlDocumentParser.CsXmlDocument.Member"/>.
+        /// </summary>
+        /// <returns>A <see cref="T:System.String"/> that represents the current <see cref="T:XmlDocumentParser.CsXmlDocument.Member"/>.</returns>
         public override string ToString()
         {
             return Namespace + "." + Name;
