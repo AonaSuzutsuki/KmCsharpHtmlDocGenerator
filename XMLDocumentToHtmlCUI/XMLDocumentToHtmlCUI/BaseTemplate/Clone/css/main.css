@@ -28,6 +28,7 @@ body {
 
 #menu {
     float: left;
+    font-size: 0.9em;
 }
 
     #menu ul ul {

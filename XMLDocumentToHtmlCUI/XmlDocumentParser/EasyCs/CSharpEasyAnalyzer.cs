@@ -366,7 +366,7 @@ namespace XmlDocumentParser.EasyCs
                                 Name = keyword
                             };
                         });
-                        classInfo.ReturnType = sym == null ? propSyntax.ToFullString() : sym.ToDisplayString();
+                        classInfo.ReturnType = sym == null ? propSyntax.Identifier.ToString() : sym.ToDisplayString();
                     }
 
                     dic.Put(classInfo.Id, classInfo);
