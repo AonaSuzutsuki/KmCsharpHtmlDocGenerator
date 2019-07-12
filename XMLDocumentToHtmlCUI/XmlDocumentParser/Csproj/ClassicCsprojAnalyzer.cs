@@ -13,7 +13,7 @@ namespace XmlDocumentParser.Csproj
 {
     public class ClassicCsprojAnalyzer : CsprojAnalyzer
     {
-        public override CsFilesInfo GetCsFiles(string csprojParentPath, CompileType compileType)
+        public override CsFilesInfo GetCsFiles(string csprojParentPath, ProjectType compileType)
         {
             var csFilePathList = new List<string>();
             var assemblyNameMap = new Dictionary<string, Assembly>();

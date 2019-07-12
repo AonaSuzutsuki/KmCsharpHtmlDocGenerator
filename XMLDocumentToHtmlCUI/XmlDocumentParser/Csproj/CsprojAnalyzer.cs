@@ -25,7 +25,7 @@ namespace XmlDocumentParser.Csproj
 
     public abstract class CsprojAnalyzer
     {
-        public abstract CsFilesInfo GetCsFiles(string csprojParentPath, CompileType compileType);
+        public abstract CsFilesInfo GetCsFiles(string csprojParentPath, ProjectType compileType);
 
         protected abstract string GetSystemAssemblyPath(string targetFramework, string reference);
 
@@ -35,11 +35,11 @@ namespace XmlDocumentParser.Csproj
 
 
 
-        public static CsFilesInfo Parse(string csprojParentPath, CompileType compileType)
+        public static CsFilesInfo Parse(string csprojParentPath, ProjectType compileType)
         {
             switch (compileType)
             {
-                case CompileType.Xamarin:
+                case ProjectType.Xamarin:
                     return new XamarinCsprojAnalyzer().GetCsFiles(csprojParentPath, compileType);
                 default:
                     return new ClassicCsprojAnalyzer().GetCsFiles(csprojParentPath, compileType);

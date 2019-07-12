@@ -116,7 +116,7 @@ namespace XmlDocumentParser.EasyCs
         /// </summary>
         /// <param name="csProjDirPath">Directory path included csproj file.</param>
         /// <param name="compileType">Type of project.</param>
-        public void Parse(string csProjDirPath = "src", CompileType compileType = CompileType.Classic)
+        public void Parse(string csProjDirPath = "src", ProjectType compileType = ProjectType.Classic)
         {
             if (!Directory.Exists(csProjDirPath))
                 return;

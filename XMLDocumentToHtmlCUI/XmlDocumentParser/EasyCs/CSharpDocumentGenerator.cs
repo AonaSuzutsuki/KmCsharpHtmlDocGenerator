@@ -25,7 +25,7 @@ namespace XmlDocumentParser.EasyCs
         /// </summary>
         /// <param name="csProjDirPath">Cs proj dir path.</param>
         /// <param name="compileType">Type of project.</param>
-        public CSharpDocumentGenerator(string csProjDirPath = "src", CompileType compileType = CompileType.Classic)
+        public CSharpDocumentGenerator(string csProjDirPath = "src", ProjectType compileType = ProjectType.Classic)
         {
             if (!Directory.Exists(csProjDirPath))
                 return;

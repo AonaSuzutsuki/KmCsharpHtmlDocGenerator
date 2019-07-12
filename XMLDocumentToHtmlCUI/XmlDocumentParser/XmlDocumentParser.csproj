@@ -206,7 +206,7 @@
     <Compile Include="XmlWrapper\Writer.cs" />
     <Compile Include="XmlWrapper\AttributeInfo.cs" />
     <Compile Include="EasyCs\CompileType.cs" />
-    <Compile Include="EasyCs\CompileTypeConverter.cs" />
+    <Compile Include="EasyCs\ProjectTypeConverter.cs" />
     <Compile Include="Csproj\CsprojAnalyzer.cs" />
     <Compile Include="Csproj\ClassicCsprojAnalyzer.cs" />
   </ItemGroup>

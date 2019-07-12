@@ -34,7 +34,7 @@ namespace XMLDocumentToHtmlCUI
                 return;
             }
 
-            var type = CompileTypeConverter.ToCompileType(envParser.GetOption("-t") ?? "Classic");
+            var type = ProjectTypeConverter.ToProjectType(envParser.GetOption("-t") ?? "Classic");
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
             var sourceFilesDir = envParser.GetOption("-s") ?? "src"; // XmlDocumentExtensions.xml  XmlDocumentParser.xml XmlDocumentToHtml.xml
             var inputFiles = envParser.GetValues(); // GetXmlFiles(sourceFilesDir); // envParser.GetValues();
