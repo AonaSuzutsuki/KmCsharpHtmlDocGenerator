@@ -340,8 +340,11 @@ namespace XmlDocumentParser.EasyCs
                             {
                                 var symbolInfo = semanticModel.GetSymbolInfo(baseSyntax.Type);
                                 var sym = symbolInfo.Symbol;
-                                var info = CreateClassInfo(sym, ClassType.Inheritance);
-                                classInfo.Inheritance.Add(info);
+                                if (sym != null)
+                                {
+                                    var info = CreateClassInfo(sym, ClassType.Inheritance);
+                                    classInfo.Inheritance.Add(info);
+                                }
                             }
                         }
                     }
@@ -351,23 +354,27 @@ namespace XmlDocumentParser.EasyCs
                         var propSyntax = (syntax as PropertyDeclarationSyntax);
                         var symbolInfo = semanticModel.GetSymbolInfo(propSyntax.Type);
                         var sym = symbolInfo.Symbol;
-                        var accessors = propSyntax.AccessorList.Accessors;
-                        classInfo.Accessors.Add(accessors, (item) =>
+                        if (propSyntax.AccessorList != null)
                         {
-                            var accessibility = Accessibility.Public;
-                            var keyword = item.Keyword.ToString();
-                            if (item.Modifiers.Count > 0)
+                            var accessors = propSyntax.AccessorList.Accessors;
+                            classInfo.Accessors.Add(accessors, (item) =>
                             {
-                                var msym = semanticModel.GetDeclaredSymbol(item);
-                                accessibility = msym.DeclaredAccessibility;
-                            }
+                                var accessibility = Accessibility.Public;
+                                var keyword = item.Keyword.ToString();
+                                if (item.Modifiers.Count > 0)
+                                {
+                                    var msym = semanticModel.GetDeclaredSymbol(item);
+                                    accessibility = msym.DeclaredAccessibility;
+                                }
 
-                            return new ClassInfo()
-                            {
-                                Accessibility = accessibility,
-                                Name = keyword
-                            };
-                        });
+                                return new ClassInfo()
+                                {
+                                    Accessibility = accessibility,
+                                    Name = keyword
+                                };
+                            });
+                        }
+                        
                         classInfo.ReturnType = sym == null ? propSyntax.Identifier.ToString() : sym.ToDisplayString();
                     }
 
