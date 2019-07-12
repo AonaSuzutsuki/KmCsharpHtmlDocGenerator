@@ -205,6 +205,10 @@
     <Compile Include="EasyCs\CSharpDocumentGenerator.cs" />
     <Compile Include="XmlWrapper\Writer.cs" />
     <Compile Include="XmlWrapper\AttributeInfo.cs" />
+    <Compile Include="EasyCs\CompileType.cs" />
+    <Compile Include="EasyCs\CompileTypeConverter.cs" />
+    <Compile Include="Csproj\CsprojAnalyzer.cs" />
+    <Compile Include="Csproj\ClassicCsprojAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -215,6 +219,9 @@
       <Project>{4D788502-0340-48FD-9FEC-C1D0122873EB}</Project>
       <Name>XmlDocumentExtensions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Csproj\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -25,6 +25,7 @@ namespace XMLDocumentToHtmlCUI
             envParser.AddOptionCount("-b", 1);
             envParser.AddOptionCount("-o", 1);
             envParser.AddOptionCount("-s", 1);
+            envParser.AddOptionCount("-t", 1);
 
             envParser.Analyze(args);
             if (envParser.GetOption("-h") != null)
@@ -33,6 +34,7 @@ namespace XMLDocumentToHtmlCUI
                 return;
             }
 
+            var type = CompileTypeConverter.ToCompileType(envParser.GetOption("-t") ?? "Classic");
             var baseTemplateDir = envParser.GetOption("-b") ?? "BaseTemplate";
             var sourceFilesDir = envParser.GetOption("-s") ?? "src"; // XmlDocumentExtensions.xml  XmlDocumentParser.xml XmlDocumentToHtml.xml
             var inputFiles = envParser.GetValues(); // GetXmlFiles(sourceFilesDir); // envParser.GetValues();
@@ -45,7 +47,7 @@ namespace XMLDocumentToHtmlCUI
             Element root;
             if (inputFiles.Length < 1)
             {
-                var generator = new CSharpDocumentGenerator(sourceFilesDir);
+                var generator = new CSharpDocumentGenerator(sourceFilesDir, type);
                 var xmlDocument = generator.ToString();
 
                 root = CsXmlDocumentParser.ParseFromText(
@@ -72,7 +74,7 @@ namespace XMLDocumentToHtmlCUI
             parser.AnalysisProgress += Parser_AnalysisProgress;
 
 			Console.WriteLine("Start C# code analysis.");
-            parser.Parse(sourceFilesDir);
+            parser.Parse(sourceFilesDir, type);
             parser.AddAttributesToElement(root);
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };

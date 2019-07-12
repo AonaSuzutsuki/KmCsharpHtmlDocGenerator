@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using XmlDocumentExtensions.Extensions;
+using XmlDocumentParser.Csproj;
 using XmlDocumentParser.CsXmlDocument;
 using XmlDocumentParser.MethodParameter;
 
@@ -114,15 +115,16 @@ namespace XmlDocumentParser.EasyCs
         /// Parse C# codes in csproj files.
         /// </summary>
         /// <param name="csProjDirPath">Directory path included csproj file.</param>
-        public void Parse(string csProjDirPath = "src")
+        /// <param name="compileType">Type of project.</param>
+        public void Parse(string csProjDirPath = "src", CompileType compileType = CompileType.Classic)
         {
             if (!Directory.Exists(csProjDirPath))
                 return;
 
-            var (csFilePathArray, referenceArray) = GetCsFiles(csProjDirPath);
+            var csFilesInfo = CsprojAnalyzer.Parse(csProjDirPath, compileType);
             var syntaxTrees = new List<SyntaxTree>();
             int index = 0;
-            foreach (var tuple in csFilePathArray.Select((v, i) => new { Value = v, Index = i }))
+            foreach (var tuple in csFilesInfo.SourceFiles.Select((v, i) => new { Value = v, Index = i }))
             {
                 var text = File.ReadAllText(tuple.Value).UnifiedNewLine();
                 //text = RemoveComments(text);
@@ -132,12 +134,12 @@ namespace XmlDocumentParser.EasyCs
 				syntaxTrees.Add(CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, tuple.Value));
 
                 AnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(
-                    CSharpParseProgressEventArgs.ParseType.SyntacticAnalysis, csFilePathArray.Length * 2, ++index, tuple.Value));
+                    CSharpParseProgressEventArgs.ParseType.SyntacticAnalysis, csFilesInfo.SourceFiles.Length * 2, ++index, tuple.Value));
             }
 
             var metadataReferences = new List<MetadataReference>
             {
-                { referenceArray, (item) => MetadataReference.CreateFromFile(item.Location) }
+                { csFilesInfo.References, (item) => MetadataReference.CreateFromFile(item.Location) }
             };
 
             //IEnumerable<MetadataReference> references = new[]{
@@ -155,7 +157,7 @@ namespace XmlDocumentParser.EasyCs
                 RoslynAnalyze(tuple.Value, compilation);
 
                 AnalysisProgress?.Invoke(this, new CSharpParseProgressEventArgs(
-                    CSharpParseProgressEventArgs.ParseType.CodeAnalysis, csFilePathArray.Length * 2, ++index, tuple.Value.FilePath));
+                    CSharpParseProgressEventArgs.ParseType.CodeAnalysis, csFilesInfo.SourceFiles.Length * 2, ++index, tuple.Value.FilePath));
             }
 
 			CodeAnalysisCompleted?.Invoke(this, new EventArgs());
@@ -444,105 +446,6 @@ namespace XmlDocumentParser.EasyCs
                 return (name, parameters.ToArray());
             }
             return (text.Replace("(", "").Replace(")", ""), new string[0]);
-        }
-
-        internal static (string[] csFilePathArray, Assembly[] referenceArray) GetCsFiles(string csprojParentPath)
-        {
-            var csFilePathList = new List<string>();
-            var assemblyNameMap = new Dictionary<string, Assembly>();
-
-            var filepaths = DirectorySearcher.GetAllFiles(csprojParentPath, "*.csproj");
-            foreach (var file in filepaths)
-            {
-                var reader = new XmlWrapper.Reader();
-                reader.LoadFromFile(file);
-                reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
-                var parent = "{0}/".FormatString(Path.GetDirectoryName(file));
-                var includes = MergeParentPath(reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Compile"), parent);
-                csFilePathList.AddRange(includes);
-
-                var targetFramework = GetTargetFramework(reader);
-                var hintPaths = reader.GetValues("/ns:Project/ns:ItemGroup/ns:Reference/ns:HintPath", false);
-                var references = reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Reference");
-                foreach (var hintPath in hintPaths)
-                {
-                    var relativePath = Path.Combine(parent, CommonPath.PathUtils.UnifiedPathSeparator(hintPath));
-                    var absolutePath = Path.GetFullPath(relativePath);
-                    if (File.Exists(absolutePath))
-                    {
-                        var assembly = Assembly.LoadFile(absolutePath);
-                        assemblyNameMap.Put(assembly.GetName().Name, assembly);
-                    }
-                }
-                foreach (var reference in references)
-                {
-                    var referenceName = reference.Split(',').First();
-                    if (!assemblyNameMap.ContainsKey(referenceName))
-                    {
-                        try
-                        {
-                            var assemblyPath = GetSystemAssemblyPath(targetFramework, reference);
-                            var assembly = Assembly.LoadFrom(assemblyPath);
-                            assemblyNameMap.Add(reference, assembly);
-                        }
-                        catch
-                        {
-                            Console.WriteLine("not found \"{0}\" assembly.", reference);
-                        }
-                    }
-                }
-            }
-
-            if (!assemblyNameMap.ContainsKey("mscorlib"))
-                assemblyNameMap.Add("mscorlib", typeof(object).Assembly);
-
-            return (csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
-        }
-
-        private static string GetSystemAssemblyPath(string targetFramework, string reference)
-        {
-            var systemAssemblyDirList = new List<string>
-            {
-                "{0}{1}".FormatString(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v", targetFramework),
-                @"C:\Windows\assembly\GAC_MSIL",
-                "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/gac",
-                "{0}/{1}-api".FormatString("/Library/Frameworks/Mono.framework/Versions/Current/lib/mono", targetFramework),
-                "/usr/lib/mono/gac",
-                "{0}/{1}-api".FormatString("/usr/lib/mono", targetFramework),
-            };
-
-            foreach (var systemAssemblyDir in systemAssemblyDirList)
-            {
-                if (Directory.Exists(systemAssemblyDir))
-                {
-                    var assemblyPathArray = DirectorySearcher.GetAllFiles(systemAssemblyDir, "{0}.dll".FormatString(reference));
-                    if (assemblyPathArray.Length > 0)
-                        return assemblyPathArray.Last();
-                }
-            }
-            return null;
-        }
-
-        private static string GetTargetFramework(XmlWrapper.Reader reader)
-        {
-            var version = reader.GetValue("/ns:Project/ns:PropertyGroup/ns:TargetFrameworkVersion", false);
-            var regex = new Regex("[0-9.]+");
-            var match = regex.Match(version);
-            if (match.Success)
-            {
-                return match.ToString();
-            }
-            return null;
-        }
-
-        private static List<string> MergeParentPath(List<string> list, string parent)
-        {
-            var retList = new List<string>(list);
-            for (int i = 0; i < retList.Count; i++)
-            {
-                retList[i] = CommonPath.PathUtils.UnifiedPathSeparator(parent + retList[i]);
-            }
-            return retList;
         }
 
         private static string RemoveComments(string text)

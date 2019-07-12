@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Text;
 using CommonExtensionLib.Extensions;
+using XmlDocumentParser.Csproj;
 
 namespace XmlDocumentParser.EasyCs
 {
@@ -23,16 +24,17 @@ namespace XmlDocumentParser.EasyCs
         /// Initializes a new instance of the <see cref="T:XmlDocumentParser.EasyCs.CSharpDocumentGenerator"/> class.
         /// </summary>
         /// <param name="csProjDirPath">Cs proj dir path.</param>
-        public CSharpDocumentGenerator(string csProjDirPath = "src")
+        /// <param name="compileType">Type of project.</param>
+        public CSharpDocumentGenerator(string csProjDirPath = "src", CompileType compileType = CompileType.Classic)
         {
             if (!Directory.Exists(csProjDirPath))
                 return;
 
-            var (csFilePathArray, referenceArray) = CSharpEasyAnalyzer.GetCsFiles(csProjDirPath);
-            var textArray = from file in csFilePathArray select File.ReadAllText(file);
+            var csFilesInfo = CsprojAnalyzer.Parse(csProjDirPath, compileType);
+            var textArray = from file in csFilesInfo.SourceFiles select File.ReadAllText(file);
             var metadataReferences = new List<MetadataReference>
             {
-                { referenceArray, (item) => MetadataReference.CreateFromFile(item.Location) }
+                { csFilesInfo.References, (item) => MetadataReference.CreateFromFile(item.Location) }
             };
 
             Analyze(textArray, metadataReferences);
