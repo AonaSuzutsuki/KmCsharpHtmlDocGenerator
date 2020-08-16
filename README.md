@@ -24,11 +24,12 @@ The .Net Core project will not work properly because system assembly can not be 
 
 # Usage
 1. Copy source codes into a suitable directory (Default: src).  
-*The standard directory is src in the execution path.  
+\*The standard directory is src in the execution path.  
 <img src="Images/1.png" alt="1.png" width="50%" />
 
 2. (Option) XmlDocument exists  
 Copy XmlDocuments into source codes directory.  
+\*Xml document is automatically generated from the source code so it is unnecessary.
 <img src="Images/2.png" alt="2.png" width="50%" />
 
 3. Run HtmlGenerator.exe

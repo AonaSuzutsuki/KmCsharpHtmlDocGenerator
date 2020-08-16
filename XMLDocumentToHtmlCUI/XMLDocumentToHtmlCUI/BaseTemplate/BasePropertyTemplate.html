@@ -1,15 +1,17 @@
 ﻿<br />
 <div class="method-elem">
     <h3 id="{$PropertyHash}">{$PropertyName}</h3>
-    {if $HasCode == true}
-    <pre class="brush: csharp;">
+    <div class="method-content">
+        {if $HasCode == true}
+        <pre class="brush: csharp;">
 {$Code}
-        </pre>
-    {/if $HasCode}
-
-    <div class="method-elem">
-        <div class="elem-content">
-            {$PropertyComment}
+            </pre>
+        {/if $HasCode}
+    
+        <div class="method-elem">
+            <div class="elem-content">
+                {$PropertyComment}
+            </div>
         </div>
     </div>
 </div>
