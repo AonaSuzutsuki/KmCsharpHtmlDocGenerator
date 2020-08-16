@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonPath\PathUtils.cs" />
+    <Compile Include="Csproj\XamarinCsprojAnalyzer.cs" />
     <Compile Include="CsXmlDocument\CsXmlDocumentParser.cs" />
     <Compile Include="CsXmlDocument\Element.cs" />
     <Compile Include="CsXmlDocument\ElementType.cs" />
@@ -205,6 +206,10 @@
     <Compile Include="EasyCs\CSharpDocumentGenerator.cs" />
     <Compile Include="XmlWrapper\Writer.cs" />
     <Compile Include="XmlWrapper\AttributeInfo.cs" />
+    <Compile Include="EasyCs\CompileType.cs" />
+    <Compile Include="EasyCs\ProjectTypeConverter.cs" />
+    <Compile Include="Csproj\CsprojAnalyzer.cs" />
+    <Compile Include="Csproj\ClassicCsprojAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -216,5 +221,6 @@
       <Name>XmlDocumentExtensions</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
