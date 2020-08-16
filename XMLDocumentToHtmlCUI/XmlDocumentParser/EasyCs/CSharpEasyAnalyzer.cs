@@ -354,7 +354,15 @@ namespace XmlDocumentParser.EasyCs
                         var propSyntax = (syntax as PropertyDeclarationSyntax);
                         var symbolInfo = semanticModel.GetSymbolInfo(propSyntax.Type);
                         var sym = symbolInfo.Symbol;
-                        if (propSyntax.AccessorList != null)
+                        if (propSyntax.AccessorList == null)
+                        {
+                            classInfo.Accessors.Add(new ClassInfo
+                            {
+                                Accessibility = Accessibility.Public,
+                                Name = "get"
+                            });
+                        }
+                        else
                         {
                             var accessors = propSyntax.AccessorList.Accessors;
                             classInfo.Accessors.Add(accessors, (item) =>
@@ -367,14 +375,13 @@ namespace XmlDocumentParser.EasyCs
                                     accessibility = msym.DeclaredAccessibility;
                                 }
 
-                                return new ClassInfo()
+                                return new ClassInfo
                                 {
                                     Accessibility = accessibility,
                                     Name = keyword
                                 };
                             });
                         }
-                        
                         classInfo.ReturnType = sym == null ? propSyntax.Identifier.ToString() : sym.ToDisplayString();
                     }
 

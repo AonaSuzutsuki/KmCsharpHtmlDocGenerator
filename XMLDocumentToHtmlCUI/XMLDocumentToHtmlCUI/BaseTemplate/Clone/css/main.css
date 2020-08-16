@@ -16,6 +16,10 @@ body {
     position: relative;
 }
 
+.method-content {
+    margin-left: 25px;
+}
+
 .clearfix::after {
     content: '';
     clear: both;
