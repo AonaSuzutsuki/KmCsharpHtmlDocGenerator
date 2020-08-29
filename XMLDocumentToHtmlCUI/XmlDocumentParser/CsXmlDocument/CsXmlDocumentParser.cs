@@ -183,12 +183,10 @@ namespace XmlDocumentParser.CsXmlDocument
 
         private List<Member> FirstParse(string xmlPath)
         {
-            using (var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                var reader = new Reader();
-                reader.LoadFromStream(fs);
-                return FirstParse(reader);
-            }
+            using var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var reader = new Reader();
+            reader.LoadFromStream(fs);
+            return FirstParse(reader);
         }
 
         private List<Member> FirstParse(Reader reader)
@@ -349,9 +347,9 @@ namespace XmlDocumentParser.CsXmlDocument
 		/// <param name="text">The name text.</param>
 		public static Member ConvertMemberNameToMember(string text)
 		{
-			string ResolveSplitParameter(string split)
+            static string ResolveSplitParameter(string split)
 			{
-				for (int i = 0; i < ParameterLoopLimit; i++)
+				for (var i = 0; i < ParameterLoopLimit; i++)
 				{
 					var splitReg = new Regex("~(?<encoded>.*)~");
 					var splitMatch = splitReg.Match(split);

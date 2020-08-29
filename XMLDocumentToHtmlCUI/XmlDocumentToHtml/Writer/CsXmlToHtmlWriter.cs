@@ -127,11 +127,9 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("Menu", menu);
 
             var name = PathUtils.UnifiedPathSeparator(outputDirPath + element.Name + "/index.html");
-            using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-                var data = Encoding.UTF8.GetBytes(loader.ToString());
-                fs.Write(data, 0, data.Length);
-            }
+            using var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read);
+            var data = Encoding.UTF8.GetBytes(loader.ToString());
+            fs.Write(data, 0, data.Length);
         }
 
         private string CreateIndex(Element element)
@@ -183,7 +181,7 @@ namespace XmlDocumentToHtml.Writer
         {
             void AddCodeToTemplate(Member member, TemplateLoader templateLoader)
             {
-                var difinition = member.GetDifinition(isFullname);
+                var difinition = member.GetDefinition(isFullname);
                 if (!string.IsNullOrEmpty(difinition))
                 {
                     templateLoader.Assign("Code", difinition);
@@ -282,7 +280,7 @@ namespace XmlDocumentToHtml.Writer
 
             loader.Assign("RelativePath", CreateRelativePath(linkCount));
             loader.Assign("ClassName", "{0} {1}".FormatString(MethodParameterConverter.ResolveGenericsTypeToHtml(parent.Name), parent.Type.ToString()));
-			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
+			loader.Assign("ClassComment", ConvertHtmlBreakLine(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
             loader.Assign("Inheritance", CreateInheritance(parent.InheritanceList, stream.Name, linkCount));
@@ -298,6 +296,11 @@ namespace XmlDocumentToHtml.Writer
             var template = loader.ToString();
             var templateBytes = Encoding.UTF8.GetBytes(template);
             stream.Write(templateBytes, 0, templateBytes.Length);
+        }
+
+        private static string ConvertHtmlBreakLine(string text)
+        {
+            return text.Replace("\n", "<br />");
         }
 
         private static void CloneFiles(string outPath)
@@ -466,8 +469,6 @@ namespace XmlDocumentToHtml.Writer
 
 		private static string ResolveSpecificXmlElement(string text, int linkCount, string writePath)
         {
-            //var linkCount = parent.Namespace.NamespaceCount;
-            var relativePath = CreateRelativePath(linkCount);
             var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.[^\"]*)\"[ ]*\\/>");
             var match2 = regex2.Match(text);
             while (match2.Success)

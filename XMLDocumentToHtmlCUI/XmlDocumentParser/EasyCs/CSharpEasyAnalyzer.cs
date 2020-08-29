@@ -182,7 +182,6 @@ namespace XmlDocumentParser.EasyCs
                     }
                     else
                     {
-                        var fullname = elem.Namespace.IsRoot ? elem.Name : "{0}.{1}".FormatString(elem.Namespace, elem.Name);
                         var classInfo = classMap.Get(elem.Id);
                         if (classInfo != null)
                         {
@@ -235,7 +234,6 @@ namespace XmlDocumentParser.EasyCs
                                 method.Type = MethodType.ExtensionMethod;
 
                             method.ClassInformation = item;
-                            //method.Difinition = ConvertToDefinition(item, method);
                             method.Name = item.Name;
                             method.Accessibility = item.Accessibility;
                             method.ReturnType = item.ReturnType;
@@ -248,7 +246,6 @@ namespace XmlDocumentParser.EasyCs
                         if (item != null)
                         {
                             method.ClassInformation = item;
-                            //method.Difinition = ConvertToDefinition(item, method);
                             method.Name = item.Name;
                             method.Accessibility = item.Accessibility;
                             method.ReturnType = item.ReturnType;
@@ -279,7 +276,7 @@ namespace XmlDocumentParser.EasyCs
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
         {
             var semanticModel = compilation.GetSemanticModel(tree);
-            var nodes = tree.GetRoot().DescendantNodes();
+            var nodes = tree.GetRoot().DescendantNodes().ToArray();
             var classSyntaxArray = nodes.OfType<ClassDeclarationSyntax>();
             var inSyntaxArray = nodes.OfType<InterfaceDeclarationSyntax>();
             var enumSyntaxArray = nodes.OfType<EnumDeclarationSyntax>();
@@ -297,9 +294,9 @@ namespace XmlDocumentParser.EasyCs
                     var symbol = semanticModel.GetDeclaredSymbol(syntax);
                     var classInfo = CreateClassInfo(symbol, classType);
 
-                    if (syntax is ClassDeclarationSyntax)
+                    if (syntax is ClassDeclarationSyntax classDeclarationSyntax)
                     {
-                        var classSyntax = (syntax as ClassDeclarationSyntax);
+                        var classSyntax = classDeclarationSyntax;
                         if (classSyntax.BaseList != null)
                         {
                             var baseTypes = classSyntax.BaseList.Types;
@@ -316,9 +313,9 @@ namespace XmlDocumentParser.EasyCs
                         }
                     }
 
-                    if (syntax is PropertyDeclarationSyntax)
+                    if (syntax is PropertyDeclarationSyntax declarationSyntax)
                     {
-                        var propSyntax = (syntax as PropertyDeclarationSyntax);
+                        var propSyntax = declarationSyntax;
                         var symbolInfo = semanticModel.GetSymbolInfo(propSyntax.Type);
                         var sym = symbolInfo.Symbol;
                         if (propSyntax.AccessorList == null)
@@ -373,7 +370,10 @@ namespace XmlDocumentParser.EasyCs
             var fullClassName = symbol.ToString();
             var namespaceName = symbol.ContainingSymbol.ToString();
             var nameWithParameter = fullClassName.Replace("{0}.".FormatString(namespaceName), "");
-            (string methodName, string[] parameterTypes) = SplitMethodNameAndParameter(nameWithParameter);
+            var (methodName, _) = SplitMethodNameAndParameter(nameWithParameter);
+
+            //Microsoft.CodeAnalysis.CSharp.Symbols.SourceNamedTypeSymbol a;
+
 
             var classInfo = new ClassInfo
             {
@@ -391,18 +391,18 @@ namespace XmlDocumentParser.EasyCs
                 IsOverride = symbol.IsOverride,
             };
 
-            if (symbol is IMethodSymbol)
+            if (symbol is IMethodSymbol methodSymbol)
             {
-                foreach (var type in ((IMethodSymbol)symbol).Parameters)
+                foreach (var type in methodSymbol.Parameters)
                 {
                     var paramFullname = type.ToString();
                     classInfo.ParameterTypes.Add(CreateParameterInfo(paramFullname));
                 }
 
-                var returnType = ((IMethodSymbol)symbol).ReturnType;
-                classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
+                var returnType = methodSymbol.ReturnType;
+                classInfo.IsAsync = methodSymbol.IsAsync;
                 classInfo.ReturnType = CreateParameterInfo(returnType.ToString());
-				classInfo.IsExtensionMethod = ((IMethodSymbol)symbol).IsExtensionMethod;
+				classInfo.IsExtensionMethod = methodSymbol.IsExtensionMethod;
             }
 
             return classInfo;
@@ -429,12 +429,6 @@ namespace XmlDocumentParser.EasyCs
                 return (name, parameters.ToArray());
             }
             return (text.Replace("(", "").Replace(")", ""), new string[0]);
-        }
-
-        private static string RemoveComments(string text)
-        {
-            var reg = "(\\s|\\t)*((\\/\\*([\\s\\S]*)\\*\\/)|([\\/]+(.*)))";
-            return Regex.Replace(text, reg, "", RegexOptions.Multiline);
         }
 
         private static NamespaceItem GetNamespace(string text)
