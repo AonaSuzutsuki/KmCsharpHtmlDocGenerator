@@ -199,8 +199,9 @@ namespace XmlDocumentParser.CsXmlDocument
             var vals = reader.GetAttributes("name", "/doc/members/member");
             foreach (var tuple in vals.Select((v, i) => new { Value = v, Index = i }))
             {
-                var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
-                var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
+                var values = reader.GetValues("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
+                var value = string.Join("\n", values.Select(s => s));
+				var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
                 value = RemoveFirstLastBreakLine(value);
 
                 var member = ConvertMemberNameToMember(tuple.Value);
