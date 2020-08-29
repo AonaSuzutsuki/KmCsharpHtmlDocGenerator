@@ -234,7 +234,8 @@ namespace XmlDocumentParser.EasyCs
                             if (item.IsExtensionMethod)
                                 method.Type = MethodType.ExtensionMethod;
 
-                            method.Difinition = ConvertToDefinition(item, method);
+                            method.ClassInfomation = item;
+                            //method.Difinition = ConvertToDefinition(item, method);
                             method.Name = item.Name;
                             method.Accessibility = item.Accessibility;
                             method.ReturnType = item.ReturnType;
@@ -246,7 +247,8 @@ namespace XmlDocumentParser.EasyCs
                         var item = methodMap.Get(method.Id);
                         if (item != null)
                         {
-                            method.Difinition = ConvertToDefinition(item, method);
+                            method.ClassInfomation = item;
+                            //method.Difinition = ConvertToDefinition(item, method);
                             method.Name = item.Name;
                             method.Accessibility = item.Accessibility;
                             method.ReturnType = item.ReturnType;
@@ -273,58 +275,6 @@ namespace XmlDocumentParser.EasyCs
 
             return new ParameterInfo();
         }
-
-        private static string ConvertToDefinition(ClassInfo classInfo, Member member)
-		{
-            var sb = new StringBuilder();
-
-			if (classInfo.ClassType == ClassType.Method || classInfo.ClassType == ClassType.Constructor)
-            {
-                sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
-
-                if (classInfo.IsOverride)
-                    sb.Append("override ");
-                if (classInfo.IsVirtual)
-                    sb.Append("virtual ");
-                if (classInfo.IsStatic)
-                    sb.Append("static ");
-                if (classInfo.IsAsync)
-                    sb.Append("async ");
-                if (classInfo.IsExtern)
-                    sb.Append("extern ");
-
-                if (classInfo.ClassType == ClassType.Method)
-                    sb.AppendFormat("{0} ", classInfo.ReturnType);
-                sb.AppendFormat("{0}", classInfo.Name);
-				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, true, (item) => item));
-            }
-            else if (classInfo.ClassType == ClassType.Property)
-            {
-                sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
-                sb.AppendFormat("{0} ", classInfo.ReturnType);
-                sb.AppendFormat("{0} {{ ", classInfo.Name);
-
-                foreach (var accessors in classInfo.Accessors)
-                {
-                    if (accessors.Accessibility == Accessibility.Public)
-                        sb.AppendFormat("{0}; ", accessors.Name);
-                    else if (accessors.Accessibility != Accessibility.Private)
-                        sb.AppendFormat("{0} {1}; ", accessors.Accessibility.ToString().ToLower(), accessors.Name);
-                }
-
-                sb.AppendFormat("}}");
-            }
-
-			var tree = CSharpSyntaxTree.ParseText(sb.ToString());
-            
-			return MethodParameterConverter.ResolveGenericsTypeToHtml(sb.ToString());
-		}
-
-		private static string ConvertSyntaxHighlightText(string defCode)
-		{
-			//(?<accessibility>[a-z ]+)[\s]+(?<returnType>[a-zA-Z0-9\[\]<>,\(\) ]+)[\s]+(?<methodName>[a-zA-Z0-9]+)\((?<arguments>[a-zA-Z0-9<>,. ]*)\);
-			return null;
-		}
 
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)
         {

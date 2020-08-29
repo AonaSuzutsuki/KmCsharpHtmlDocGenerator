@@ -183,9 +183,10 @@ namespace XmlDocumentToHtml.Writer
         {
             void AddCodeToTemplate(Member member, TemplateLoader templateLoader)
             {
-                if (!string.IsNullOrEmpty(member.Difinition))
+                var difinition = member.GetDifinition(isFullname);
+                if (!string.IsNullOrEmpty(difinition))
                 {
-                    templateLoader.Assign("Code", member.Difinition);
+                    templateLoader.Assign("Code", difinition);
                     templateLoader.Assign("HasCode", true);
                 }
             }
