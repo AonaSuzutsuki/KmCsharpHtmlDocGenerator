@@ -68,7 +68,11 @@ namespace XmlDocumentParser.EasyCs
                         var id = symbol.GetDocumentationCommentId();
                         var t = symbol.GetDocumentationCommentXml();
                         if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(t))
-                            sortedList.Add(id.Substring(2), t);
+                        {
+                            var key = id.Substring(2);
+                            if (!sortedList.ContainsKey(key))
+                                sortedList.Add(key, t);
+                        }
                     }
                 }
             }

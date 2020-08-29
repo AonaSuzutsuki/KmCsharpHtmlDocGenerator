@@ -109,7 +109,7 @@ namespace XmlDocumentParser.EasyCs
         /// Gets or sets the type of the return.
         /// </summary>
         /// <value>The type of the return.</value>
-        public string ReturnType { get; set; } = Constants.SystemVoid;
+        public ParameterInfo ReturnType { get; set; } = new ParameterInfo { Name = Constants.SystemVoid };
 
         /// <summary>
         /// Gets or sets the full name.

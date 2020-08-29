@@ -234,7 +234,7 @@ namespace XmlDocumentParser.EasyCs
                             if (item.IsExtensionMethod)
                                 method.Type = MethodType.ExtensionMethod;
 
-                            method.ClassInfomation = item;
+                            method.ClassInformation = item;
                             //method.Difinition = ConvertToDefinition(item, method);
                             method.Name = item.Name;
                             method.Accessibility = item.Accessibility;
@@ -247,7 +247,7 @@ namespace XmlDocumentParser.EasyCs
                         var item = methodMap.Get(method.Id);
                         if (item != null)
                         {
-                            method.ClassInfomation = item;
+                            method.ClassInformation = item;
                             //method.Difinition = ConvertToDefinition(item, method);
                             method.Name = item.Name;
                             method.Accessibility = item.Accessibility;
@@ -349,7 +349,8 @@ namespace XmlDocumentParser.EasyCs
                                 };
                             });
                         }
-                        classInfo.ReturnType = sym == null ? propSyntax.Identifier.ToString() : sym.ToDisplayString();
+                        var returnFullname = sym == null ? propSyntax.Identifier.ToString() : sym.ToDisplayString();
+                        classInfo.ReturnType = CreateParameterInfo(returnFullname);
                     }
 
                     dic.Put(classInfo.Id, classInfo);
@@ -400,7 +401,7 @@ namespace XmlDocumentParser.EasyCs
 
                 var returnType = ((IMethodSymbol)symbol).ReturnType;
                 classInfo.IsAsync = ((IMethodSymbol)symbol).IsAsync;
-                classInfo.ReturnType = returnType.ToString();
+                classInfo.ReturnType = CreateParameterInfo(returnType.ToString());
 				classInfo.IsExtensionMethod = ((IMethodSymbol)symbol).IsExtensionMethod;
             }
 

@@ -223,7 +223,7 @@ namespace XmlDocumentToHtml.Writer
 
 						if (!member.ReturnType.Equals(Constants.SystemVoid))
 						{
-							methodLoader.Assign("MethodReturnType", member.ReturnType);
+							methodLoader.Assign("MethodReturnType", member.ReturnType.GetName(isFullname));
 							methodLoader.Assign("HasReturnType", true);
 						}
                     }
@@ -258,10 +258,11 @@ namespace XmlDocumentToHtml.Writer
                 {
                     var propertyLoader = new TemplateLoader(BasePropertyTemplate);
                     var hash = Sha256.GetSha256(member.Name);
-                    var propName = member.ReturnType.Equals(Constants.SystemVoid) ? member.Name : string.Format("{0} {1}", member.ReturnType, member.Name);
+                    var propName = $"{member.ReturnType.GetName(isFullname)} {member.Name}";
                     propertyLoader.Assign("PropertyHash", hash);
                     propertyLoader.Assign("PropertyName",
-                        MethodParameterConverter.ResolveGenericsTypeToHtml("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName)));
+                        MethodParameterConverter.ResolveGenericsTypeToHtml("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(),
+                            propName)));
 					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
                     
                     AddCodeToTemplate(member, propertyLoader);

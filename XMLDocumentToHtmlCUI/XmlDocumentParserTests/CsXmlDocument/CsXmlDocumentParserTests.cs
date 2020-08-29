@@ -31,7 +31,11 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                     Name = "#ctor",
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Test constructor.",
-                    ParameterTypes = new List<string> { "int", "string" },
+                    ParameterTypes = new List<EasyCs.ParameterInfo>
+                    {
+                        new EasyCs.ParameterInfo { Name = "int" },
+                        new EasyCs.ParameterInfo { Name = "string" }
+                    },
                     ParameterNames = new Dictionary<string, string>
                     {
                         { "ivalue", "Int value." },
@@ -86,7 +90,11 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                 Type = MethodType.Constructor,
                 Name = "#ctor",
                 Namespace = new NamespaceItem("Test.TestClass"),
-                ParameterTypes = new List<string> { "int", "string" },
+                ParameterTypes = new List<EasyCs.ParameterInfo>
+                {
+                    new EasyCs.ParameterInfo { Name = "int" },
+                    new EasyCs.ParameterInfo { Name = "string" }
+                }
             };
             var value = CsXmlDocumentParser.ConvertMemberNameToMember("M:Test.TestClass.#ctor(System.Int32,System.String)");
             Assert.AreEqual(exp, value);

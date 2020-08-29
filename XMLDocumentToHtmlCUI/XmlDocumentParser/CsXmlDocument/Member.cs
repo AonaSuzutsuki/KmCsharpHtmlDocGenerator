@@ -16,7 +16,7 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
-        internal ClassInfo ClassInfomation { get; set; }
+        internal ClassInfo ClassInformation { get; set; }
 
         /// <summary>
         /// Identifier of this element.
@@ -66,7 +66,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Type of return value. Require to analyze source code.
         /// </summary>
-        public string ReturnType { get; set; } = Constants.SystemVoid;
+        public ParameterInfo ReturnType { get; set; } = new ParameterInfo { Name = Constants.SystemVoid };
 
 
         /// <summary>
@@ -75,10 +75,10 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <returns>Difinition of this element. Require to analyze source code.</returns>
         public string GetDifinition(bool isFullname)
         {
-            if (ClassInfomation == null)
+            if (ClassInformation == null)
                 return string.Empty;
 
-            return ConvertToDefinition(ClassInfomation, isFullname);
+            return ConvertToDefinition(ClassInformation, isFullname);
         }
 
         private string ConvertToDefinition(ClassInfo classInfo, bool isFullname)
@@ -101,7 +101,7 @@ namespace XmlDocumentParser.CsXmlDocument
                     sb.Append("extern ");
 
                 if (classInfo.ClassType == ClassType.Method)
-                    sb.AppendFormat("{0} ", classInfo.ReturnType);
+                    sb.AppendFormat("{0} ", classInfo.ReturnType.GetName(isFullname));
                 sb.AppendFormat("{0}", classInfo.Name);
                 sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(this, isFullname, (item) => item));
             }

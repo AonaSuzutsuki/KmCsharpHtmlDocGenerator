@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XmlDocumentParser.CsXmlDocument;
+using XmlDocumentParser.EasyCs;
 
 namespace XmlDocumentParser.MethodParameter.Tests
 {
@@ -19,7 +20,22 @@ namespace XmlDocumentParser.MethodParameter.Tests
             var member = new Member()
             {
                 Type = MethodType.ExtensionMethod,
-                ParameterTypes = new List<string> { "System.Collections.Generic.Dictionary<K, V>", "K", "V" },
+                ParameterTypes = new List<ParameterInfo>
+                {
+                    new ParameterInfo
+                    {
+                        Name = "Dictionary<K, V>",
+                        Namespace = "System.Collections.Generic"
+                    },
+                    new ParameterInfo
+                    {
+                        Name = "K"
+                    },
+                    new ParameterInfo
+                    {
+                        Name = "V"
+                    }
+                },
                 ParameterNames = new Dictionary<string, string>
                 {
                      { "dict", "" },
@@ -28,7 +44,7 @@ namespace XmlDocumentParser.MethodParameter.Tests
                 }
             };
 
-            var value = MethodParameterConverter.CreateMethodParameterText(member);
+            var value = MethodParameterConverter.CreateMethodParameterText(member, true);
 
             Assert.AreEqual(exp, value);
         }
