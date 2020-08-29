@@ -81,6 +81,7 @@ namespace XmlDocumentToHtml.Writer
         /// Write HTML of C# Xml Document to Disk.
         /// </summary>
         /// <param name="outputDirPath">Specify output directory path.</param>
+        /// <param name="isFullname">Whether to use full path notation for classes, etc.</param>
         public void WriteToDisk(string outputDirPath = "", bool isFullname = false)
         {
             //var menu = CreateMenu(root);
@@ -181,10 +182,10 @@ namespace XmlDocumentToHtml.Writer
         {
             void AddCodeToTemplate(Member member, TemplateLoader templateLoader)
             {
-                var difinition = member.GetDefinition(isFullname);
-                if (!string.IsNullOrEmpty(difinition))
+                var definition = member.GetDefinition(isFullname);
+                if (!string.IsNullOrEmpty(definition))
                 {
-                    templateLoader.Assign("Code", difinition);
+                    templateLoader.Assign("Code", definition);
                     templateLoader.Assign("HasCode", true);
                 }
             }
