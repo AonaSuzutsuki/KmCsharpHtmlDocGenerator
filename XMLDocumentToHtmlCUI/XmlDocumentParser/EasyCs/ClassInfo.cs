@@ -5,12 +5,31 @@ using XmlDocumentParser.CsXmlDocument;
 
 namespace XmlDocumentParser.EasyCs
 {
+    /// <summary>
+    /// Type information is provided.
+    /// </summary>
     public class TypeInfo
     {
+        /// <summary>
+        /// Namespace of type.
+        /// </summary>
         public string Namespace { get; set; }
+
+        /// <summary>
+        /// Name of type.
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Fullname with namespace.
+        /// </summary>
         public string FullName => string.IsNullOrEmpty(Namespace) ? Name : $"{Namespace}.{Name}";
 
+        /// <summary>
+        /// Get the name of type.
+        /// </summary>
+        /// <param name="isFullname">Whether to use full path notation for classes, etc.</param>
+        /// <returns>Name of type.</returns>
         public string GetName(bool isFullname)
         {
             return isFullname ? FullName : Name;
