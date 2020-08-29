@@ -224,7 +224,7 @@ namespace XmlDocumentParser.EasyCs
                         var item = methodMap.Get(method.Id);
                         if (item != null)
                         {
-                            method.ParameterTypes = new List<ParameterInfo>
+                            method.ParameterTypes = new List<TypeInfo>
                                 {
                                     { item.ParameterTypes, (_item) => _item }
                                 };
@@ -259,21 +259,21 @@ namespace XmlDocumentParser.EasyCs
             }
         }
 
-        public static ParameterInfo CreateParameterInfo(string fullname)
+        public static TypeInfo CreateParameterInfo(string fullname)
         {
             var names = fullname.Split('.').ToList();
             if (names.Count > 0)
             {
                 var name = names.Last();
                 var nameSpace = string.Join(".", names.GetRange(0, names.Count - 1));
-                return new ParameterInfo
+                return new TypeInfo
                 {
                     Name = name,
                     Namespace = nameSpace
                 };
             }
 
-            return new ParameterInfo();
+            return new TypeInfo();
         }
 
         private void RoslynAnalyze(SyntaxTree tree, CSharpCompilation compilation)

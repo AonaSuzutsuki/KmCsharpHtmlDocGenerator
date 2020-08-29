@@ -26,7 +26,7 @@ namespace XmlDocumentParser.EasyCs.Tests
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Value.",
                     Accessibility = Accessibility.Public,
-                    ReturnType = new ParameterInfo { Name = "int" }
+                    ReturnType = new TypeInfo { Name = "int" }
                 },
                 new Member()
                 {
@@ -35,10 +35,10 @@ namespace XmlDocumentParser.EasyCs.Tests
                     Name = "TestClass",
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Test constructor.",
-                    ParameterTypes = new List<ParameterInfo>
+                    ParameterTypes = new List<TypeInfo>
                     {
-                        new ParameterInfo { Name = "int" },
-                        new ParameterInfo { Name = "string" }
+                        new TypeInfo { Name = "int" },
+                        new TypeInfo { Name = "string" }
                     },
                     ParameterNames = new Dictionary<string, string>
                     {
@@ -56,7 +56,7 @@ namespace XmlDocumentParser.EasyCs.Tests
                     Value = "Test method.",
                     ReturnComment = "Return int.",
                     Accessibility = Accessibility.Public,
-                    ReturnType = new ParameterInfo { Name = "int" }
+                    ReturnType = new TypeInfo { Name = "int" }
                 }
             };
 

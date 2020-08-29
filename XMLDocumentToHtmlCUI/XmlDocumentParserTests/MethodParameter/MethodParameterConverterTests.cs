@@ -20,18 +20,18 @@ namespace XmlDocumentParser.MethodParameter.Tests
             var member = new Member()
             {
                 Type = MethodType.ExtensionMethod,
-                ParameterTypes = new List<ParameterInfo>
+                ParameterTypes = new List<TypeInfo>
                 {
-                    new ParameterInfo
+                    new TypeInfo
                     {
                         Name = "Dictionary<K, V>",
                         Namespace = "System.Collections.Generic"
                     },
-                    new ParameterInfo
+                    new TypeInfo
                     {
                         Name = "K"
                     },
-                    new ParameterInfo
+                    new TypeInfo
                     {
                         Name = "V"
                     }

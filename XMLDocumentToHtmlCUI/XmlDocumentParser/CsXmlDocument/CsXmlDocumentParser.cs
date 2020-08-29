@@ -369,7 +369,8 @@ namespace XmlDocumentParser.CsXmlDocument
 				}
 				return split;
 			}
-			ParameterInfo[] SplitParameter(string parameterText)
+
+            static TypeInfo[] SplitParameter(string parameterText)
 			{
 				for (int i = 0; i < ParameterLoopLimit; i++)
 				{
@@ -387,12 +388,12 @@ namespace XmlDocumentParser.CsXmlDocument
 
 				if (string.IsNullOrEmpty(parameterText))
 				{
-					return new ParameterInfo[0];
+					return new TypeInfo[0];
 				}
 				else
 				{
 					var splits = parameterText.Split(',');
-					var list = new List<ParameterInfo>();
+					var list = new List<TypeInfo>();
 					for (int i = 0; i < splits.Length; i++)
 					{
 						var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));

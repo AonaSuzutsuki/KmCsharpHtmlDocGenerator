@@ -31,10 +31,10 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                     Name = "#ctor",
                     Namespace = new NamespaceItem("Test.TestClass"),
                     Value = "Test constructor.",
-                    ParameterTypes = new List<EasyCs.ParameterInfo>
+                    ParameterTypes = new List<EasyCs.TypeInfo>
                     {
-                        new EasyCs.ParameterInfo { Name = "int" },
-                        new EasyCs.ParameterInfo { Name = "string" }
+                        new EasyCs.TypeInfo { Name = "int" },
+                        new EasyCs.TypeInfo { Name = "string" }
                     },
                     ParameterNames = new Dictionary<string, string>
                     {
@@ -90,10 +90,10 @@ namespace XmlDocumentParser.CsXmlDocument.Tests
                 Type = MethodType.Constructor,
                 Name = "#ctor",
                 Namespace = new NamespaceItem("Test.TestClass"),
-                ParameterTypes = new List<EasyCs.ParameterInfo>
+                ParameterTypes = new List<EasyCs.TypeInfo>
                 {
-                    new EasyCs.ParameterInfo { Name = "int" },
-                    new EasyCs.ParameterInfo { Name = "string" }
+                    new EasyCs.TypeInfo { Name = "int" },
+                    new EasyCs.TypeInfo { Name = "string" }
                 }
             };
             var value = CsXmlDocumentParser.ConvertMemberNameToMember("M:Test.TestClass.#ctor(System.Int32,System.String)");

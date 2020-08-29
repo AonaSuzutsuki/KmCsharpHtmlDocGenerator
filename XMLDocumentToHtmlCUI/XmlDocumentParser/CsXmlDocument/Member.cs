@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using XmlDocumentParser.EasyCs;
 using XmlDocumentParser.MethodParameter;
+using TypeInfo = XmlDocumentParser.EasyCs.TypeInfo;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
@@ -41,7 +42,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Parameter types of member.
         /// </summary>
-        public List<ParameterInfo> ParameterTypes { get; set; } = new List<ParameterInfo>();
+        public List<TypeInfo> ParameterTypes { get; set; } = new List<TypeInfo>();
         
         /// <summary>
         /// Value of member.
@@ -66,20 +67,15 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Type of return value. Require to analyze source code.
         /// </summary>
-        public ParameterInfo ReturnType { get; set; } = new ParameterInfo { Name = Constants.SystemVoid };
+        public TypeInfo ReturnType { get; set; } = new TypeInfo { Name = Constants.SystemVoid };
 
 
         /// <summary>
         /// Get the definition of this element. Require to analyze source code.
         /// </summary>
+        /// <param name="isFullname">Whether to use full path notation for classes, etc.</param>
         /// <returns>Definition of this element. Require to analyze source code.</returns>
-        public string GetDefinition(bool isFullname)
-        {
-            if (ClassInformation == null)
-                return string.Empty;
-
-            return ConvertToDefinition(ClassInformation, isFullname);
-        }
+        public string GetDefinition(bool isFullname) => ClassInformation == null ? string.Empty : ConvertToDefinition(ClassInformation, isFullname);
 
         private string ConvertToDefinition(ClassInfo classInfo, bool isFullname)
         {
@@ -103,7 +99,7 @@ namespace XmlDocumentParser.CsXmlDocument
                 if (classInfo.ClassType == ClassType.Method)
                     sb.AppendFormat("{0} ", classInfo.ReturnType.GetName(isFullname));
                 sb.AppendFormat("{0}", classInfo.Name);
-                sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(this, isFullname, (item) => item));
+                sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(this, isFullname));
             }
             else if (classInfo.ClassType == ClassType.Property)
             {
@@ -123,12 +119,6 @@ namespace XmlDocumentParser.CsXmlDocument
             }
 
             return MethodParameterConverter.ResolveGenericsTypeToHtml(sb.ToString());
-        }
-
-        private static string ConvertSyntaxHighlightText(string defCode)
-        {
-            //(?<accessibility>[a-z ]+)[\s]+(?<returnType>[a-zA-Z0-9\[\]<>,\(\) ]+)[\s]+(?<methodName>[a-zA-Z0-9]+)\((?<arguments>[a-zA-Z0-9<>,. ]*)\);
-            return null;
         }
 
         /// <summary>

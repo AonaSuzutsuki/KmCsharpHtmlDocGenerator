@@ -5,8 +5,7 @@ using XmlDocumentParser.CsXmlDocument;
 
 namespace XmlDocumentParser.EasyCs
 {
-
-    public class ParameterInfo
+    public class TypeInfo
     {
         public string Namespace { get; set; }
         public string Name { get; set; }
@@ -103,13 +102,13 @@ namespace XmlDocumentParser.EasyCs
         /// Gets or sets the parameter types.
         /// </summary>
         /// <value>The parameter types.</value>
-        public List<ParameterInfo> ParameterTypes { get; set; } = new List<ParameterInfo>();
+        public List<TypeInfo> ParameterTypes { get; set; } = new List<TypeInfo>();
 
         /// <summary>
         /// Gets or sets the type of the return.
         /// </summary>
         /// <value>The type of the return.</value>
-        public ParameterInfo ReturnType { get; set; } = new ParameterInfo { Name = Constants.SystemVoid };
+        public TypeInfo ReturnType { get; set; } = new TypeInfo { Name = Constants.SystemVoid };
 
         /// <summary>
         /// Gets or sets the full name.
