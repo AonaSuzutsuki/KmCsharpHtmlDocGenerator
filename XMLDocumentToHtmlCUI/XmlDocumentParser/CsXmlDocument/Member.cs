@@ -70,10 +70,10 @@ namespace XmlDocumentParser.CsXmlDocument
 
 
         /// <summary>
-        /// Get the difinition of this element. Require to analyze source code.
+        /// Get the definition of this element. Require to analyze source code.
         /// </summary>
-        /// <returns>Difinition of this element. Require to analyze source code.</returns>
-        public string GetDifinition(bool isFullname)
+        /// <returns>Definition of this element. Require to analyze source code.</returns>
+        public string GetDefinition(bool isFullname)
         {
             if (ClassInformation == null)
                 return string.Empty;
