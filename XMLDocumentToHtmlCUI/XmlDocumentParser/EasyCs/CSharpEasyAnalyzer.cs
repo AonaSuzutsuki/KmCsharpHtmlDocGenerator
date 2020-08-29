@@ -256,8 +256,25 @@ namespace XmlDocumentParser.EasyCs
                 }
             }
         }
-        
-		private static string ConvertToDefinition(ClassInfo classInfo, Member member)
+
+        public static ParameterInfo CreateParameterInfo(string fullname)
+        {
+            var names = fullname.Split('.').ToList();
+            if (names.Count > 0)
+            {
+                var name = names.Last();
+                var nameSpace = string.Join(".", names.GetRange(0, names.Count - 1));
+                return new ParameterInfo
+                {
+                    Name = name,
+                    Namespace = nameSpace
+                };
+            }
+
+            return new ParameterInfo();
+        }
+
+        private static string ConvertToDefinition(ClassInfo classInfo, Member member)
 		{
             var sb = new StringBuilder();
 
@@ -279,7 +296,7 @@ namespace XmlDocumentParser.EasyCs
                 if (classInfo.ClassType == ClassType.Method)
                     sb.AppendFormat("{0} ", classInfo.ReturnType);
                 sb.AppendFormat("{0}", classInfo.Name);
-				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, (item) => item));
+				sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(member, true, (item) => item));
             }
             else if (classInfo.ClassType == ClassType.Property)
             {
@@ -438,23 +455,6 @@ namespace XmlDocumentParser.EasyCs
             }
 
             return classInfo;
-        }
-
-        public static ParameterInfo CreateParameterInfo(string fullname)
-        {
-            var names = fullname.Split('.').ToList();
-            if (names.Count > 0)
-            {
-                var name = names.Last();
-                var nameSpace = string.Join(".", names.GetRange(0, names.Count - 1));
-                return new ParameterInfo
-                {
-                    Name = name,
-                    Namespace = nameSpace
-                };
-            }
-
-            return new ParameterInfo();
         }
 
         private static (string methodName, string[] parameterTypes) SplitMethodNameAndParameter(string text)

@@ -5,11 +5,17 @@ using XmlDocumentParser.CsXmlDocument;
 
 namespace XmlDocumentParser.EasyCs
 {
+
     public class ParameterInfo
     {
         public string Namespace { get; set; }
         public string Name { get; set; }
         public string FullName => string.IsNullOrEmpty(Namespace) ? Name : $"{Namespace}.{Name}";
+
+        public string GetName(bool isFullname)
+        {
+            return isFullname ? FullName : Name;
+        }
     }
 
 	/// <summary>

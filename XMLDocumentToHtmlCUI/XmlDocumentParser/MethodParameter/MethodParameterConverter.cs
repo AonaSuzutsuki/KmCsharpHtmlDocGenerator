@@ -21,7 +21,7 @@ namespace XmlDocumentParser.MethodParameter
         /// <param name="member">Target <see cref="Member"/> to convert.</param>
         /// <param name="converter">Param type converter.</param>
         /// <returns>Converted text.</returns>
-        public static string CreateMethodParameterText(Member member, Func<string, string> converter = null)
+        public static string CreateMethodParameterText(Member member, bool isFullname, Func<string, string> converter = null)
         {
             if (converter == null)
                 converter = ResolveGenericsTypeToHtml;
@@ -31,8 +31,9 @@ namespace XmlDocumentParser.MethodParameter
 
             if (member.Type == MethodType.ExtensionMethod)
                 sb.Append("this ");
-
-            sb.Append(string.Join(", ", parameters.Select(param => "{0} {1}".FormatString(param.Type.FullName, param.Name))));
+            sb.Append(string.Join(", ", parameters.Select(param => "{0} {1}".FormatString(
+                param.Type.GetName(isFullname),
+                param.Name))));
 
             return "({0})".FormatString(sb.ToString());
         }
