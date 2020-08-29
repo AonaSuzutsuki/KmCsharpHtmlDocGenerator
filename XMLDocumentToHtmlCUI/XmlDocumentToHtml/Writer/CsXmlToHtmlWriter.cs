@@ -558,7 +558,7 @@ namespace XmlDocumentToHtml.Writer
             var p2 = member.ParameterNames.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
             {
-                parameterLoader.Assign("Type", MethodParameterConverter.ResolveGenericsTypeToHtml(parameter.Parameter.Type));
+                parameterLoader.Assign("Type", MethodParameterConverter.ResolveGenericsTypeToHtml(parameter.Parameter.Type.FullName));
                 parameterLoader.Assign("TypeName", parameter.Parameter.Name);
 				parameterLoader.Assign("TypeComment", func(parameter.Comment));
                 paramSb.Append(parameterLoader.ToString());

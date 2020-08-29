@@ -368,7 +368,7 @@ namespace XmlDocumentParser.CsXmlDocument
 				}
 				return split;
 			}
-			string[] SplitParameter(string parameterText)
+			ParameterInfo[] SplitParameter(string parameterText)
 			{
 				for (int i = 0; i < ParameterLoopLimit; i++)
 				{
@@ -386,18 +386,21 @@ namespace XmlDocumentParser.CsXmlDocument
 
 				if (string.IsNullOrEmpty(parameterText))
 				{
-					return new string[0];
+					return new ParameterInfo[0];
 				}
 				else
 				{
 					var splits = parameterText.Split(',');
+					var list = new List<ParameterInfo>();
 					for (int i = 0; i < splits.Length; i++)
 					{
 						var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));
-						splits[i] = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+						var fullName = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+						var paramInfo = CSharpEasyAnalyzer.CreateParameterInfo(fullName);
+						list.Add(paramInfo);
 					}
 
-					return splits;
+					return list.ToArray();
 				}
 			}
 

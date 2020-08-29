@@ -224,7 +224,7 @@ namespace XmlDocumentParser.EasyCs
                         var item = methodMap.Get(method.Id);
                         if (item != null)
                         {
-                            method.ParameterTypes = new List<string>
+                            method.ParameterTypes = new List<ParameterInfo>
                                 {
                                     { item.ParameterTypes, (_item) => _item }
                                 };
@@ -427,7 +427,8 @@ namespace XmlDocumentParser.EasyCs
             {
                 foreach (var type in ((IMethodSymbol)symbol).Parameters)
                 {
-                    classInfo.ParameterTypes.Add(type.ToString());
+                    var paramFullname = type.ToString();
+                    classInfo.ParameterTypes.Add(CreateParameterInfo(paramFullname));
                 }
 
                 var returnType = ((IMethodSymbol)symbol).ReturnType;
@@ -437,6 +438,23 @@ namespace XmlDocumentParser.EasyCs
             }
 
             return classInfo;
+        }
+
+        public static ParameterInfo CreateParameterInfo(string fullname)
+        {
+            var names = fullname.Split('.').ToList();
+            if (names.Count > 0)
+            {
+                var name = names.Last();
+                var nameSpace = string.Join(".", names.GetRange(0, names.Count - 1));
+                return new ParameterInfo
+                {
+                    Name = name,
+                    Namespace = nameSpace
+                };
+            }
+
+            return new ParameterInfo();
         }
 
         private static (string methodName, string[] parameterTypes) SplitMethodNameAndParameter(string text)

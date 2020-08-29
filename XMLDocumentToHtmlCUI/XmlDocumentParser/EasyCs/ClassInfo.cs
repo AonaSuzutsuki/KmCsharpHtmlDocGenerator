@@ -5,6 +5,13 @@ using XmlDocumentParser.CsXmlDocument;
 
 namespace XmlDocumentParser.EasyCs
 {
+    public class ParameterInfo
+    {
+        public string Namespace { get; set; }
+        public string Name { get; set; }
+        public string FullName => string.IsNullOrEmpty(Namespace) ? Name : $"{Namespace}.{Name}";
+    }
+
 	/// <summary>
 	/// Class info for <see cref="CSharpEasyAnalyzer"/>.
     /// </summary>
@@ -90,7 +97,7 @@ namespace XmlDocumentParser.EasyCs
         /// Gets or sets the parameter types.
         /// </summary>
         /// <value>The parameter types.</value>
-        public List<string> ParameterTypes { get; set; } = new List<string>();
+        public List<ParameterInfo> ParameterTypes { get; set; } = new List<ParameterInfo>();
 
         /// <summary>
         /// Gets or sets the type of the return.

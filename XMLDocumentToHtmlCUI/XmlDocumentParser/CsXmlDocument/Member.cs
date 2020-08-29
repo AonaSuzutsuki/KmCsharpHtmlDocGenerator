@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XmlDocumentParser.EasyCs;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
@@ -36,7 +37,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Parameter types of member.
         /// </summary>
-        public List<string> ParameterTypes { get; set; } = new List<string>();
+        public List<ParameterInfo> ParameterTypes { get; set; } = new List<ParameterInfo>();
         
         /// <summary>
         /// Value of member.
