@@ -198,7 +198,7 @@ namespace XmlDocumentParser.CsXmlDocument
             foreach (var tuple in vals.Select((v, i) => new { Value = v, Index = i }))
             {
                 var values = reader.GetValues("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
-                var value = string.Join("\n", values.Select(s => s));
+                var value = string.Join("\n", values.Select(s => s.Trim()));
 				var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
                 value = RemoveFirstLastBreakLine(value);
 
