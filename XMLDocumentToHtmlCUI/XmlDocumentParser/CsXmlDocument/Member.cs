@@ -1,10 +1,14 @@
 ﻿using CommonCoreLib.Bool;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XmlDocumentParser.EasyCs;
+using XmlDocumentParser.MethodParameter;
+using TypeInfo = XmlDocumentParser.EasyCs.TypeInfo;
 
 namespace XmlDocumentParser.CsXmlDocument
 {
@@ -13,6 +17,8 @@ namespace XmlDocumentParser.CsXmlDocument
     /// </summary>
     public class Member
     {
+        internal ClassInfo ClassInformation { get; set; }
+
         /// <summary>
         /// Identifier of this element.
         /// </summary>
@@ -36,7 +42,7 @@ namespace XmlDocumentParser.CsXmlDocument
         /// <summary>
         /// Parameter types of member.
         /// </summary>
-        public List<string> ParameterTypes { get; set; } = new List<string>();
+        public List<TypeInfo> ParameterTypes { get; set; } = new List<TypeInfo>();
         
         /// <summary>
         /// Value of member.
@@ -59,15 +65,61 @@ namespace XmlDocumentParser.CsXmlDocument
         public Accessibility Accessibility { get; set; } = Accessibility.Public;
 
         /// <summary>
-        /// Difinition of this element. Require to analyze source code.
-        /// </summary>
-        public string Difinition { get; set; } = string.Empty;
-
-        /// <summary>
         /// Type of return value. Require to analyze source code.
         /// </summary>
-        public string ReturnType { get; set; } = Constants.SystemVoid;
+        public TypeInfo ReturnType { get; set; } = new TypeInfo { Name = Constants.SystemVoid };
 
+
+        /// <summary>
+        /// Get the definition of this element. Require to analyze source code.
+        /// </summary>
+        /// <param name="isFullname">Whether to use full path notation for classes, etc.</param>
+        /// <returns>Definition of this element. Require to analyze source code.</returns>
+        public string GetDefinition(bool isFullname) => ClassInformation == null ? string.Empty : ConvertToDefinition(ClassInformation, isFullname);
+
+        private string ConvertToDefinition(ClassInfo classInfo, bool isFullname)
+        {
+            var sb = new StringBuilder();
+
+            if (classInfo.ClassType == ClassType.Method || classInfo.ClassType == ClassType.Constructor)
+            {
+                sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
+
+                if (classInfo.IsOverride)
+                    sb.Append("override ");
+                if (classInfo.IsVirtual)
+                    sb.Append("virtual ");
+                if (classInfo.IsStatic)
+                    sb.Append("static ");
+                if (classInfo.IsAsync)
+                    sb.Append("async ");
+                if (classInfo.IsExtern)
+                    sb.Append("extern ");
+
+                if (classInfo.ClassType == ClassType.Method)
+                    sb.AppendFormat("{0} ", classInfo.ReturnType.GetName(isFullname));
+                sb.AppendFormat("{0}", classInfo.Name);
+                sb.AppendFormat("{0};", MethodParameterConverter.CreateMethodParameterText(this, isFullname));
+            }
+            else if (classInfo.ClassType == ClassType.Property)
+            {
+                sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
+                sb.AppendFormat("{0} ", classInfo.ReturnType.GetName(isFullname));
+                sb.AppendFormat("{0} {{ ", classInfo.Name);
+
+                foreach (var accessors in classInfo.Accessors)
+                {
+                    if (accessors.Accessibility == Accessibility.Public)
+                        sb.AppendFormat("{0}; ", accessors.Name);
+                    else if (accessors.Accessibility != Accessibility.Private)
+                        sb.AppendFormat("{0} {1}; ", accessors.Accessibility.ToString().ToLower(), accessors.Name);
+                }
+
+                sb.AppendFormat("}}");
+            }
+
+            return MethodParameterConverter.ResolveGenericsTypeToHtml(sb.ToString());
+        }
 
         /// <summary>
         /// Object.GetHashCode()
@@ -94,7 +146,6 @@ namespace XmlDocumentParser.CsXmlDocument
             var boolcollector = new BoolCollector();
 
             boolcollector.ChangeBool("Accessibility", Accessibility == member.Accessibility);
-            boolcollector.ChangeBool("Difinition", Difinition.Equals(member.Difinition));
             boolcollector.ChangeBool("Id", Id.Equals(member.Id));
             boolcollector.ChangeBool("Name", Name.Equals(member.Name));
             boolcollector.ChangeBool("Namespace", Namespace.Equals(member.Namespace));

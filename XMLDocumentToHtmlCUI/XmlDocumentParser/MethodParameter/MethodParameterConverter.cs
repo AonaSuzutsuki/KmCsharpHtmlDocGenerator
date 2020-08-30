@@ -13,26 +13,24 @@ namespace XmlDocumentParser.MethodParameter
     /// </summary>
     public static class MethodParameterConverter
     {
-
         /// <summary>
         /// Create method parameter text from <see cref="Member"/>.
         /// exm: (string arg1, string arg2)
         /// </summary>
         /// <param name="member">Target <see cref="Member"/> to convert.</param>
+        /// <param name="isFullname"></param>
         /// <param name="converter">Param type converter.</param>
         /// <returns>Converted text.</returns>
-        public static string CreateMethodParameterText(Member member, Func<string, string> converter = null)
+        public static string CreateMethodParameterText(Member member, bool isFullname)
         {
-            if (converter == null)
-                converter = ResolveGenericsTypeToHtml;
-
             var parameters = member.ParameterTypes.Zip(member.ParameterNames.Keys, (type, name) => new { Type = type, Name = name });
             var sb = new StringBuilder();
 
             if (member.Type == MethodType.ExtensionMethod)
                 sb.Append("this ");
-
-            sb.Append(string.Join(", ", parameters.Select(param => "{0} {1}".FormatString(param.Type, param.Name))));
+            sb.Append(string.Join(", ", parameters.Select(param => "{0} {1}".FormatString(
+                param.Type.GetName(isFullname),
+                param.Name))));
 
             return "({0})".FormatString(sb.ToString());
         }

@@ -16,9 +16,16 @@ using XmlDocumentParser.CommonPath;
 
 namespace XMLDocumentToHtmlCUI
 {
-    class Program
-    {      
-        static void Main(string[] args)
+    /// <summary>
+    /// Generates an HTML document from C# source code.
+    /// </summary>
+    public class Program
+    {
+        /// <summary>
+        /// Entry point.
+        /// </summary>
+        /// <param name="args"></param>
+        public static void Main(string[] args)
         {
             var envParser = new Parser.EnvArgumentParser();
             envParser.AddOptionCount("-h", 0);
