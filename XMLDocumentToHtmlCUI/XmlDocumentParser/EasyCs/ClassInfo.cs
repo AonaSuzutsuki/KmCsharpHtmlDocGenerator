@@ -34,6 +34,24 @@ namespace XmlDocumentParser.EasyCs
         {
             return isFullname ? FullName : Name;
         }
+
+        public override bool Equals(object obj)
+        {
+            return false;
+        }
+
+        protected bool Equals(TypeInfo other)
+        {
+            return Namespace == other.Namespace && Name == other.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Namespace != null ? Namespace.GetHashCode() : 0) * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+            }
+        }
     }
 
 	/// <summary>
