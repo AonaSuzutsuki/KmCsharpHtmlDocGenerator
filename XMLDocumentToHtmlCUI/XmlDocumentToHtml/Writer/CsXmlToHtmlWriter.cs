@@ -220,7 +220,7 @@ namespace XmlDocumentToHtml.Writer
 						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, linkCount, stream.Name));
                         methodLoader.Assign("HasReturn", true);
 
-						if (!member.ReturnType.Equals(Constants.SystemVoid))
+						if (!member.ReturnType.Equals(Constants.SystemVoidTypeInfo))
 						{
 							methodLoader.Assign("MethodReturnType", member.ReturnType.GetName(isFullname));
 							methodLoader.Assign("HasReturnType", true);

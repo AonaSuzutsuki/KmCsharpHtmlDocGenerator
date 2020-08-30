@@ -104,7 +104,7 @@ namespace XmlDocumentParser.CsXmlDocument
             else if (classInfo.ClassType == ClassType.Property)
             {
                 sb.AppendFormat("{0} ", classInfo.Accessibility.ToString().ToLower());
-                sb.AppendFormat("{0} ", classInfo.ReturnType);
+                sb.AppendFormat("{0} ", classInfo.ReturnType.GetName(isFullname));
                 sb.AppendFormat("{0} {{ ", classInfo.Name);
 
                 foreach (var accessors in classInfo.Accessors)
