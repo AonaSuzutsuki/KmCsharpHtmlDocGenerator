@@ -12,8 +12,13 @@ body {
     margin: 0;
 }
 
+.overflow-hidden {
+    overflow: hidden;
+}
+
 #body-container {
     position: relative;
+    overflow-wrap: break-word;
 }
 
 .method-content {
@@ -33,6 +38,8 @@ body {
 #menu {
     float: left;
     font-size: 0.9em;
+    width: 400px;
+    overflow-wrap: break-word;
 }
 
     #menu ul ul {
@@ -164,11 +171,18 @@ table {
     #menu {
         z-index: 999;
         width: 300px;
+        height: 100vh;
         float: unset;
         position: fixed;
         right: -300px;
         background-color: #fff;
         transition: .5s;
+        overflow-y: scroll !important;
+    }
+
+    #menu ul {
+        margin: 20px 0 40px 0;
+        padding: 0;
     }
 
     #body-content {
