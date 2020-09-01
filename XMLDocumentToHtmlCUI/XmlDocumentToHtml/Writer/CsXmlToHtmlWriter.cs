@@ -14,6 +14,7 @@ using XmlDocumentToHtml.Template;
 using XmlDocumentParser.CommonPath;
 using XmlDocumentParser.MethodParameter;
 using XmlDocumentParser;
+using XmlDocumentParser.EasyCs;
 
 namespace XmlDocumentToHtml.Writer
 {
@@ -221,8 +222,9 @@ namespace XmlDocumentToHtml.Writer
                         methodLoader.Assign("HasReturn", true);
 
 						if (!member.ReturnType.Equals(Constants.SystemVoidTypeInfo))
-						{
-							methodLoader.Assign("MethodReturnType", member.ReturnType.GetName(isFullname));
+                        {
+                            var returnHtml = CreateLink(member.ReturnType, stream.Name, linkCount, isFullname);
+                            methodLoader.Assign("MethodReturnType", returnHtml);
 							methodLoader.Assign("HasReturnType", true);
 						}
                     }
@@ -498,6 +500,13 @@ namespace XmlDocumentToHtml.Writer
             }
             
             return text;
+        }
+
+        private static string CreateLink(TypeInfo returnType, string writePath, int linkCount, bool isFullname)
+        {
+            var type = returnType;
+            var className = string.IsNullOrEmpty(type.Namespace) ? type.Name : MethodParameterConverter.ResolveGenericsTypeToHtml(type.GetName(isFullname));
+            return CreateLink("{0}", writePath, linkCount, type.Namespace.Replace(".", "/"), EscapeGenericsType(type.Name), className);
         }
 
         private static string CreateLink(string format, string writePath, int linkCount, string namespacePath, string fileName, string className)
