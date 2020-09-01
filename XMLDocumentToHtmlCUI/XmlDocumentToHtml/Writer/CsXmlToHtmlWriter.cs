@@ -206,7 +206,7 @@ namespace XmlDocumentToHtml.Writer
                 {
                     var methodLoader = new TemplateLoader(BaseMethodTemplate);
                     var parametersStr = MethodParameterConverter.CreateMethodParameterText(member, isFullname);
-					var paramStr = ResolveParameterTable(member, ParameterTableTemplate, (text) => ResolveSpecificXmlElement(text, linkCount, stream.Name), isFullname);
+					var paramStr = ResolveParameterTable(member, ParameterTableTemplate, (text) => ResolveSpecificXmlElement(text, linkCount, stream.Name), stream.Name, linkCount, isFullname);
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
@@ -563,7 +563,7 @@ namespace XmlDocumentToHtml.Writer
             return linkStr;
         }
         
-		private static string ResolveParameterTable(Member member, string templatePath, Func<string, string> func, bool isFullname)
+		private static string ResolveParameterTable(Member member, string templatePath, Func<string, string> func, string writePath, int linkCount, bool isFullname)
         {
             var paramSb = new StringBuilder();
             var parameterLoader = new TemplateLoader(templatePath);
@@ -571,7 +571,9 @@ namespace XmlDocumentToHtml.Writer
             var p2 = member.ParameterNames.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
             {
-                parameterLoader.Assign("Type", MethodParameterConverter.ResolveGenericsTypeToHtml(parameter.Parameter.Type.GetName(isFullname)));
+                var typeHtml = CreateLink(parameter.Parameter.Type, writePath, linkCount, isFullname);
+
+                parameterLoader.Assign("Type", typeHtml);
                 parameterLoader.Assign("TypeName", parameter.Parameter.Name);
 				parameterLoader.Assign("TypeComment", func(parameter.Comment));
                 paramSb.Append(parameterLoader.ToString());
