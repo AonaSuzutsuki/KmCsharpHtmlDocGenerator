@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace XmlDocumentParser.CsXmlDocument
 {
     /// <summary>
-    /// Method type of <c><see cref="Member"/></c>.
+    /// Method type of <see cref="Member"/>.
     /// </summary>
     public enum MethodType
     {
@@ -50,6 +50,10 @@ namespace XmlDocumentParser.CsXmlDocument
         /// Property.
         /// </summary>
         Property,
-        
+
+        /// <summary>
+        /// Unknown
+        /// </summary>
+        Unknown,
     }
 }

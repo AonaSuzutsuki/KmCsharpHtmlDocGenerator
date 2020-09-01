@@ -16,17 +16,25 @@ namespace XmlDocumentParser.Csproj
     /// </summary>
     public class ClassicCsprojAnalyzer : CsprojAnalyzer
     {
+        public IEnumerable<string> IgnoreProjectNames;
+
+        public ClassicCsprojAnalyzer(string csprojParentPath) : base(csprojParentPath)
+        {
+
+        }
+
         /// <summary>
         /// Get the C# source files and reference libraries from the classic csproj file.
         /// </summary>
         /// <param name="csprojParentPath">The parent directory where the csproj file is located. Search for the file by performing a recursion search.</param>
         /// <returns>The information about C# source files and reference libraries.</returns>
-        public override CsFilesInfo GetCsFiles(string csprojParentPath)
+        public override CsFilesInfo GetCsFiles()
         {
             var csFilePathList = new List<string>();
             var assemblyNameMap = new Dictionary<string, Assembly>();
 
-            var csprojArray = DirectorySearcher.GetAllFiles(csprojParentPath, "*.csproj");
+            var csprojArray = DirectorySearcher.GetAllFiles(CsprojParentPath, "*.csproj");
+            csprojArray = RemoveIgnoreProject(csprojArray);
             foreach (var file in csprojArray)
             {
                 var reader = new XmlWrapper.Reader();
@@ -74,6 +82,19 @@ namespace XmlDocumentParser.Csproj
                 assemblyNameMap.Add("mscorlib", typeof(object).Assembly);
 
             return new CsFilesInfo(csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
+        }
+
+        private string[] RemoveIgnoreProject(string[] source)
+        {
+            if (IgnoreProjectNames == null || !IgnoreProjectNames.Any())
+                return source;
+
+            var ignoreSet = new HashSet<string>(IgnoreProjectNames);
+            return (from x in source
+                    let items = x.UnifiedSystemPathSeparator().Split('/')
+                    let projName = Path.GetFileNameWithoutExtension(items.Last())
+                    where !ignoreSet.Contains(projName)
+                    select x).ToArray();
         }
 
         /// <summary>
