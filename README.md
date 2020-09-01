@@ -9,15 +9,15 @@ So it is the goal of this program and the project to analyze the XML outputted b
 
 # Development environment
 **Windows**
-1. Visual Studio 2017
-2. .Net Framework 4.7.1
+1. Visual Studio 2019
+2. .Net Framework 4.8
 
 **Mac**
 1. Visual Studio for Mac
 2. Mono for macOS
 
 # Minimum environment required for operation
-1. .Net Framework 4.7.1 (Windows) / Mono for macOS (macOS)
+1. .Net Framework 4.8 (Windows) / Mono for macOS (macOS)
 
 # Note
 The .Net Core project will not work properly because system assembly can not be resolved.
@@ -52,6 +52,7 @@ HtmlGenerator.exe
 |-b   |Specify the directory where the template file is stored. If you specify this, you can output with your own template.|BaseTemplate|
 |-o   |Change the directory path of the output destination.|{Directory of executable file}/Root|
 |-s   |csproj file and Source codes directory.|{Directory of executable file}/src|
+|-i   |Exclude any project from the analysis. Specify the name of the .csproj file in a space-delimited format.||
 |-h   |Show help.||
 
 **Argument**  
