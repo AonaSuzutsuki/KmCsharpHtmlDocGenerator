@@ -127,7 +127,6 @@ namespace XmlDocumentParser.EasyCs
             foreach (var tuple in csFilesInfo.SourceFiles.Select((v, i) => new { Value = v, Index = i }))
             {
                 var text = File.ReadAllText(tuple.Value).UnifiedNewLine();
-                //text = RemoveComments(text);
 
                 var namespaceItem = GetNamespace(text);
 

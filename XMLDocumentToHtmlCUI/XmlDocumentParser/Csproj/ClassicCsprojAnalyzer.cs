@@ -43,7 +43,6 @@ namespace XmlDocumentParser.Csproj
                 var parent = "{0}/".FormatString(Path.GetDirectoryName(file));
                 var includes = from x in reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Compile")
                     select CommonPath.PathUtils.UnifiedPathSeparator($"{parent}{x}");
-                //var includes = MergeParentPath(reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Compile"), parent);
                 csFilePathList.AddRange(includes);
 
                 var targetFramework = GetTargetFramework(reader);
