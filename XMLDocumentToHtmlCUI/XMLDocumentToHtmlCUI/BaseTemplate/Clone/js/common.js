@@ -1,7 +1,7 @@
 ﻿
 /*
  *
- * Copyright (C) 2018 - 2019 Aona Suzutsuki.
+ * Copyright (C) 2018 - 2020 Aona Suzutsuki.
  * 
  */
 
@@ -11,6 +11,7 @@ function registMenu() {
 
 function menuBtClick() {
     $(this).toggleClass("active");
+    $("body").toggleClass("overflow-hidden");
     $("#menu-container").toggleClass("top-menu-bt-cover-click");
     $("#menu").toggleClass("menu-cover-click");
     $("#body-content").toggleClass("body-content-click");
