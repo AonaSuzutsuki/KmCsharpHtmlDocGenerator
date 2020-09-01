@@ -1,7 +1,7 @@
 ﻿
 /*
  *
- * Copyright (C) 2018 - 2019 Aona Suzutsuki.
+ * Copyright (C) 2018 - 2020 Aona Suzutsuki.
  * 
  */
 
