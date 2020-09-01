@@ -14,6 +14,7 @@ using XmlDocumentToHtml.Template;
 using XmlDocumentParser.CommonPath;
 using XmlDocumentParser.MethodParameter;
 using XmlDocumentParser;
+using XmlDocumentParser.EasyCs;
 
 namespace XmlDocumentToHtml.Writer
 {
@@ -81,17 +82,18 @@ namespace XmlDocumentToHtml.Writer
         /// Write HTML of C# Xml Document to Disk.
         /// </summary>
         /// <param name="outputDirPath">Specify output directory path.</param>
-        public void WriteToDisk(string outputDirPath = "")
+        /// <param name="isFullname">Whether to use full path notation for classes, etc.</param>
+        public void WriteToDisk(string outputDirPath = "", bool isFullname = false)
         {
             //var menu = CreateMenu(root);
 			CreateDirectoryAndDummyFile(rootElement, outputDirPath);
             WriteIndex(outputDirPath, rootElement);
-            CreateClassFile(rootElement, rootElement, outputDirPath);
+            CreateClassFile(rootElement, rootElement, isFullname, outputDirPath);
             CloneFiles(rootElement.Name);
         }
 
 
-        private void CreateClassFile(Element element, Element root, string suffix = "")
+        private void CreateClassFile(Element element, Element root, bool isFullname, string suffix = "")
         {
             if (element != null)
             {
@@ -99,19 +101,19 @@ namespace XmlDocumentToHtml.Writer
                 {
                     var name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
-                        CreateClassFile(elem, root, name + "/");
+                        CreateClassFile(elem, root, isFullname, name + "/");
                 }
                 else
                 {
                     var name = EscapeGenericsType(suffix + element.Name + ".html");
 					using (var fs = new FileStream(name, FileMode.Open, FileAccess.Write, FileShare.Read))
                     {
-                        WriteHtml(fs, element.Members, element, root);
+                        WriteHtml(fs, element.Members, element, root, isFullname);
                     }
 
                     name = PathUtils.UnifiedPathSeparator(suffix) + element.Name;
                     foreach (var elem in element.Namespaces)
-                        CreateClassFile(elem, root, name + "/");
+                        CreateClassFile(elem, root, isFullname, name + "/");
                 }
             }
         }
@@ -127,11 +129,9 @@ namespace XmlDocumentToHtml.Writer
             loader.Assign("Menu", menu);
 
             var name = PathUtils.UnifiedPathSeparator(outputDirPath + element.Name + "/index.html");
-            using (var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-                var data = Encoding.UTF8.GetBytes(loader.ToString());
-                fs.Write(data, 0, data.Length);
-            }
+            using var fs = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read);
+            var data = Encoding.UTF8.GetBytes(loader.ToString());
+            fs.Write(data, 0, data.Length);
         }
 
         private string CreateIndex(Element element)
@@ -179,13 +179,14 @@ namespace XmlDocumentToHtml.Writer
             return sb.ToString();
         }
 
-        private void WriteHtml(FileStream stream, List<Member> members, Element parent, Element root)
+        private void WriteHtml(FileStream stream, List<Member> members, Element parent, Element root, bool isFullname)
         {
             void AddCodeToTemplate(Member member, TemplateLoader templateLoader)
             {
-                if (!string.IsNullOrEmpty(member.Difinition))
+                var definition = member.GetDefinition(isFullname);
+                if (!string.IsNullOrEmpty(definition))
                 {
-                    templateLoader.Assign("Code", member.Difinition);
+                    templateLoader.Assign("Code", definition);
                     templateLoader.Assign("HasCode", true);
                 }
             }
@@ -204,8 +205,8 @@ namespace XmlDocumentToHtml.Writer
                 if (member.Type == MethodType.Method || member.Type == MethodType.ExtensionMethod || member.Type == MethodType.Function || member.Type == MethodType.Constructor)
                 {
                     var methodLoader = new TemplateLoader(BaseMethodTemplate);
-                    var parametersStr = MethodParameterConverter.CreateMethodParameterText(member);
-					var paramStr = ResolveParameterTable(member, ParameterTableTemplate, (text) => ResolveSpecificXmlElement(text, linkCount, stream.Name));
+                    var parametersStr = MethodParameterConverter.CreateMethodParameterText(member, isFullname);
+					var paramStr = ResolveParameterTable(member, ParameterTableTemplate, (text) => ResolveSpecificXmlElement(text, linkCount, stream.Name), stream.Name, linkCount, isFullname);
                     var name = member.Type == MethodType.Constructor ? parent.Name : member.Name;
                     var hash = Sha256.GetSha256(name + parametersStr);
                     methodLoader.Assign("MethodHash", hash);
@@ -220,9 +221,10 @@ namespace XmlDocumentToHtml.Writer
 						methodLoader.Assign("MethodReturnComment", ResolveSpecificXmlElement(member.ReturnComment, linkCount, stream.Name));
                         methodLoader.Assign("HasReturn", true);
 
-						if (!member.ReturnType.Equals(Constants.SystemVoid))
-						{
-							methodLoader.Assign("MethodReturnType", member.ReturnType);
+						if (!member.ReturnType.Equals(Constants.SystemVoidTypeInfo))
+                        {
+                            var returnHtml = CreateLink(member.ReturnType, stream.Name, linkCount, isFullname);
+                            methodLoader.Assign("MethodReturnType", returnHtml);
 							methodLoader.Assign("HasReturnType", true);
 						}
                     }
@@ -257,10 +259,11 @@ namespace XmlDocumentToHtml.Writer
                 {
                     var propertyLoader = new TemplateLoader(BasePropertyTemplate);
                     var hash = Sha256.GetSha256(member.Name);
-                    var propName = member.ReturnType.Equals(Constants.SystemVoid) ? member.Name : string.Format("{0} {1}", member.ReturnType, member.Name);
+                    var propName = $"{member.ReturnType.GetName(isFullname)} {member.Name}";
                     propertyLoader.Assign("PropertyHash", hash);
                     propertyLoader.Assign("PropertyName",
-                        MethodParameterConverter.ResolveGenericsTypeToHtml("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(), propName)));
+                        MethodParameterConverter.ResolveGenericsTypeToHtml("{0} {1}".FormatString(member.Accessibility.ToString().ToLower(),
+                            propName)));
 					propertyLoader.Assign("PropertyComment", ResolveSpecificXmlElement(member.Value, linkCount, stream.Name));
                     
                     AddCodeToTemplate(member, propertyLoader);
@@ -280,12 +283,12 @@ namespace XmlDocumentToHtml.Writer
 
             loader.Assign("RelativePath", CreateRelativePath(linkCount));
             loader.Assign("ClassName", "{0} {1}".FormatString(MethodParameterConverter.ResolveGenericsTypeToHtml(parent.Name), parent.Type.ToString()));
-			loader.Assign("ClassComment", "{0}".FormatString(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
+			loader.Assign("ClassComment", ConvertHtmlBreakLine(ResolveSpecificXmlElement(parent.Value, linkCount, stream.Name)));
             loader.Assign("Title", "{0} {1}".FormatString(parent.Name, parent.Type.ToString()));
             loader.Assign("Namespace", parent.Namespace);
             loader.Assign("Inheritance", CreateInheritance(parent.InheritanceList, stream.Name, linkCount));
             loader.Assign("Menu", CreateMenu(root, linkCount), true);
-            loader.Assign("Toc", CreateToc(members, parent), true);
+            loader.Assign("Toc", CreateToc(members, parent, isFullname), true);
             loader.Assign("ConstructorItems", constructors, true);
             loader.Assign("FunctionItems", functions, true);
             loader.Assign("MethodItems", methods, true);
@@ -296,6 +299,11 @@ namespace XmlDocumentToHtml.Writer
             var template = loader.ToString();
             var templateBytes = Encoding.UTF8.GetBytes(template);
             stream.Write(templateBytes, 0, templateBytes.Length);
+        }
+
+        private static string ConvertHtmlBreakLine(string text)
+        {
+            return text.Replace("\n", "<br />");
         }
 
         private static void CloneFiles(string outPath)
@@ -405,7 +413,7 @@ namespace XmlDocumentToHtml.Writer
             return sb.ToString();
         }
 
-        private static string CreateToc(List<Member> members, Element parent)
+        private static string CreateToc(List<Member> members, Element parent, bool isFullname)
         {
             var toc = new StringBuilder();
 
@@ -432,10 +440,10 @@ namespace XmlDocumentToHtml.Writer
                 return tocElement.ToString();
             }
 
-            toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + MethodParameterConverter.CreateMethodParameterText(member), "Constructor"));
-            toc.Append(GetElement(MethodType.Function, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Functions"));
-            toc.Append(GetElement(MethodType.Method, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Methods"));
-            toc.Append(GetElement(MethodType.ExtensionMethod, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member), "Extension Methods"));
+            toc.Append(GetElement(MethodType.Constructor, (member) => parent.Name + MethodParameterConverter.CreateMethodParameterText(member, isFullname), "Constructor"));
+            toc.Append(GetElement(MethodType.Function, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member, isFullname), "Functions"));
+            toc.Append(GetElement(MethodType.Method, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member, isFullname), "Methods"));
+            toc.Append(GetElement(MethodType.ExtensionMethod, (member) => member.Name + MethodParameterConverter.CreateMethodParameterText(member, isFullname), "Extension Methods"));
             toc.Append(GetElement(MethodType.Property, (member) => member.Name, "Properties"));
 			toc.Append(GetElement(MethodType.Field, (member) => member.Name, "Fields"));
 
@@ -464,8 +472,6 @@ namespace XmlDocumentToHtml.Writer
 
 		private static string ResolveSpecificXmlElement(string text, int linkCount, string writePath)
         {
-            //var linkCount = parent.Namespace.NamespaceCount;
-            var relativePath = CreateRelativePath(linkCount);
             var regex2 = new Regex("<see[ ]*cref=\"(?<crefValue>.[^\"]*)\"[ ]*\\/>");
             var match2 = regex2.Match(text);
             while (match2.Success)
@@ -494,6 +500,13 @@ namespace XmlDocumentToHtml.Writer
             }
             
             return text;
+        }
+
+        private static string CreateLink(TypeInfo returnType, string writePath, int linkCount, bool isFullname)
+        {
+            var type = returnType;
+            var className = string.IsNullOrEmpty(type.Namespace) ? type.Name : MethodParameterConverter.ResolveGenericsTypeToHtml(type.GetName(isFullname));
+            return CreateLink("{0}", writePath, linkCount, type.Namespace.Replace(".", "/"), EscapeGenericsType(type.Name), className);
         }
 
         private static string CreateLink(string format, string writePath, int linkCount, string namespacePath, string fileName, string className)
@@ -550,7 +563,7 @@ namespace XmlDocumentToHtml.Writer
             return linkStr;
         }
         
-		private static string ResolveParameterTable(Member member, string templatePath, Func<string, string> func)
+		private static string ResolveParameterTable(Member member, string templatePath, Func<string, string> func, string writePath, int linkCount, bool isFullname)
         {
             var paramSb = new StringBuilder();
             var parameterLoader = new TemplateLoader(templatePath);
@@ -558,7 +571,9 @@ namespace XmlDocumentToHtml.Writer
             var p2 = member.ParameterNames.Values.Zip(p1, (comment, parameter) => new { Comment = comment, Parameter = parameter });
             foreach (var parameter in p2)
             {
-                parameterLoader.Assign("Type", MethodParameterConverter.ResolveGenericsTypeToHtml(parameter.Parameter.Type));
+                var typeHtml = CreateLink(parameter.Parameter.Type, writePath, linkCount, isFullname);
+
+                parameterLoader.Assign("Type", typeHtml);
                 parameterLoader.Assign("TypeName", parameter.Parameter.Name);
 				parameterLoader.Assign("TypeComment", func(parameter.Comment));
                 paramSb.Append(parameterLoader.ToString());

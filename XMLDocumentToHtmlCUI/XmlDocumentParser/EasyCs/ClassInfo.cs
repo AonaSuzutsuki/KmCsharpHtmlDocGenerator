@@ -5,6 +5,55 @@ using XmlDocumentParser.CsXmlDocument;
 
 namespace XmlDocumentParser.EasyCs
 {
+    /// <summary>
+    /// Type information is provided.
+    /// </summary>
+    public class TypeInfo
+    {
+        /// <summary>
+        /// Namespace of type.
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// Name of type.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Fullname with namespace.
+        /// </summary>
+        public string FullName => string.IsNullOrEmpty(Namespace) ? Name : $"{Namespace}.{Name}";
+
+        /// <summary>
+        /// Get the name of type.
+        /// </summary>
+        /// <param name="isFullname">Whether to use full path notation for classes, etc.</param>
+        /// <returns>Name of type.</returns>
+        public string GetName(bool isFullname)
+        {
+            return isFullname ? FullName : Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return false;
+        }
+
+        protected bool Equals(TypeInfo other)
+        {
+            return Namespace == other.Namespace && Name == other.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Namespace != null ? Namespace.GetHashCode() : 0) * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+            }
+        }
+    }
+
 	/// <summary>
 	/// Class info for <see cref="CSharpEasyAnalyzer"/>.
     /// </summary>
@@ -90,13 +139,13 @@ namespace XmlDocumentParser.EasyCs
         /// Gets or sets the parameter types.
         /// </summary>
         /// <value>The parameter types.</value>
-        public List<string> ParameterTypes { get; set; } = new List<string>();
+        public List<TypeInfo> ParameterTypes { get; set; } = new List<TypeInfo>();
 
         /// <summary>
         /// Gets or sets the type of the return.
         /// </summary>
         /// <value>The type of the return.</value>
-        public string ReturnType { get; set; } = Constants.SystemVoid;
+        public TypeInfo ReturnType { get; set; } = new TypeInfo { Name = Constants.SystemVoid };
 
         /// <summary>
         /// Gets or sets the full name.

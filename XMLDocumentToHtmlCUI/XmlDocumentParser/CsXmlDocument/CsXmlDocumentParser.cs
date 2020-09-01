@@ -183,12 +183,10 @@ namespace XmlDocumentParser.CsXmlDocument
 
         private List<Member> FirstParse(string xmlPath)
         {
-            using (var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                var reader = new Reader();
-                reader.LoadFromStream(fs);
-                return FirstParse(reader);
-            }
+            using var fs = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var reader = new Reader();
+            reader.LoadFromStream(fs);
+            return FirstParse(reader);
         }
 
         private List<Member> FirstParse(Reader reader)
@@ -199,8 +197,9 @@ namespace XmlDocumentParser.CsXmlDocument
             var vals = reader.GetAttributes("name", "/doc/members/member");
             foreach (var tuple in vals.Select((v, i) => new { Value = v, Index = i }))
             {
-                var value = reader.GetValue("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
-                var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
+                var values = reader.GetValues("/doc/members/member[@name=\"{0}\"]/summary".FormatString(tuple.Value));
+                var value = string.Join("\n", values.Select(s => s));
+				var ret = reader.GetValue("/doc/members/member[@name=\"{0}\"]/returns".FormatString(tuple.Value), false);
                 value = RemoveFirstLastBreakLine(value);
 
                 var member = ConvertMemberNameToMember(tuple.Value);
@@ -329,7 +328,8 @@ namespace XmlDocumentParser.CsXmlDocument
 				{ "P", MethodType.Property },
 				{ "C", MethodType.Constructor },
 				{ "M", MethodType.Method },
-				{ "F", MethodType.Field }
+				{ "F", MethodType.Field },
+				{ "!", MethodType.Unknown }
 			};
 			return map[text];
 		}
@@ -348,9 +348,9 @@ namespace XmlDocumentParser.CsXmlDocument
 		/// <param name="text">The name text.</param>
 		public static Member ConvertMemberNameToMember(string text)
 		{
-			string ResolveSplitParameter(string split)
+            static string ResolveSplitParameter(string split)
 			{
-				for (int i = 0; i < ParameterLoopLimit; i++)
+				for (var i = 0; i < ParameterLoopLimit; i++)
 				{
 					var splitReg = new Regex("~(?<encoded>.*)~");
 					var splitMatch = splitReg.Match(split);
@@ -368,7 +368,8 @@ namespace XmlDocumentParser.CsXmlDocument
 				}
 				return split;
 			}
-			string[] SplitParameter(string parameterText)
+
+            static TypeInfo[] SplitParameter(string parameterText)
 			{
 				for (int i = 0; i < ParameterLoopLimit; i++)
 				{
@@ -386,18 +387,21 @@ namespace XmlDocumentParser.CsXmlDocument
 
 				if (string.IsNullOrEmpty(parameterText))
 				{
-					return new string[0];
+					return new TypeInfo[0];
 				}
 				else
 				{
 					var splits = parameterText.Split(',');
+					var list = new List<TypeInfo>();
 					for (int i = 0; i < splits.Length; i++)
 					{
 						var systemType = MethodParameter.MethodParameterConverter.ResolveIdToGenericsType(ResolveSplitParameter(splits[i]));
-						splits[i] = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+						var fullName = MethodParameter.MethodParameterConverter.ResolveSystemType(systemType);
+						var paramInfo = CSharpEasyAnalyzer.CreateParameterInfo(fullName);
+						list.Add(paramInfo);
 					}
 
-					return splits;
+					return list.ToArray();
 				}
 			}
 

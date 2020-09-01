@@ -25,12 +25,12 @@ namespace XmlDocumentParser.EasyCs
         /// </summary>
         /// <param name="csProjDirPath">Cs proj dir path.</param>
         /// <param name="compileType">Type of project.</param>
-        public CSharpDocumentGenerator(string csProjDirPath = "src", ProjectType compileType = ProjectType.Classic)
+        public CSharpDocumentGenerator(CsprojAnalyzer csprojAnalyzer)
         {
-            if (!Directory.Exists(csProjDirPath))
+            if (!Directory.Exists(csprojAnalyzer.CsprojParentPath))
                 return;
 
-            var csFilesInfo = CsprojAnalyzer.Parse(csProjDirPath, compileType);
+            var csFilesInfo = csprojAnalyzer.GetCsFiles();
             var textArray = from file in csFilesInfo.SourceFiles select File.ReadAllText(file);
             var metadataReferences = new List<MetadataReference>
             {
@@ -68,7 +68,11 @@ namespace XmlDocumentParser.EasyCs
                         var id = symbol.GetDocumentationCommentId();
                         var t = symbol.GetDocumentationCommentXml();
                         if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(t))
-                            sortedList.Add(id.Substring(2), t);
+                        {
+                            var key = id.Substring(2);
+                            if (!sortedList.ContainsKey(key))
+                                sortedList.Add(key, t);
+                        }
                     }
                 }
             }

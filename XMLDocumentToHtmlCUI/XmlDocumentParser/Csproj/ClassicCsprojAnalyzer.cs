@@ -11,21 +11,38 @@ using XmlDocumentParser.EasyCs;
 
 namespace XmlDocumentParser.Csproj
 {
+    /// <summary>
+    /// Analyzer of classic csproj file.
+    /// </summary>
     public class ClassicCsprojAnalyzer : CsprojAnalyzer
     {
-        public override CsFilesInfo GetCsFiles(string csprojParentPath, ProjectType compileType)
+        public IEnumerable<string> IgnoreProjectNames;
+
+        public ClassicCsprojAnalyzer(string csprojParentPath) : base(csprojParentPath)
+        {
+
+        }
+
+        /// <summary>
+        /// Get the C# source files and reference libraries from the classic csproj file.
+        /// </summary>
+        /// <param name="csprojParentPath">The parent directory where the csproj file is located. Search for the file by performing a recursion search.</param>
+        /// <returns>The information about C# source files and reference libraries.</returns>
+        public override CsFilesInfo GetCsFiles()
         {
             var csFilePathList = new List<string>();
             var assemblyNameMap = new Dictionary<string, Assembly>();
 
-            var filepaths = DirectorySearcher.GetAllFiles(csprojParentPath, "*.csproj");
-            foreach (var file in filepaths)
+            var csprojArray = DirectorySearcher.GetAllFiles(CsprojParentPath, "*.csproj");
+            csprojArray = RemoveIgnoreProject(csprojArray);
+            foreach (var file in csprojArray)
             {
                 var reader = new XmlWrapper.Reader();
                 reader.LoadFromFile(file);
                 reader.AddNamespace("ns", "http://schemas.microsoft.com/developer/msbuild/2003");
                 var parent = "{0}/".FormatString(Path.GetDirectoryName(file));
-                var includes = MergeParentPath(reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Compile"), parent);
+                var includes = from x in reader.GetAttributes("Include", "/ns:Project/ns:ItemGroup/ns:Compile")
+                    select CommonPath.PathUtils.UnifiedPathSeparator($"{parent}{x}");
                 csFilePathList.AddRange(includes);
 
                 var targetFramework = GetTargetFramework(reader);
@@ -66,7 +83,26 @@ namespace XmlDocumentParser.Csproj
             return new CsFilesInfo(csFilePathList.ToArray(), assemblyNameMap.Values.ToArray());
         }
 
-        protected override string GetSystemAssemblyPath(string targetFramework, string reference)
+        private string[] RemoveIgnoreProject(string[] source)
+        {
+            if (IgnoreProjectNames == null || !IgnoreProjectNames.Any())
+                return source;
+
+            var ignoreSet = new HashSet<string>(IgnoreProjectNames);
+            return (from x in source
+                    let items = x.UnifiedSystemPathSeparator().Split('/')
+                    let projName = Path.GetFileNameWithoutExtension(items.Last())
+                    where !ignoreSet.Contains(projName)
+                    select x).ToArray();
+        }
+
+        /// <summary>
+        /// Get the path of the system assembly to match the .net framework version. It returns the most recently found assembly if it cannot be found.
+        /// </summary>
+        /// <param name="targetFramework">A version of the .net framework to explore.</param>
+        /// <param name="reference">Name of the assembly to be searched for.</param>
+        /// <returns>The assembly path found. Returns null if not found.</returns>
+        protected string GetSystemAssemblyPath(string targetFramework, string reference)
         {
             var systemAssemblyDirList = new List<string>
             {
@@ -90,7 +126,12 @@ namespace XmlDocumentParser.Csproj
             return null;
         }
 
-        protected override string GetTargetFramework(XmlWrapper.Reader reader)
+        /// <summary>
+        /// Get the target framework version.
+        /// </summary>
+        /// <param name="reader">The XML reader.</param>
+        /// <returns>The target framework version</returns>
+        protected string GetTargetFramework(XmlWrapper.Reader reader)
         {
             var version = reader.GetValue("/ns:Project/ns:PropertyGroup/ns:TargetFrameworkVersion", false);
             var regex = new Regex("[0-9.]+");
@@ -100,16 +141,6 @@ namespace XmlDocumentParser.Csproj
                 return match.ToString();
             }
             return null;
-        }
-
-        protected override List<string> MergeParentPath(List<string> list, string parent)
-        {
-            var retList = new List<string>(list);
-            for (int i = 0; i < retList.Count; i++)
-            {
-                retList[i] = CommonPath.PathUtils.UnifiedPathSeparator(parent + retList[i]);
-            }
-            return retList;
         }
     }
 }

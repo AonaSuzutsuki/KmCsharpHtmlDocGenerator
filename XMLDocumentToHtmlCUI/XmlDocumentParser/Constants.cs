@@ -1,4 +1,6 @@
 ﻿using System;
+using XmlDocumentParser.EasyCs;
+
 namespace XmlDocumentParser
 {
     /// <summary>
@@ -10,5 +12,10 @@ namespace XmlDocumentParser
         /// The system void.
         /// </summary>
 		public const string SystemVoid = "void";
+
+        public static readonly TypeInfo SystemVoidTypeInfo = new TypeInfo
+        {
+            Name = SystemVoid
+        };
 	}
 }

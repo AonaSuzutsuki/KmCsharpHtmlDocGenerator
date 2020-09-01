@@ -13,12 +13,20 @@ using XmlDocumentExtensions.Extensions;
 using XmlDocumentToHtml.Writer;
 using XmlDocumentParser.EasyCs;
 using XmlDocumentParser.CommonPath;
+using XmlDocumentParser.Csproj;
 
 namespace XMLDocumentToHtmlCUI
 {
-    class Program
-    {      
-        static void Main(string[] args)
+    /// <summary>
+    /// Generates an HTML document from C# source code.
+    /// </summary>
+    public class Program
+    {
+        /// <summary>
+        /// Entry point.
+        /// </summary>
+        /// <param name="args"></param>
+        public static void Main(string[] args)
         {
             var envParser = new Parser.EnvArgumentParser();
             envParser.AddOptionCount("-h", 0);
@@ -26,6 +34,7 @@ namespace XMLDocumentToHtmlCUI
             envParser.AddOptionCount("-o", 1);
             envParser.AddOptionCount("-s", 1);
             envParser.AddOptionCount("-t", 1);
+            envParser.AddOptionCount("-i", 1);
 
             envParser.Analyze(args);
             if (envParser.GetOption("-h") != null)
@@ -42,12 +51,28 @@ namespace XMLDocumentToHtmlCUI
                 inputFiles = GetXmlFiles(sourceFilesDir);
             var outputPath = envParser.GetOutputFilepath() ?? PathUtils.UnifiedPathSeparator("{0}/Root".FormatString(CommonCoreLib.AppInfo.GetAppPath()));
 
+            var ignorePathText = envParser.GetOption("-i");
+            var ignorePathList = new List<string>();
+            if (ignorePathText != null)
+            {
+                var lines = ignorePathText.Split(' ');
+                foreach (var line in lines)
+                {
+                    if (!string.IsNullOrWhiteSpace(line))
+                        ignorePathList.Add(line);
+                }
+            }
+
             var (singleDirectoryName, directoryName) = GetSingleDirectoryNameAndDirectoryName(outputPath);
 
+            var csprojAnalyzer = new ClassicCsprojAnalyzer(sourceFilesDir)
+            {
+                IgnoreProjectNames = ignorePathList
+            };
             Element root;
             if (inputFiles.Length < 1)
             {
-                var generator = new CSharpDocumentGenerator(sourceFilesDir, type);
+                var generator = new CSharpDocumentGenerator(csprojAnalyzer);
                 var xmlDocument = generator.ToString();
 
                 root = CsXmlDocumentParser.ParseFromText(
@@ -74,7 +99,7 @@ namespace XMLDocumentToHtmlCUI
             parser.AnalysisProgress += Parser_AnalysisProgress;
 
 			Console.WriteLine("Start C# code analysis.");
-            parser.Parse(sourceFilesDir, type);
+            parser.Parse(csprojAnalyzer);
             parser.AddAttributesToElement(root);
 
             var converter = new CsXmlToHtmlWriter(root) { TemplateDir = baseTemplateDir };
@@ -120,7 +145,7 @@ namespace XMLDocumentToHtmlCUI
         {
             var sb = new StringBuilder();
             sb.AppendLine("Convert C# XML Document to HTML.");
-            sb.AppendLine("Copyright (C) 2018 - 2019 Aona Suzutsuki.");
+            sb.AppendLine("Copyright (C) 2018 - 2020 Aona Suzutsuki.");
             sb.AppendFormat("\n{0}\t{1}\n", "-h", "Show help.");
             sb.AppendFormat("{0}\t{1}\n", "-b", "Specify the directory where the template file is stored. If you specify this, you can output with your own template.");
             sb.AppendFormat("{0}\t{1}\n", "-o", "Change the directory path of the output destination.");

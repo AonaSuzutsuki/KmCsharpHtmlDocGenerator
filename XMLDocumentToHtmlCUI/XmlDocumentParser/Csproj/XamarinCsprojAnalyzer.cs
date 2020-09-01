@@ -8,24 +8,22 @@ using XmlDocumentParser.XmlWrapper;
 
 namespace XmlDocumentParser.Csproj
 {
+    /// <summary>
+    /// Analyzer of Xamarin csproj file. *not supported at this time.
+    /// </summary>
     public class XamarinCsprojAnalyzer : CsprojAnalyzer
     {
-        public override CsFilesInfo GetCsFiles(string csprojParentPath, ProjectType compileType)
+        public XamarinCsprojAnalyzer(string csprojParentPath) : base(csprojParentPath)
         {
-            throw new NotImplementedException();
+
         }
 
-        protected override string GetSystemAssemblyPath(string targetFramework, string reference)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override string GetTargetFramework(Reader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override List<string> MergeParentPath(List<string> list, string parent)
+        /// <summary>
+        /// not supported at this time.
+        /// </summary>
+        /// <param name="csprojParentPath">The parent directory where the csproj file is located. Search for the file by performing a recursion search.</param>
+        /// <returns>The information about C# source files and reference libraries.</returns>
+        public override CsFilesInfo GetCsFiles()
         {
             throw new NotImplementedException();
         }

@@ -64,3 +64,7 @@ Specifies one or more XML Docment outputted by C# XML Document.
 # Build
 1. Open XMLDocumentToHtmlCUI.sln
 2. Click the Build button on the menu
+
+
+# Dependency Libraries
+Roslyn: Copyright (c) .NET Foundation and Contributors
