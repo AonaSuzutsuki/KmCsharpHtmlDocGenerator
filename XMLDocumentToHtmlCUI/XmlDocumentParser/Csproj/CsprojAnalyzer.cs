@@ -43,12 +43,19 @@ namespace XmlDocumentParser.Csproj
     /// </summary>
     public abstract class CsprojAnalyzer
     {
+        public string CsprojParentPath { get; }
+
+        public CsprojAnalyzer(string csprojParentPath)
+        {
+            CsprojParentPath = csprojParentPath;
+        }
+
         /// <summary>
         /// Get the C# source files and reference libraries from the csproj file.
         /// </summary>
         /// <param name="csprojParentPath">The parent directory where the csproj file is located.</param>
         /// <returns></returns>
-        public abstract CsFilesInfo GetCsFiles(string csprojParentPath);
+        public abstract CsFilesInfo GetCsFiles();
 
 
         /// <summary>
@@ -62,9 +69,9 @@ namespace XmlDocumentParser.Csproj
             switch (compileType)
             {
                 case ProjectType.Xamarin:
-                    return new XamarinCsprojAnalyzer().GetCsFiles(csprojParentPath);
+                    return new XamarinCsprojAnalyzer(csprojParentPath).GetCsFiles();
                 default:
-                    return new ClassicCsprojAnalyzer().GetCsFiles(csprojParentPath);
+                    return new ClassicCsprojAnalyzer(csprojParentPath).GetCsFiles();
             }
         }
     }

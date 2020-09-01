@@ -328,7 +328,8 @@ namespace XmlDocumentParser.CsXmlDocument
 				{ "P", MethodType.Property },
 				{ "C", MethodType.Constructor },
 				{ "M", MethodType.Method },
-				{ "F", MethodType.Field }
+				{ "F", MethodType.Field },
+				{ "!", MethodType.Unknown }
 			};
 			return map[text];
 		}

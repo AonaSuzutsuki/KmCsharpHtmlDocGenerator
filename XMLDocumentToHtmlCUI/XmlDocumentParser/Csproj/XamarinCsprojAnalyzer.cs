@@ -13,12 +13,17 @@ namespace XmlDocumentParser.Csproj
     /// </summary>
     public class XamarinCsprojAnalyzer : CsprojAnalyzer
     {
+        public XamarinCsprojAnalyzer(string csprojParentPath) : base(csprojParentPath)
+        {
+
+        }
+
         /// <summary>
         /// not supported at this time.
         /// </summary>
         /// <param name="csprojParentPath">The parent directory where the csproj file is located. Search for the file by performing a recursion search.</param>
         /// <returns>The information about C# source files and reference libraries.</returns>
-        public override CsFilesInfo GetCsFiles(string csprojParentPath)
+        public override CsFilesInfo GetCsFiles()
         {
             throw new NotImplementedException();
         }

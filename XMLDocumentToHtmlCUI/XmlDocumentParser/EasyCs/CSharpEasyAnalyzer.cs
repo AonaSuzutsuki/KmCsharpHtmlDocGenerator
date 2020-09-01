@@ -116,12 +116,12 @@ namespace XmlDocumentParser.EasyCs
         /// </summary>
         /// <param name="csProjDirPath">Directory path included csproj file.</param>
         /// <param name="compileType">Type of project.</param>
-        public void Parse(string csProjDirPath = "src", ProjectType compileType = ProjectType.Classic)
+        public void Parse(CsprojAnalyzer csprojAnalyzer)
         {
-            if (!Directory.Exists(csProjDirPath))
+            if (!Directory.Exists(csprojAnalyzer.CsprojParentPath))
                 return;
 
-            var csFilesInfo = CsprojAnalyzer.Parse(csProjDirPath, compileType);
+            var csFilesInfo = csprojAnalyzer.GetCsFiles();
             var syntaxTrees = new List<SyntaxTree>();
             int index = 0;
             foreach (var tuple in csFilesInfo.SourceFiles.Select((v, i) => new { Value = v, Index = i }))
@@ -142,14 +142,6 @@ namespace XmlDocumentParser.EasyCs
                 { csFilesInfo.References, (item) => MetadataReference.CreateFromFile(item.Location) }
             };
 
-            //IEnumerable<MetadataReference> references = new[]{
-            //             //microlib.dll
-            //             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            //             //System.dll
-            //             MetadataReference.CreateFromFile(typeof(System.Collections.ObjectModel.ObservableCollection<>).Assembly.Location),
-            //             //System.Core.dll
-            //             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            //};
             var compilation = CSharpCompilation.Create("sample", syntaxTrees, metadataReferences);
 
             foreach (var tuple in syntaxTrees.Select((v, i) => new { Value = v, Index = i }))
