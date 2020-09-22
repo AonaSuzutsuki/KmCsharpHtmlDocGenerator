@@ -334,7 +334,7 @@ namespace XmlDocumentToHtml.Writer
 		private static void CreateDirectoryAndDummyFile(Element element, string suffix = "")
         {
 
-            void createDummyFile()
+            void CreateDummyFile()
 			{
 				var name = EscapeGenericsType(suffix + element.Name + ".html");
                 new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None).Dispose();
@@ -353,12 +353,12 @@ namespace XmlDocumentToHtml.Writer
 				}
                 else
                 {
-					createDummyFile();
+					CreateDummyFile();
                 }
 
 				if ((element.Members != null && element.Members.Count > 0))
 				{
-                    createDummyFile();
+                    CreateDummyFile();
 				}
             }
         }
